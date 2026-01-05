@@ -405,22 +405,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Root route - chỉ giữ một
 app.get('/', (req, res) => {
     res.json({
         message: 'Comic Library API',
         endpoints: {
             categories: '/api/categories',
             comics: '/api/comics',
+            comics_grouped: '/api/comics/grouped',
             stats: '/api/stats',
             health: '/health'
         },
-        version: '1.0.0'
+        version: '1.0.0',
+        frontend: 'https://comicko.netlify.app'
     });
-});
-
-// Hoặc nếu muốn redirect đến docs
-app.get('/', (req, res) => {
-    res.redirect('https://github.com/wang1o8/comic-backend.git');
 });
 
 // Start server

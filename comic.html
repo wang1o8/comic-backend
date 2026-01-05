@@ -966,711 +966,775 @@
         </footer>
     </div>
 
-    <script>
-        // Data structure for all content
-        let contentData = {
-            categories: [
-                { id: 'hoc-duong', name: 'HỌC ĐƯỜNG', code: '1111', icon: 'fas fa-school', color: '#6366f1' },
-                { id: 'mat-the', name: 'MẠT THẾ', code: '2222', icon: 'fas fa-skull-crossbones', color: '#ef4444' },
-                { id: 'he-thong', name: 'HỆ THỐNG', code: '3333', icon: 'fas fa-cogs', color: '#10b981' },
-                { id: 'xay-dung', name: 'XÂY DỰNG', code: '4444', icon: 'fas fa-building', color: '#f59e0b' },
-                { id: 'di-gioi', name: 'DỊ GIỚI', code: '5555', icon: 'fas fa-globe-asia', color: '#8b5cf6' },
-                { id: 'kinh-doanh', name: 'KINH DOANH', code: '6666', icon: 'fas fa-chart-line', color: '#06b6d4' },
-                { id: 'trung-sinh', name: 'TRÙNG SINH', code: '7777', icon: 'fas fa-redo', color: '#ec4899' },
-                { id: 'ngon', name: 'NGÔN', code: '8888', icon: 'fas fa-heart', color: '#f43f5e' },
-                { id: 'tu-tien', name: 'TU TIÊN', code: 'AAA', icon: 'fas fa-mountain', color: '#22c55e' },
-                { id: 'do-thi', name: 'ĐÔ THỊ', code: 'BBB', icon: 'fas fa-city', color: '#3b82f6' },
-                { id: 'phan-dien', name: 'PHẢN DIỆN', code: 'CCC', icon: 'fas fa-user-ninja', color: '#0ea5e9' },
-                { id: 'vo-han-luu', name: 'VÔ HẠN LƯU', code: 'EEE', icon: 'fas fa-infinity', color: '#a855f7' },
-                { id: 'manh', name: 'MẠNH', code: 'DDD', icon: 'fas fa-fist-raised', color: '#f97316' },
-                { id: 'quy-than', name: 'QUỶ THẦN', code: 'FFF', icon: 'fas fa-ghost', color: '#6b7280' },
-                { id: 'ecchi', name: 'ECCHI', code: '9999', icon: 'fas fa-fire', color: '#dc2626' },
-                { id: 'phim', name: 'PHIM', code: '0000', icon: 'fas fa-film', color: '#8b5cf6' }
-            ],
-            
-            items: {
-                // Will be populated from localStorage or default data
-            }
-        };
+ <script>
+    // Data structure for all content
+    let contentData = {
+        categories: [
+            { id: 'hoc-duong', name: 'HỌC ĐƯỜNG', code: '1111', icon: 'fas fa-school', color: '#6366f1' },
+            { id: 'mat-the', name: 'MẠT THẾ', code: '2222', icon: 'fas fa-skull-crossbones', color: '#ef4444' },
+            { id: 'he-thong', name: 'HỆ THỐNG', code: '3333', icon: 'fas fa-cogs', color: '#10b981' },
+            { id: 'xay-dung', name: 'XÂY DỰNG', code: '4444', icon: 'fas fa-building', color: '#f59e0b' },
+            { id: 'di-gioi', name: 'DỊ GIỚI', code: '5555', icon: 'fas fa-globe-asia', color: '#8b5cf6' },
+            { id: 'kinh-doanh', name: 'KINH DOANH', code: '6666', icon: 'fas fa-chart-line', color: '#06b6d4' },
+            { id: 'trung-sinh', name: 'TRÙNG SINH', code: '7777', icon: 'fas fa-redo', color: '#ec4899' },
+            { id: 'ngon', name: 'NGÔN', code: '8888', icon: 'fas fa-heart', color: '#f43f5e' },
+            { id: 'tu-tien', name: 'TU TIÊN', code: 'AAA', icon: 'fas fa-mountain', color: '#22c55e' },
+            { id: 'do-thi', name: 'ĐÔ THỊ', code: 'BBB', icon: 'fas fa-city', color: '#3b82f6' },
+            { id: 'phan-dien', name: 'PHẢN DIỆN', code: 'CCC', icon: 'fas fa-user-ninja', color: '#0ea5e9' },
+            { id: 'vo-han-luu', name: 'VÔ HẠN LƯU', code: 'EEE', icon: 'fas fa-infinity', color: '#a855f7' },
+            { id: 'manh', name: 'MẠNH', code: 'DDD', icon: 'fas fa-fist-raised', color: '#f97316' },
+            { id: 'quy-than', name: 'QUỶ THẦN', code: 'FFF', icon: 'fas fa-ghost', color: '#6b7280' },
+            { id: 'ecchi', name: 'ECCHI', code: '9999', icon: 'fas fa-fire', color: '#dc2626' },
+            { id: 'phim', name: 'PHIM', code: '0000', icon: 'fas fa-film', color: '#8b5cf6' }
+        ],
+        
+        items: {}
+    };
 
-        // Default data from your file
-        const defaultData = {
-                 'hoc-duong': [
-                    { subcategory: 'combat', items: [
-                        { title: 'thể thao cực hạn 6', chapter: '6', neon: 'none' },
-                        { title: 'Cách chiến thắng mọi trận đấu /128', chapter: '128', neon: 'heart' },
-                        { title: 'Lookism- hoán đổi diệu kì /555', chapter: '555', neon: 'heart' },
-                        { title: 'bá chủ học đường 61 p1', chapter: '61', neon: 'none' },
-                        { title: 'king game 8', chapter: '8', neon: 'none' },
-                        { title: 'bố vạn năng 24', chapter: '24', neon: 'none' },
-                        { title: 'để có thể sống sót 108', chapter: '108', neon: 'none' },
-                        { title: 'bạn học của tôi là lính đánh thuê 218', chapter: '218', neon: 'none' },
-                        { title: 'giả vờ làm phế vật học đường 9', chapter: '9', neon: 'none' },
-                        { title: 'giáo dục chân chính 204', chapter: '204', neon: '2' }
-                    ]},
-                    { subcategory: 'hài', items: [
-                        { title: 'Cô gái từ ứng dụng nhắn tin kì lạ /161', chapter: '161', neon: 'none' },
-                        { title: 'friendzone /90', chapter: '90', neon: 'none' },
-                        { title: 'Grand blue 77', chapter: '77', neon: '3' },
-                        { title: 'sun ken rock 28', chapter: '28', neon: 'none' },
-                        { title: 'danshi koukousei no nichijou', chapter: '', neon: 'none' },
-                        { title: 'tomodachi game', chapter: '', neon: 'none' },
-                        { title: 'con mèo đô vật của tôi 5', chapter: '5', neon: 'none' },
-                        { title: 'nữ diễn viên tài năng', chapter: '', neon: 'none' },
-                        { title: 'oishi no ko 89', chapter: '89', neon: 'none' }
-                    ]}
-                ],
-                
-                'mat-the': [
-                    { subcategory: '', items: [
-                        { title: 'kẻ đa tài /38', chapter: '38', neon: 'none' },
-                        { title: 'tôi chuyển vàng tại mạt thế/383', chapter: '383', neon: 'none' },
-                        { title: 'Trở Về Làm Đại Lão Thời Mạt Thế/ 272', chapter: '272', neon: 'heart' },
-                        { title: 'mạt thế đạo tặc hành 103', chapter: '103', neon: 'none' },
-                        { title: 'Mạt thế siêu cấp hệ thống /236', chapter: '236', neon: 'none' },
-                        { title: 'return survival 145', chapter: '145', neon: '3' },
-                        { title: 'bạn gái tôi là zombie 44', chapter: '44', neon: 'none' },
-                        { title: 'ta có 1 tà cung điện vàng trong những ngày mạt thế 41', chapter: '41', neon: 'none' },
-                        { title: 'giải thoát 99 n9 ở mạt thế 129', chapter: '129', neon: 'none' },
-                        { title: 'toàn cầu băng phong ta chế tạo phòng an toàn tại tận thế 99', chapter: '99', neon: 'none' },
-                        { title: 'tích trữ 10 vạn vật tư trước ngày tận thế 202', chapter: '202', neon: 'none' },
-                        { title: 'luân bàn thế giới 172.2', chapter: '172.2', neon: 'none' },
-                        { title: 'ta có một tòa mạt thế mê cung 150', chapter: '150', neon: 'none' },
-                        { title: 'mạt thế phàm nhân 531', chapter: '531', neon: 'none' },
-                        { title: 'mạt thế vi vương 32', chapter: '32', neon: 'none' },
-                        { title: 'sau mạt thế tôi trở thành zombie', chapter: '', neon: 'none' },
-                        { title: 'thảm họa ong độc', chapter: '', neon: 'none' },
-                        { title: 'liệu nhân loại có cần nền văn minh hậu tận thế không 4', chapter: '4', neon: 'none' },
-                        { title: 'kẻ đa tài',chapter: '38', neon: 'none', tags: 'mạt thế',description: 'hay'},
-                    ]}
-                ],
-                
-                'he-thong': [
-                    { subcategory: '', items: [
-                        { title: 'Ta có thể thấy tỉ lệ thành công /114', chapter: '114', neon: 'none' },
-                        { title: 'Toi viết sách để thăng cấp /115.5', chapter: '115.5', neon: 'none' },
-                        { title: 'Thương nhân thánh thần /63', chapter: '63', neon: 'none' },
-                        { title: 'đại y lăng nhiên 271', chapter: '271', neon: 'none' }
-                    ]},
-                    { subcategory: 'học đường', items: [
-                        { title: 'Nhiệm vụ diệu kì /69', chapter: '69', neon: 'none' },
-                        { title: 'Nhiệm vụ đời thực /69', chapter: '69', neon: 'none' },
-                        { title: 'đại thiên tài bất khả chiến bại là ta 53', chapter: '53', neon: 'none' }
-                    ]},
-                    { subcategory: 'dị giới', items: [
-                        { title: 'Hóa thân thành cá /6', chapter: '6', neon: 'none' },
-                        { title: 'Chuyển Sinh Thành Liễu Đột Biến / 97', chapter: '97', neon: 'none' },
-                        { title: 'vừa chơi đã có tài khoản cường giả/20', chapter: '20', neon: 'none' }
-                    ]}
-                ],
-                
-                'xay-dung': [
-                    { subcategory: 'tu tiên', items: [
-                        { title: 'hoa sơn tái xuất  149', chapter: '149', neon: 'none' },
-                        { title: 'chuyến sinh vào thế giới võ lâm 123', chapter: '123', neon: 'none' },
-                        { title: 'dị giới kiến tạo tối cường thiếu lâm tự 44', chapter: '44', neon: 'none' },
-                        { title: 'vạn cổ tối cường tông/382', chapter: '382', neon: 'heart' },
-                        { title: 'tổ sư gia đứng đầu lịch sử /201', chapter: '201', neon: 'none' },
-                        { title: 'chiếm cái đỉnh núi làm đại vương 145', chapter: '145', neon: 'none' },
-                        { title: 'điên rồi sao ba tuổi làm chưởng môn 11', chapter: '11', neon: 'none' },
-                        { title: 'đệ tử của ta đều là súp bờ thần 53', chapter: '53', neon: 'none' },
-                        { title: 'chuyên gia côn trùng tại đường gia 63', chapter: '63', neon: 'none' }
-                    ]},
-                    { subcategory: 'võ thuật', items: [
-                        { title: 'bác sĩ trùng sinh về murim 104', chapter: '104', neon: 'none' },
-                        { title: 'ta có 1 sơn trại /1023', chapter: '1023', neon: '3' }
-                    ]},
-                    { subcategory: 'hầm ngục', items: [
-                        { title: 'người mới này quá mạnh 40', chapter: '40', neon: '2' },
-                        { title: 'làm nông dân trong tòa tháp thử thách 95', chapter: '95', neon: '2' },
-                        { title: 'tái thiết hầm ngục/124', chapter: '124', neon: 'heart' },
-                        { title: 'hồi ức trong ngục tối 106', chapter: '106', neon: '4' }
-                    ]},
-                    { subcategory: 'dị giới', items: [
-                        { title: 'bậc thày thiết kế điền trang 78', chapter: '78', neon: 'none' },
-                        { title: 'học viện phá sản', chapter: '', neon: 'none' },
-                        { title: 'anh hùng giai cấp tư sản 132', chapter: '132', neon: 'none' },
-                        { title: 'từ hôm nay ta bắt đầu làm thành chủ 423', chapter: '423', neon: 'none' },
-                        { title: 'thả vu nữ đó ra 459', chapter: '459', neon: '3' },
-                        { title: 'thợ rèn huyền thoại 167', chapter: '167', neon: '2' },
-                        { title: 'gacha vô hạn 144', chapter: '144', neon: 'none' },
-                        { title: 'trở thành hung thần trong trò chơi thủ thành 12', chapter: '12', neon: 'none' },
-                        { title: 'Hiền nhân tái sinh bị bỏ rơi – Tạo ra đế quốc quỷ vĩ đại mạnh nhất trong khu rừng quỷ /13', chapter: '13', neon: 'none' },
-                        { title: 'thưa quỷ vương chugns ta bội thu rồi 41', chapter: '41', neon: 'none' },
-                        { title: 'cuộc sống thong dong ở dị giới /13', chapter: '13', neon: 'none' },
-                        { title: 'Cuộc sống thiên đường bắt đầu với Vua hang động ~ Trở thành người mạnh nhất với kỹ năng khai thác – Chapter 18.1', chapter: '18.1', neon: 'none' },
-                        { title: 'soara và ngôi nhà cho quái vật 17', chapter: '17', neon: 'none' },
-                        { title: 'isekai de tochi o katte noujou o tsukurou 6', chapter: '6', neon: 'none' }
-                    ]}
-                ],
-                
-                'di-gioi': [
-                    { subcategory: '', items: [
-                        { title: 'sau khi bị ốc sên truy sát 12', chapter: '12', neon: 'none' },
-                        { title: 'tôi ở thế giới khác dựa dẫm phụ nữ 41', chapter: '41', neon: 'none' },
-                        { title: 'phát sóng trực tiếp quét ngang dị giới', chapter: '', neon: 'none' },
-                        { title: 'thống lĩnh học viện chỉ bằng dao sashimi 47', chapter: '47', neon: 'none' },
-                        { title: 'đệ nhất danh sách 178', chapter: '178', neon: 'none' },
-                        { title: 'mệnh danh thuật bóng tối 4', chapter: '4', neon: 'none' },
-                        { title: 'assassin de aru ore no sutetasu ga yuusha yori mo akiraka ni tsuyoi nodaga', chapter: '', neon: 'none' },
-                        { title: 'yondome wa iyana shi zokusei majutsushi 28.1', chapter: '28.1', neon: 'none' },
-                        { title: 'break blade', chapter: '', neon: 'none' },
-                        { title: 'the new gate 2', chapter: '2', neon: 'none' }
-                    ]},
-                    { subcategory: 'sống dai thành huyền thoại', items: [
-                        { title: 'dã nhân tái sinh 45', chapter: '45', neon: '3' },
-                        { title: 'trở lại thời kì đồ đá', chapter: '', neon: 'none' }
-                    ]},
-                    { subcategory: 'võ thuật', items: [
-                        { title: 'thiên hạ đệ nhất lữ bố 139', chapter: '139', neon: 'none' },
-                        { title: 'kingdom vương giả thiên hạ', chapter: '', neon: 'none' },
-                        { title: 'con đường của võ giả 241', chapter: '241', neon: 'none' },
-                        { title: 'cơn bão đỏ 22', chapter: '22', neon: 'none' },
-                        { title: 'player 63 (mangabtt)', chapter: '63', neon: '4' },
-                        { title: 'hành trình đế vương 169', chapter: '169', neon: '2' },
-                        { title: 'nhân trùng đại chiến 83', chapter: '83', neon: '4' },
-                        { title: 'quý tộc lười biếng bỗng trở thành thiên tài 138', chapter: '138', neon: 'none' },
-                        { title: 'bất bại chân ma 165', chapter: '165', neon: 'none' },
-                        { title: 'hardcore leveling warrior p1 xong', chapter: 'p1', neon: 'none' },
-                        { title: 'hardcore leveling warrior p2 113', chapter: '113', neon: 'none' }
-                    ]},
-                    { subcategory: 'công nghệ', items: [
-                        { title: 'người trái đất quả thật tàn ác/115', chapter: '115', neon: 'heart' },
-                        { title: 'anh hùng ta ko làm lâu rồi', chapter: '', neon: 'none' },
-                        { title: 'siêu thần chế tạp sư 66', chapter: '66', neon: 'none' },
-                        { title: 'siêu thần cơ giới sư 186', chapter: '186', neon: 'none' },
-                        { title: 'ta dựa vào thu thập vật phẩm để tăng cấp 18', chapter: '18', neon: 'none' }
-                    ]},
-                    { subcategory: 'game', items: [
-                        { title: 'kẻ thách đấu 4', chapter: '4', neon: 'none' },
-                        { title: 'người chơi khắc kim 48', chapter: '48', neon: '4' },
-                        { title: 'tôi đến từ thế giới trò chơi 105', chapter: '105', neon: 'none' },
-                        { title: 'trò chơi hệ chữa trị của tôi 14', chapter: '14', neon: 'none' },
-                        { title: 'đoạt mạng bằng trị liệu thuật 144', chapter: '144', neon: 'none' },
-                        { title: 'nền văn minh nebula', chapter: '', neon: 'none' },
-                        { title: 'quỷ troll mạnh nhất thế giới 147', chapter: '147', neon: 'none' },
-                        { title: 'người chơi mạnh nhất hồi quy lần thứ 100 68', chapter: '68', neon: 'none' }
-                    ]},
-                    { subcategory: 'leo tháp', items: [
-                        { title: 'level 1 player /38', chapter: '38', neon: 'none' },
-                        { title: 'Người chơi không thể thăng cấp /69', chapter: '69', neon: 'none' },
-                        { title: 'Vua trộm mộ /411 (end)', chapter: '411', neon: 'heart' },
-                        { title: 'Tòa tháp bí ẩn', chapter: '', neon: 'none' },
-                        { title: 'the dugeon master/113,5', chapter: '113.5', neon: 'heart' },
-                        { title: 'mắc kẹt trong tòa tháp thử thách 36', chapter: '36', neon: 'none' },
-                        { title: 'tôi là người chơi leo tháp một mình 149', chapter: '149', neon: 'none' },
-                        { title: 'mật mã mê cung 92', chapter: '92', neon: 'none' }
-                    ]},
-                    { subcategory: 'fantasy (khác loài người)', items: [
-                        { title: 'trưởng giám ngục trông coi các ma nữ 51', chapter: '51', neon: 'none' },
-                        { title: 'bị cắn thành vương giả 34', chapter: '34', neon: 'none' },
-                        { title: 'Khô cốt hiệp sĩ /78', chapter: '78', neon: 'heart' },
-                        { title: 'người côn trùng 8', chapter: '8', neon: 'none' },
-                        { title: 'cương thi tiên sinh 51', chapter: '51', neon: 'none' },
-                        { title: 'chuyển sinh thành goblin', chapter: '', neon: '3' },
-                        { title: 'chuyển sinh thành liễu đột biến', chapter: '', neon: 'none' },
-                        { title: 'chuyển sinh thành 1 cái cây ăn thịt 66', chapter: '66', neon: 'none' },
-                        { title: 'lão xà tu tiên truyện 58', chapter: '58', neon: '2' }
-                    ]},
-                    { subcategory: 'phép thuật', items: [
-                        { title: 'ánh sáng cuối con đường /148', chapter: '148', neon: 'heart' },
-                        { title: 'vợ tôi là quỷ vương 336', chapter: '336', neon: 'none' },
-                        { title: 'thánh cái khỉ gì đây là sức mạnh của y học hiện đại 77', chapter: '77', neon: 'none' }
-                    ]},
-                    { subcategory: 'thành phố', items: [
-                        { title: 'tôi ở thế giới khác dựa dẫm phụ nữ 41', chapter: '41', neon: 'none' },
-                        { title: 'đi săn tự động bằng phân thân 103', chapter: '103', neon: 'none' },
-                        { title: 'ta người chỉ cần nhìn thấy thanh máu có thể trừng phạt thần linh 13', chapter: '13', neon: 'none' },
-                        { title: 'druid tại ga seoul 79', chapter: '79', neon: 'none' },
-                        { title: 'seoul tử linh sư', chapter: '', neon: 'none' },
-                        { title: 'tôi là thợ săn có kĩ năng tự sát sss 80', chapter: '80', neon: '4' },
-                        { title: 'tiểu thuyết mạng do thần viết 3', chapter: '3', neon: 'none' },
-                        { title: 'vua hiệp sĩ đã trở lại với 1 vị thần 132', chapter: '132', neon: 'none' },
-                        { title: 'giáo sư gián điệp 78', chapter: '78', neon: 'none' }
-                    ]},
-                    { subcategory: 'phản thần', items: [
-                        { title: 'sống sót trong trò chơi với tư cách là một cuồng nhân 19', chapter: '19', neon: '4' },
-                        { title: 'Có thật đây là anh hùng không /86', chapter: '86', neon: 'none' },
-                        { title: 'Anh hùng rác rưởi /113', chapter: '113', neon: 'heart' },
-                        { title: 'sắp xuất ngũ thì isekai 152', chapter: '152', neon: 'none' }
-                    ]},
-                    { subcategory: 'pokemon', items: [
-                        { title: 'cửa hàng sủng thú siêu thần 45', chapter: '45', neon: 'none' },
-                        { title: 'thần sủng tiến hóa 46', chapter: '46', neon: 'none' },
-                        { title: 'ta chỉ muốn an tĩnh chơi game 104', chapter: '104', neon: 'none' }
-                    ]},
-                    { subcategory: 'horror/DARK FANTASY', items: [
-                        { title: 'thuyết tiến hóa của loài người 56', chapter: '56', neon: 'none' },
-                        { title: 're monster 84', chapter: '84', neon: '4' },
-                        { title: 'gannibal 109', chapter: '109', neon: 'none' }
-                    ]}
-                ],
-                
-                'kinh-doanh': [
-                    { subcategory: 'đô thị thần hào', items: [
-                        { title: 'ta là hàn tam thiên 61', chapter: '61', neon: 'none' },
-                        { title: 'mỗi tuần ta có một nghề nghiệp mới 545', chapter: '545', neon: 'none' },
-                        { title: 'TA CÓ 90 TỶ TIỀN LIẾM CẨU! / 296', chapter: '296', neon: 'none' },
-                        { title: 'trọng sinh không làm chạn vương  tôi một mình nạp game thăng cấp 63', chapter: '63', neon: 'none' },
-                        { title: 'từ hôm nay tôi là tỷ phú 314 (manga toon)', chapter: '314', neon: 'none' },
-                        { title: 'bỏ làm simp chúa ta có trong tay cả tỉ thần hào 96', chapter: '96', neon: 'none' }
-                    ]},
-                    { subcategory: 'cổ đại', items: [
-                        { title: 'cực phẩm bại gia tử 17', chapter: '17', neon: 'none' },
-                        { title: 'đệ nhất hoàn khố 120', chapter: '120', neon: 'none' },
-                        { title: 'chàng rể mạnh nhất lịch sử 254', chapter: '254', neon: '4' },
-                        { title: 'chuyển sinh thành tiêu sư 118', chapter: '118', neon: 'none' },
-                        { title: 'công tử biệt tú 217', chapter: '217', neon: 'none' },
-                        { title: 'ta làm kiêu hùng tại dị giới 107', chapter: '107', neon: 'none' },
-                        { title: 'đại tần ta con trai tần thủy hoàng giết địch thăng cấp thành thần 113', chapter: '113', neon: '2' },
-                        { title: 'không cẩn thận, lưu danh muôn thủa 151', chapter: '151', neon: 'none' },
-                        { title: 'trọng sinh thành thần y thời tam quốc 160', chapter: '160', neon: '2' },
-                        { title: 'hoạn quan hồi quy tróc phong truy nguyệt 45', chapter: '45', neon: 'none' },
-                        { title: 'Muscle joseon 68', chapter: '68', neon: 'none' },
-                        { title: 'vương triều đen tối joseon 90', chapter: '90', neon: 'none' }
-                    ]},
-                    { subcategory: 'hiện đại', items: [
-                        { title: 'ta không muốn trùng sinh đâu 405', chapter: '405', neon: 'none' },
-                        { title: 'trùng sinh trở về 1983 làm phú hào  258', chapter: '258', neon: 'none' },
-                        { title: 'ta bị kẹt tại cùng 1 ngày 1000 năm 30', chapter: '30', neon: 'none' },
-                        { title: 'trở thành tài phiệt nhờ game 10', chapter: '10', neon: 'none' },
-                        { title: 'tiểu thiếu gia gia tộc tài phiệt 40', chapter: '40', neon: 'none' },
-                        { title: 'đây là luật 2', chapter: '2', neon: 'none' },
-                        { title: 'câu lạc bộ trường sinh 78', chapter: '78', neon: 'none' },
-                        { title: 'chúa tể đồng tiền 16', chapter: '16', neon: 'none' },
-                        { title: 'từ nhân viên vạn năng trở thành huyền thoại 82', chapter: '82', neon: 'none' }
-                    ]}
-                ],
-                
-                'trung-sinh': [
-                    { subcategory: '', items: [
-                        { title: 'kí sự hồi quy 74', chapter: '74', neon: 'none' },
-                        { title: 'hồi ký của huyền thoại học giả 10', chapter: '10', neon: 'none' },
-                        { title: 'toàn trí độc giả 275', chapter: '275', neon: 'none' },
-                        { title: 'nhân vật ngoài lề tiểu thuyết 120', chapter: '120', neon: 'none' },
-                        { title: 'chuyển sinh ma pháp đặc biệt yếu 254', chapter: '254', neon: 'none' },
-                        { title: 'luân hồi khốn khiếp 41', chapter: '41', neon: 'none' },
-                        { title: 'Con trai út nhà hầu tước /30', chapter: '30', neon: 'none' },
-                        { title: 'toàn trí độc giả /120', chapter: '120', neon: 'heart' },
-                        { title: 'bản chất của chuyển sinh 41', chapter: '41', neon: 'none' },
-                        { title: 'làm lại cuộc đời 43', chapter: '43', neon: 'none' },
-                        { title: 'hồi quy vô giá trị 62', chapter: '62', neon: 'none' },
-                        { title: 'với khả năng hồi quy bằng cái chết tôi thăng cấp trong thế giới đầy rẫy quái vật 15', chapter: '15', neon: 'none' },
-                        { title: 'sự ra đời của 1 anh hùng 38', chapter: '38', neon: 'none' },
-                        { title: 'đại ca trở lại tuổi 16 / 71', chapter: '71', neon: 'none' },
-                        { title: 'thiết huyết kiếm sĩ hồi quy', chapter: '', neon: 'none' },
-                        { title: 'cậu út nhà công tước là sát thủ hồi quy / 78', chapter: '78', neon: 'none' },
-                        { title: 'nghịch thiên cải mệnh 100', chapter: '100', neon: 'none' }
-                    ]}
-                ],
-                
-                'tu-tien': [
-                    { subcategory: 'công pháp op', items: [
-                        { title: 'võ luyện đỉnh phong/2520,2472', chapter: '2520', neon: 'heart' },
-                        { title: 'nhất đẳng gia đinh/271', chapter: '271', neon: 'none' },
-                        { title: 'vạn tướng chi vương/160', chapter: '160', neon: 'heart' },
-                        { title: 'yêu thần kí /450', chapter: '450', neon: 'heart' },
-                        { title: 'tam thốn nhân gian  114', chapter: '114', neon: 'none' },
-                        { title: 'con trai của gia tộc nam cung thế gia 48', chapter: '48', neon: 'none' }
-                    ]},
-                    { subcategory: 'trùng sinh', items: [
-                        { title: 'thập đại hoàng đế đều là đồ đệ của ta 40', chapter: '40', neon: 'none' },
-                        { title: 'bổn tề tu chính là tiện đạo 215', chapter: '215', neon: 'none' },
-                        { title: 'vợ tôi và tôi thống trị tam giới 92', chapter: '92', neon: 'none' },
-                        { title: 'bắt đầu quật khởi từ làm lô đỉnh 62', chapter: '62', neon: 'none' },
-                        { title: 'vạn cổ chí tôn', chapter: '', neon: 'none' },
-                        { title: 'ngự linh thế giới 549', chapter: '549', neon: 'none' },
-                        { title: 'thanh mai trúc mã của đệ nhất thiên hạ / 58', chapter: '58', neon: '3' }
-                    ]},
-                    { subcategory: 'hệ thống', items: [
-                        { title: 'ta ở nhà 100 năm ra ngoài đã vô địch 30', chapter: '30', neon: 'none' },
-                        { title: 'lựa chọn thần cấp ta không theo sáo lộ mạnh lên  110', chapter: '110', neon: 'none' },
-                        { title: 'nhất chiêu liên vô địch tu chân giới 28', chapter: '28', neon: 'none' },
-                        { title: 'tối cường phản sáo lộ hệ thống /635', chapter: '635', neon: 'heart' },
-                        { title: 'siêu đạo thần thuật 115', chapter: '115', neon: 'none' },
-                        { title: 'Trọng sinh thành cậu vàng tại dị thế 251', chapter: '251', neon: 'none' },
-                        { title: 'ta muốn an tĩnh hệ thống lại bắt ta tìm chết 75', chapter: '75', neon: 'none' },
-                        { title: 'thiên đạo đồ thư quán 247', chapter: '247', neon: '4' },
-                        { title: 'mở đầu nữ đế làm chính cung 31', chapter: '31', neon: 'none' },
-                        { title: 'thiên ma phi thăng truyện 123', chapter: '123', neon: 'none' },
-                        { title: 'thiên phú của ngươi giờ là của ta 63', chapter: '63', neon: 'none' },
-                        { title: 'ta dùng sách giải trí thành thánh nhân 128', chapter: '128', neon: 'none' },
-                        { title: 'hệ thống thăng cấp điên cuồng 105', chapter: '105', neon: 'none' }
-                    ]},
-                    { subcategory: 'võ đạo', items: [
-                        { title: 'cửu thiên kiếm pháp 46', chapter: '46', neon: 'none' },
-                        { title: 'bắc kiếm giang hồ 41', chapter: '41', neon: 'none' },
-                        { title: 'mình ta thôn phệ thiên địa  17', chapter: '17', neon: 'none' },
-                        { title: 'mạnh nhất lịch sử 9', chapter: '9', neon: 'none' },
-                        { title: 'thăng cấp vô hạn trong murim 149', chapter: '149', neon: 'none' },
-                        { title: 'ma hiệp côn luân 2', chapter: '2', neon: 'none' },
-                        { title: 'tử thần phiêu nguyệt 94', chapter: '94', neon: '3' },
-                        { title: 'cuồng ma tái thế 165.1', chapter: '165.1', neon: 'none' },
-                        { title: 'phi lôi đạo thuật 211', chapter: '211', neon: 'none' },
-                        { title: 'đao hoang tứ thiếu gia 202', chapter: '202', neon: 'none' },
-                        { title: 'câu chuyện sinh tồn của kiếm vương 61', chapter: '61', neon: 'none' }
-                    ]},
-                    { subcategory: 'đúng chất tu tiên', items: [
-                        { title: 'bộ thiên ca 6', chapter: '6', neon: 'none' },
-                        { title: 'linh khư 11', chapter: '11', neon: 'none' },
-                        { title: 'trường ca hành', chapter: '', neon: 'none' },
-                        { title: 'khu ma lục 7', chapter: '7', neon: 'none' },
-                        { title: '8cổ chân nhân 2', chapter: '2', neon: '2' },
-                        { title: 'ngã dục phong thiên 2', chapter: '2', neon: 'none' }
-                    ]}
-                ],
-                
-                'do-thi': [
-                    { subcategory: '', items: [
-                        { title: 'huyết ma nhân 48', chapter: '48', neon: 'none' },
-                        { title: 'diệu thủ cuồng y 310', chapter: '310', neon: 'none' },
-                        { title: 'đô thị cực phẩm y thần 240', chapter: '240', neon: 'none' },
-                        { title: 'Toàn chức Pháp sư /405', chapter: '405', neon: 'none' },
-                        { title: 'tu tiên giả đại chiến siêu năng lực 44', chapter: '44', neon: 'none' },
-                        { title: 'Đại vương tha mạng/582', chapter: '582', neon: 'heart' },
-                        { title: 'song tu đạo lữ của tôi 82', chapter: '82', neon: 'none' },
-                        { title: 'Trọng sinh đô thị tu tiên tôn /774', chapter: '774', neon: 'heart' },
-                        { title: 'trọng sinh địa cầu tiên tôn /153', chapter: '153', neon: 'none' },
-                        { title: 'đệ nhất người ở rể /101', chapter: '101', neon: 'none' },
-                        { title: 'trên người ta có 1 con rồng 547', chapter: '547', neon: 'none' },
-                        { title: 'tu chân nói chuyện phiếm quân/86', chapter: '86', neon: 'none' },
-                        { title: 'tiên giới quy lai 62', chapter: '62', neon: 'none' },
-                        { title: 'tu tiên trở về vườn trường /367', chapter: '367', neon: 'none' },
-                        { title: 'tiên tôn lạc vô cực/158', chapter: '158', neon: 'none' },
-                        { title: 'thần cấp ngư phu/226', chapter: '226', neon: 'none' },
-                        { title: 'thần cấp thấu thị 11', chapter: '11', neon: 'none' },
-                        { title: 'toàn cầu cao võ 334', chapter: '334', neon: 'none' },
-                        { title: 'Thần chiến tranh /85', chapter: '85', neon: 'none' },
-                        { title: 'kiếm tu imba nhất quả đất 23', chapter: '23', neon: 'none' },
-                        { title: 'khắc kim đại lão 20', chapter: '20', neon: 'none' },
-                        { title: 'trấn quốc thần tế 233', chapter: '233', neon: 'none' },
-                        { title: 'vương giả săn mồi 119', chapter: '119', neon: 'none' }
-                    ]}
-                ],
-                
-                'phan-dien': [
-                    { subcategory: '', items: [
-                        { title: 'trảm nguyệt', chapter: '', neon: 'none' },
-                        { title: 'ta trời sinh đã là nhân vật phản diện 112', chapter: '112', neon: '3' },
-                        { title: 'sự trở lại của anh hùng diệt thế/64', chapter: '64', neon: 'none' },
-                        { title: 'Kẻ săn anh hùng /100', chapter: '100', neon: 'none' },
-                        { title: 'đại quản gia là ma hoàng /328', chapter: '328', neon: 'heart' },
-                        { title: 'tao là ác nhân 74', chapter: '74', neon: 'none' },
-                        { title: 'đồ đệ của ta đều là  đại phản phái 317', chapter: '317', neon: '4' },
-                        { title: 'sư tôn nghịch đồ này không phải là thánh tử 148', chapter: '148', neon: 'none' },
-                        { title: 'Luân Hồi Ác Nhân 86', chapter: '86', neon: 'none' },
-                        { title: 'ta là nhân vật phản diện đại thiếu gia 35', chapter: '35', neon: 'none' },
-                        { title: 'Cuồng Ma Tái Thế 63', chapter: '63', neon: '3' },
-                        { title: 'ta! vô địch đại phản phái 48', chapter: '48', neon: 'none' },
-                        { title: 'ta không phải nhân vật phản diện 102', chapter: '102', neon: 'none' },
-                        { title: 'người ở rể bị ép thành phản diện 141', chapter: '141', neon: 'none' },
-                        { title: 'khởi tạo nhân vật phản diện 121', chapter: '121', neon: 'none' },
-                        { title: 'danh sách kẻ phản diện 146', chapter: '146', neon: 'none' },
-                        { title: 'công tử thực sự quá chính nghĩa 20', chapter: '20', neon: 'none' },
-                        { title: 'nhân vật phản diện này có chút lương tâm nhưng ko nhiều 259', chapter: '259', neon: 'none' },
-                        { title: 'nhân vật phản diện đại sư huynh tất cả các sư muội đều là bệnh kiều 37', chapter: '37', neon: 'none' },
-                        { title: 'kẻ luôn kết thúc bằng bad ending 6', chapter: '6', neon: '2' },
-                        { title: 'ma giáo giáo chủ tái xuất gian hồ 8', chapter: '8', neon: 'none' },
-                        { title: 'đế chế diệt vong 31', chapter: '31', neon: 'none' },
-                        { title: 'kẻ họa sát tử tù kazami tazura 11', chapter: '11', neon: 'none' },
-                        { title: 'lục nhân thập tự giá 211', chapter: '211', neon: '3' },
-                        { title: 'công lý tàn bạ0 28', chapter: '28', neon: 'none' },
-                        { title: 'maria đoạn tội 6', chapter: '6', neon: 'none' },
-                        { title: 'luân hồi ác nhân 84', chapter: '84', neon: 'none' },
-                        { title: 'Fukushuu wo koinegau saikyou yuusha wa,yami no chikara de senmetsu musou suru   58', chapter: '58', neon: 'none' },
-                        { title: 'Hazure Waku No Joutai Ijou Skill De Saikyou Ni Natta Ore Ga Subete Wo Juurin Suru Made  24', chapter: '24', neon: 'none' },
-                        { title: 'kẻ được triệu hồi tới thế giới giả tưởng vô số lần 29', chapter: '29', neon: 'none' },
-                        { title: 'Bị phản bội bởi đồng đội và sở hữu gacha không giới hạn 174', chapter: '174', neon: 'none' }
-                    ]}
-                ],
-                
-                'manh': [
-                    { subcategory: '', items: [
-                        { title: 'người trên vạn người /137', chapter: '137', neon: 'none' },
-                        { title: 'nguyên lai ta là tu tiên đại lão 92', chapter: '92', neon: 'none' },
-                        { title: 'ta bị nhốt tại cùng một ngày mười vạn năm 239', chapter: '239', neon: 'none' },
-                        { title: 'thiên hạ đệ nhất nhân 74', chapter: '74', neon: 'none' },
-                        { title: 'đỉnh cấp khi vận,lặng lẽ tu luyện ngàn năm 50', chapter: '50', neon: 'none' },
-                        { title: 'mashle:muscles and magic 36', chapter: '36', neon: 'none' },
-                        { title: 'gun x clover 17', chapter: '17', neon: 'none' },
-                        { title: 'vô địch từ cưỡng hôn ma nữ 31', chapter: '31', neon: 'none' },
-                        { title: 'ta vô địch lúc nào 185', chapter: '185', neon: 'none' },
-                        { title: 'Gậy gỗ cấp 99+ /119', chapter: '119', neon: 'none' },
-                        { title: 'chưởng môn khiêm tốn chút 27', chapter: '27', neon: 'none' },
-                        { title: 'mạnh nhất lịch sử  274', chapter: '274', neon: 'none' }
-                    ]}
-                ],
-                
-                'vo-han-luu': [
-                    { subcategory: '', items: [
-                        { title: 'ta là tà đế/356', chapter: '356', neon: 'none' },
-                        { title: 'ta quét phó bản ở khắp thế giới 12', chapter: '12', neon: 'none' },
-                        { title: 'vô hạn khủng bố 2', chapter: '2', neon: 'none' },
-                        { title: 'vạn tra triều hoàng 269', chapter: '269', neon: 'none' },
-                        { title: 'gian phi của vạn tra triều hoàng rất bận(fuhuz)', chapter: '', neon: 'none' },
-                        { title: 'Xuyên nhanh mau rửa tội cho nv phản diện', chapter: '', neon: 'none' },
-                        { title: 'nữ phụ bình tĩnh chút', chapter: '', neon: 'none' },
-                        { title: 'hế thống chế tạo nữ thần', chapter: '', neon: 'none' }
-                    ]}
-                ],
-                
-                'quy-than': [
-                    { subcategory: '', items: [
-                        { title: 'thợ cắt tóc cho diêm vương 11', chapter: '11', neon: 'none' },
-                        { title: 'ngày tôi sinh ra bách quỷ dạ hành tuyết thi hộ đạo 3', chapter: '3', neon: 'none' },
-                        { title: 'dược sĩ kì lạ bệnh nhân của tôi đều rất khủng bố 84', chapter: '84', neon: 'none' },
-                        { title: 'con quỷ đã sẵn sàng cho bửa tối 19', chapter: '19', neon: 'none' },
-                        { title: 'tạ u thiên sư 19', chapter: '19', neon: 'none' },
-                        { title: 'đại tượng vô hình 153', chapter: '153', neon: 'none' },
-                        { title: 'quỷ bí chi chủ', chapter: '', neon: 'none' },
-                        { title: 'nhất nhân chi hạ', chapter: '', neon: 'none' },
-                        { title: 'địa sát 72 phép thần thông 17', chapter: '17', neon: 'none' },
-                        { title: 'truyền võ 220', chapter: '220', neon: 'none' },
-                        { title: 'ta ở địa phủ mở hậu cung 95', chapter: '95', neon: 'none' },
-                        { title: 'đấu yểm thần 369', chapter: '369', neon: '2' }
-                    ]},
-                    { subcategory: 'vô hạn lưu', items: [
-                        { title: 'trở thành thần chủ CTHULHU 19', chapter: '19', neon: 'none' },
-                        { title: 'bắt đầu từ cửu đầu điểu 114', chapter: '114', neon: 'none' },
-                        { title: 'người đưa thư vô hạn 245', chapter: '245', neon: 'none' },
-                        { title: 'bắt đầu với trăm vạn minh tệ 49', chapter: '49', neon: 'none' },
-                        { title: 'thần trò chơi dục vọng 76', chapter: '76', neon: 'none' }
-                    ]},
-                    { subcategory: 'mindbreak', items: [
-                        { title: 'tình mẹ bao la 46', chapter: '46', neon: 'none' }
-                    ]}
-                ],
-                
-                'ngon': [
-                    { subcategory: '', items: [
-                        { title: 'dạy hư đồ đệ phản diện r phải làm sao đây 21', chapter: '21', neon: 'none' },
-                        { title: 'lớ ngớ vớ phải tình yêu 107', chapter: '107', neon: 'none' },
-                        { title: 'tìm lại camelia 8', chapter: '8', neon: 'none' },
-                        { title: 'oan gia chung nhà 80', chapter: '80', neon: 'none' },
-                        { title: 'một ngày nọ tôi bỗng trở thành công chúa 2', chapter: '2', neon: 'none' },
-                        { title: 'chào nhé ko làm thông gia nữa đâu 67', chapter: '67', neon: 'none' },
-                        { title: 'Nếu Là Phản Diện, Liệu Tôi Sẽ Chết? 21', chapter: '21', neon: 'none' },
-                        { title: 'bà xã nhà tôi đến từ ngàn năm trước 122', chapter: '122', neon: 'none' },
-                        { title: 'toi có ông chồng hay ghen 46', chapter: '46', neon: 'none' },
-                        { title: 'lừa tình 9', chapter: '9', neon: 'none' },
-                        { title: 'cưỡng đoạt nàng dâu 2', chapter: '2', neon: 'none' }
-                    ]},
-                    { subcategory: 'Bán ecchi', items: [
-                        { title: 'yumeochi mơ về những ngày ta yêu nhau 22', chapter: '22', neon: 'none' },
-                        { title: 'phòng củA TÔI liên kết với hầm ngục 17', chapter: '17', neon: 'none' },
-                        { title: 'chị gái tôi là đại minh tinh 16', chapter: '16', neon: 'none' },
-                        { title: 'học tỷ đừng livestream nữa 3', chapter: '3', neon: 'none' },
-                        { title: 'làm sao để chạy trốn dàn hậu cung', chapter: '', neon: 'none' },
-                        { title: 'RÕ RÀNG TÔI CHỈ MUỐN CHƠI GAME, XIN ĐỪNG KÉO TÔI VÀO LĨNH VỰC TÌNH YÊU', chapter: '', neon: 'none' },
-                        { title: 'làm sao để chạy trốn dàn harem 180', chapter: '180', neon: 'none' },
-                        { title: 'hắc đạo này có chút manh', chapter: '', neon: 'none' },
-                        { title: 'hantsu x torasshu', chapter: '', neon: '3' },
-                        { title: 'sự quyến rũ của gái 2.5d', chapter: '', neon: 'none' },
-                        { title: 'mato seihei no slave 124', chapter: '124', neon: '3' },
-                        { title: 'đến đây nào ma pháp thiếu nữ 6', chapter: '6', neon: 'none' },
-                        { title: 'musume no shinshitsu 5', chapter: '5', neon: 'none' },
-                        { title: 'quán cafe nữ thần  109', chapter: '109', neon: 'none' }
-                    ]},
-                    { subcategory: 'tu tiên', items: [
-                        { title: 'bắt đầu chấn kinh nữ đế lão bà ta vô địch 49', chapter: '49', neon: 'none' },
-                        { title: 'trời sinh mị cốt ta bị đồ nhi yandere để mắt tới 29', chapter: '29', neon: 'none' },
-                        { title: 'My Harem Grew So Large, I Was Forced to Ascend / 55', chapter: '55', neon: 'none' },
-                        { title: 'VAI ÁC SƯ TÔN MANG THEO CÁC ĐỒ ĐỆ VÔ ĐỊCH THIÊN HẠ 50', chapter: '50', neon: 'none' },
-                        { title: 'trước khi vô địch ta nợ tình quá nhiều 22', chapter: '22', neon: 'none' },
-                        { title: 'ma vương trở lại/48', chapter: '48', neon: 'none' },
-                        { title: 'CẨU LƯƠNG THÀNH CHUẨN THÁNH, TA ĐƯỢC NỮ ĐẾ TRIỆU HOÁN 6', chapter: '6', neon: 'none' },
-                        { title: 'hảo đồ nhi hãy tha cho vi sư 76', chapter: '76', neon: 'none' },
-                        { title: 'đồ đệ của ta đều là nữ ma đầu 190 (mangatoon)', chapter: '190', neon: 'none' },
-                        { title: 'tu luyện thành tiên ta chỉ muốn nuôi nữ đồ đệ 5', chapter: '5', neon: 'none' },
-                        { title: 'ta dưỡng ra nhân vật phản diện là nữ đế yandere 11', chapter: '11', neon: 'none' },
-                        { title: 'toàn bộ tu chân giới muội tử đều muốn bắt ta', chapter: '', neon: 'none' },
-                        { title: 'tinh linh ám đế 260', chapter: '260', neon: '4' },
-                        { title: 'ta nằm vùng tại ma giới 87', chapter: '87', neon: 'none' },
-                        { title: 'tuyệt sắc đạo lữ đều nói ngô hoàng thể chất vô địch 122', chapter: '122', neon: 'none' }
-                    ]}
-                ],
-                
-                'ecchi': [
-                    { subcategory: '', items: [
-                        { title: 'senki survival saga:isekai no unmei o kaketa mujintou fujun iseikouyuu', chapter: '', neon: '4' },
-                        { title: '7 nàng công chúa ngủ say', chapter: '', neon: '2' },
-                        { title: 'reincarnation coliseum 34 (sechbn)', chapter: '34', neon: '4' },
-                        { title: 'dead tube 109', chapter: '109', neon: '2' },
-                        { title: 'tengoku no masaic', chapter: '', neon: 'none' },
-                        { title: 'kono ko shirimasenka', chapter: '', neon: 'none' },
-                        { title: 'murata kouji', chapter: '', neon: 'none' },
-                        { title: 'đấu trường chuyển sinh 14', chapter: '14', neon: '2' },
-                        { title: 'độc là dungeon 12.5', chapter: '12.5', neon: 'none' },
-                        { title: 'healer báo thù 48.5', chapter: '48.5', neon: 'none' },
-                        { title: 'chúng tôi đã làm được rồi 77', chapter: '77', neon: 'none' },
-                        { title: 'rosen garten saga 28', chapter: '28', neon: 'none' },
-                        { title: 'destiny lovers 101', chapter: '101', neon: 'none' },
-                        { title: 'destiny lovers 2  : 37', chapter: '37', neon: 'none' },
-                        { title: 'home room 63', chapter: '63', neon: 'none' },
-                        { title: 'nozoki ana 35', chapter: '35', neon: 'none' },
-                        { title: 'sex and dungeon 10', chapter: '10', neon: 'none' },
-                        { title: 'ushiro no shoumen kamui san 40', chapter: '40', neon: 'none' },
-                        { title: 'dâm hùng end 40', chapter: '40', neon: 'none' },
-                        { title: 'isekai de tochi o katte noujou o tsukurou', chapter: '', neon: 'none' },
-                        { title: 'tái sinh thành quý tộc với kĩ năng appraisal', chapter: '', neon: 'none' },
-                        { title: 'oukoku e tsuzuku michi dorei kenshi no nariagari eiyũtan 34', chapter: '34', neon: 'none' },
-                        { title: 'zutto ôtkonoko da to omette ita gakitaishou ga  onnanoko deshita 10', chapter: '10', neon: 'none' },
-                        { title: 'karami zakari:boku no honto to kimi no uso 3', chapter: '3', neon: 'none' },
-                        { title: 'MUKUCHINA MIYASHITA-SAN NO SHIKIYOKU CHANNEL 3.2', chapter: '3.2', neon: 'none' },
-                        { title: 'hentai ouji to warawanai neko 34.5', chapter: '34.5', neon: 'none' },
-                        { title: 'Kekkon Yubiwa Monogatari  9', chapter: '9', neon: 'none' },
-                        { title: 'kaguya sama wa kokurasetai DOUJINSHI 18', chapter: '18', neon: 'none' },
-                        { title: 'himekishi ga classmate', chapter: '', neon: 'none' },
-                        { title: 'mauo no hajimekata 43', chapter: '43', neon: 'none' },
-                        { title: 'i tried asking in dogeza 24', chapter: '24', neon: 'none' },
-                        { title: 'hoán kiếm trọng', chapter: '', neon: 'none' },
-                        { title: 'dungeon ni hisomu yandere na kanojo ni ore wa nando mo korosareru / 26', chapter: '26', neon: 'none' },
-                        { title: 'Elf loli sinh tồn ký', chapter: '', neon: '2' }
-                    ]}
-                ],
-                
-                'phim': [
-                    { subcategory: '', items: [
-                        { title: 'tư vô tà phim 8', chapter: '8', neon: 'none' },
-                        { title: 'nhất niệm vĩnh hằng phim 64 p2', chapter: '64', neon: 'none' },
-                        { title: 'tiên nghịch 117', chapter: '117', neon: 'none' },
-                        { title: 'phim thế giới hoàn mỹ rt45', chapter: 'rt45', neon: 'none' },
-                        { title: 'phim phàm nhân tu tiên', chapter: '', neon: 'none' },
-                        { title: 'BLACK CLOVER phim/134', chapter: '134', neon: 'none' },
-                        { title: 'nguyệt đạo dị giới p1', chapter: 'p1', neon: 'none' },
-                        { title: 'nguyệt đạo dị giới p2 18', chapter: '18', neon: 'none' },
-                        { title: 'konosuba /71', chapter: '71', neon: 'none' },
-                        { title: 'the boys p1', chapter: 'p1', neon: 'none' },
-                        { title: 'the boys p2 4', chapter: '4', neon: 'none' },
-                        { title: 'Alice in the borderland', chapter: '', neon: 'none' },
-                        { title: 'breaking bad', chapter: '', neon: 'none' },
-                        { title: 'oishi no ko phim 1', chapter: '1', neon: 'none' },
-                        { title: 'peacemarker', chapter: '', neon: 'none' },
-                        { title: 'nguyên long 1', chapter: '1', neon: 'none' },
-                        { title: 'junji ito maniac japanese tales of the macabre (truyện ma nhật bản)', chapter: '', neon: 'none' },
-                        { title: 'inuyashiki (ông bác siêu nhân)', chapter: '', neon: 'none' },
-                        { title: 'Maou No Ore Ga Dorei Elf Wo Yome Ni Shitanda Ga, Dou Medereba Ii? 10', chapter: '10', neon: 'none' },
-                        { title: 'baki dai raitaisai hen 9', chapter: '9', neon: 'none' }
-                    ]}
-                ]
-            };
-
-    // API Configuration
-    const API_BASE_URL = 'https://comic-backend-cuef.onrender.com/api'; // Thay bằng URL backend thực tế
+    // Default data from your file
+    const defaultData = {
+        'hoc-duong': [
+            { subcategory: 'combat', items: [
+                { id: generateId(), title: 'thể thao cực hạn 6', chapter: '6', neon: 'none' },
+                { id: generateId(), title: 'Cách chiến thắng mọi trận đấu /128', chapter: '128', neon: 'heart' },
+                { id: generateId(), title: 'Lookism- hoán đổi diệu kì /555', chapter: '555', neon: 'heart' },
+                { id: generateId(), title: 'bá chủ học đường 61 p1', chapter: '61', neon: 'none' },
+                { id: generateId(), title: 'king game 8', chapter: '8', neon: 'none' },
+                { id: generateId(), title: 'bố vạn năng 24', chapter: '24', neon: 'none' },
+                { id: generateId(), title: 'để có thể sống sót 108', chapter: '108', neon: 'none' },
+                { id: generateId(), title: 'bạn học của tôi là lính đánh thuê 218', chapter: '218', neon: 'none' },
+                { id: generateId(), title: 'giả vờ làm phế vật học đường 9', chapter: '9', neon: 'none' },
+                { id: generateId(), title: 'giáo dục chân chính 204', chapter: '204', neon: '2' }
+            ]},
+            { subcategory: 'hài', items: [
+                { id: generateId(), title: 'Cô gái từ ứng dụng nhắn tin kì lạ /161', chapter: '161', neon: 'none' },
+                { id: generateId(), title: 'friendzone /90', chapter: '90', neon: 'none' },
+                { id: generateId(), title: 'Grand blue 77', chapter: '77', neon: '3' },
+                { id: generateId(), title: 'sun ken rock 28', chapter: '28', neon: 'none' },
+                { id: generateId(), title: 'danshi koukousei no nichijou', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'tomodachi game', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'con mèo đô vật của tôi 5', chapter: '5', neon: 'none' },
+                { id: generateId(), title: 'nữ diễn viên tài năng', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'oishi no ko 89', chapter: '89', neon: 'none' }
+            ]}
+        ],
+        
+        'mat-the': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'kẻ đa tài /38', chapter: '38', neon: 'none' },
+                { id: generateId(), title: 'tôi chuyển vàng tại mạt thế/383', chapter: '383', neon: 'none' },
+                { id: generateId(), title: 'Trở Về Làm Đại Lão Thời Mạt Thế/ 272', chapter: '272', neon: 'heart' },
+                { id: generateId(), title: 'mạt thế đạo tặc hành 103', chapter: '103', neon: 'none' },
+                { id: generateId(), title: 'Mạt thế siêu cấp hệ thống /236', chapter: '236', neon: 'none' },
+                { id: generateId(), title: 'return survival 145', chapter: '145', neon: '3' },
+                { id: generateId(), title: 'bạn gái tôi là zombie 44', chapter: '44', neon: 'none' },
+                { id: generateId(), title: 'ta có 1 tà cung điện vàng trong những ngày mạt thế 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'giải thoát 99 n9 ở mạt thế 129', chapter: '129', neon: 'none' },
+                { id: generateId(), title: 'toàn cầu băng phong ta chế tạo phòng an toàn tại tận thế 99', chapter: '99', neon: 'none' },
+                { id: generateId(), title: 'tích trữ 10 vạn vật tư trước ngày tận thế 202', chapter: '202', neon: 'none' },
+                { id: generateId(), title: 'luân bàn thế giới 172.2', chapter: '172.2', neon: 'none' },
+                { id: generateId(), title: 'ta có một tòa mạt thế mê cung 150', chapter: '150', neon: 'none' },
+                { id: generateId(), title: 'mạt thế phàm nhân 531', chapter: '531', neon: 'none' },
+                { id: generateId(), title: 'mạt thế vi vương 32', chapter: '32', neon: 'none' },
+                { id: generateId(), title: 'sau mạt thế tôi trở thành zombie', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'thảm họa ong độc', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'liệu nhân loại có cần nền văn minh hậu tận thế không 4', chapter: '4', neon: 'none' },
+                { id: generateId(), title: 'kẻ đa tài', chapter: '38', neon: 'none', tags: 'mạt thế', description: 'hay' }
+            ]}
+        ],
+        
+        'he-thong': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'Ta có thể thấy tỉ lệ thành công /114', chapter: '114', neon: 'none' },
+                { id: generateId(), title: 'Toi viết sách để thăng cấp /115.5', chapter: '115.5', neon: 'none' },
+                { id: generateId(), title: 'Thương nhân thánh thần /63', chapter: '63', neon: 'none' },
+                { id: generateId(), title: 'đại y lăng nhiên 271', chapter: '271', neon: 'none' }
+            ]},
+            { subcategory: 'học đường', items: [
+                { id: generateId(), title: 'Nhiệm vụ diệu kì /69', chapter: '69', neon: 'none' },
+                { id: generateId(), title: 'Nhiệm vụ đời thực /69', chapter: '69', neon: 'none' },
+                { id: generateId(), title: 'đại thiên tài bất khả chiến bại là ta 53', chapter: '53', neon: 'none' }
+            ]},
+            { subcategory: 'dị giới', items: [
+                { id: generateId(), title: 'Hóa thân thành cá /6', chapter: '6', neon: 'none' },
+                { id: generateId(), title: 'Chuyển Sinh Thành Liễu Đột Biến / 97', chapter: '97', neon: 'none' },
+                { id: generateId(), title: 'vừa chơi đã có tài khoản cường giả/20', chapter: '20', neon: 'none' }
+            ]}
+        ],
+        
+        'xay-dung': [
+            { subcategory: 'tu tiên', items: [
+                { id: generateId(), title: 'hoa sơn tái xuất  149', chapter: '149', neon: 'none' },
+                { id: generateId(), title: 'chuyến sinh vào thế giới võ lâm 123', chapter: '123', neon: 'none' },
+                { id: generateId(), title: 'dị giới kiến tạo tối cường thiếu lâm tự 44', chapter: '44', neon: 'none' },
+                { id: generateId(), title: 'vạn cổ tối cường tông/382', chapter: '382', neon: 'heart' },
+                { id: generateId(), title: 'tổ sư gia đứng đầu lịch sử /201', chapter: '201', neon: 'none' },
+                { id: generateId(), title: 'chiếm cái đỉnh núi làm đại vương 145', chapter: '145', neon: 'none' },
+                { id: generateId(), title: 'điên rồi sao ba tuổi làm chưởng môn 11', chapter: '11', neon: 'none' },
+                { id: generateId(), title: 'đệ tử của ta đều là súp bờ thần 53', chapter: '53', neon: 'none' },
+                { id: generateId(), title: 'chuyên gia côn trùng tại đường gia 63', chapter: '63', neon: 'none' }
+            ]},
+            { subcategory: 'võ thuật', items: [
+                { id: generateId(), title: 'bác sĩ trùng sinh về murim 104', chapter: '104', neon: 'none' },
+                { id: generateId(), title: 'ta có 1 sơn trại /1023', chapter: '1023', neon: '3' }
+            ]},
+            { subcategory: 'hầm ngục', items: [
+                { id: generateId(), title: 'người mới này quá mạnh 40', chapter: '40', neon: '2' },
+                { id: generateId(), title: 'làm nông dân trong tòa tháp thử thách 95', chapter: '95', neon: '2' },
+                { id: generateId(), title: 'tái thiết hầm ngục/124', chapter: '124', neon: 'heart' },
+                { id: generateId(), title: 'hồi ức trong ngục tối 106', chapter: '106', neon: '4' }
+            ]},
+            { subcategory: 'dị giới', items: [
+                { id: generateId(), title: 'bậc thày thiết kế điền trang 78', chapter: '78', neon: 'none' },
+                { id: generateId(), title: 'học viện phá sản', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'anh hùng giai cấp tư sản 132', chapter: '132', neon: 'none' },
+                { id: generateId(), title: 'từ hôm nay ta bắt đầu làm thành chủ 423', chapter: '423', neon: 'none' },
+                { id: generateId(), title: 'thả vu nữ đó ra 459', chapter: '459', neon: '3' },
+                { id: generateId(), title: 'thợ rèn huyền thoại 167', chapter: '167', neon: '2' },
+                { id: generateId(), title: 'gacha vô hạn 144', chapter: '144', neon: 'none' },
+                { id: generateId(), title: 'trở thành hung thần trong trò chơi thủ thành 12', chapter: '12', neon: 'none' },
+                { id: generateId(), title: 'Hiền nhân tái sinh bị bỏ rơi – Tạo ra đế quốc quỷ vĩ đại mạnh nhất trong khu rừng quỷ /13', chapter: '13', neon: 'none' },
+                { id: generateId(), title: 'thưa quỷ vương chugns ta bội thu rồi 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'cuộc sống thong dong ở dị giới /13', chapter: '13', neon: 'none' },
+                { id: generateId(), title: 'Cuộc sống thiên đường bắt đầu với Vua hang động ~ Trở thành người mạnh nhất với kỹ năng khai thác – Chapter 18.1', chapter: '18.1', neon: 'none' },
+                { id: generateId(), title: 'soara và ngôi nhà cho quái vật 17', chapter: '17', neon: 'none' },
+                { id: generateId(), title: 'isekai de tochi o katte noujou o tsukurou 6', chapter: '6', neon: 'none' }
+            ]}
+        ],
+        
+        'di-gioi': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'sau khi bị ốc sên truy sát 12', chapter: '12', neon: 'none' },
+                { id: generateId(), title: 'tôi ở thế giới khác dựa dẫm phụ nữ 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'phát sóng trực tiếp quét ngang dị giới', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'thống lĩnh học viện chỉ bằng dao sashimi 47', chapter: '47', neon: 'none' },
+                { id: generateId(), title: 'đệ nhất danh sản 178', chapter: '178', neon: 'none' },
+                { id: generateId(), title: 'mệnh danh thuật bóng tối 4', chapter: '4', neon: 'none' },
+                { id: generateId(), title: 'assassin de aru ore no sutetasu ga yuusha yori mo akiraka ni tsuyoi nodaga', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'yondome wa iyana shi zokusei majutsushi 28.1', chapter: '28.1', neon: 'none' },
+                { id: generateId(), title: 'break blade', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'the new gate 2', chapter: '2', neon: 'none' }
+            ]},
+            { subcategory: 'sống dai thành huyền thoại', items: [
+                { id: generateId(), title: 'dã nhân tái sinh 45', chapter: '45', neon: '3' },
+                { id: generateId(), title: 'trở lại thời kì đồ đá', chapter: '', neon: 'none' }
+            ]},
+            { subcategory: 'võ thuật', items: [
+                { id: generateId(), title: 'thiên hạ đệ nhất lữ bố 139', chapter: '139', neon: 'none' },
+                { id: generateId(), title: 'kingdom vương giả thiên hạ', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'con đường của võ giả 241', chapter: '241', neon: 'none' },
+                { id: generateId(), title: 'cơn bão đỏ 22', chapter: '22', neon: 'none' },
+                { id: generateId(), title: 'player 63 (mangabtt)', chapter: '63', neon: '4' },
+                { id: generateId(), title: 'hành trình đế vương 169', chapter: '169', neon: '2' },
+                { id: generateId(), title: 'nhân trùng đại chiến 83', chapter: '83', neon: '4' },
+                { id: generateId(), title: 'quý tộc lười biếng bỗng trở thành thiên tài 138', chapter: '138', neon: 'none' },
+                { id: generateId(), title: 'bất bại chân ma 165', chapter: '165', neon: 'none' },
+                { id: generateId(), title: 'hardcore leveling warrior p1 xong', chapter: 'p1', neon: 'none' },
+                { id: generateId(), title: 'hardcore leveling warrior p2 113', chapter: '113', neon: 'none' }
+            ]},
+            { subcategory: 'công nghệ', items: [
+                { id: generateId(), title: 'người trái đất quả thật tàn ác/115', chapter: '115', neon: 'heart' },
+                { id: generateId(), title: 'anh hùng ta ko làm lâu rồi', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'siêu thần chế tạp sư 66', chapter: '66', neon: 'none' },
+                { id: generateId(), title: 'siêu thần cơ giới sư 186', chapter: '186', neon: 'none' },
+                { id: generateId(), title: 'ta dựa vào thu thập vật phẩm để tăng cấp 18', chapter: '18', neon: 'none' }
+            ]},
+            { subcategory: 'game', items: [
+                { id: generateId(), title: 'kẻ thách đấu 4', chapter: '4', neon: 'none' },
+                { id: generateId(), title: 'người chơi khắc kim 48', chapter: '48', neon: '4' },
+                { id: generateId(), title: 'tôi đến từ thế giới trò chơi 105', chapter: '105', neon: 'none' },
+                { id: generateId(), title: 'trò chơi hệ chữa trị của tôi 14', chapter: '14', neon: 'none' },
+                { id: generateId(), title: 'đoạt mạng bằng trị liệu thuật 144', chapter: '144', neon: 'none' },
+                { id: generateId(), title: 'nền văn minh nebula', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'quỷ troll mạnh nhất thế giới 147', chapter: '147', neon: 'none' },
+                { id: generateId(), title: 'người chơi mạnh nhất hồi quy lần thứ 100 68', chapter: '68', neon: 'none' }
+            ]},
+            { subcategory: 'leo tháp', items: [
+                { id: generateId(), title: 'level 1 player /38', chapter: '38', neon: 'none' },
+                { id: generateId(), title: 'Người chơi không thể thăng cấp /69', chapter: '69', neon: 'none' },
+                { id: generateId(), title: 'Vua trộm mộ /411 (end)', chapter: '411', neon: 'heart' },
+                { id: generateId(), title: 'Tòa tháp bí ẩn', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'the dugeon master/113,5', chapter: '113.5', neon: 'heart' },
+                { id: generateId(), title: 'mắc kẹt trong tòa tháp thử thách 36', chapter: '36', neon: 'none' },
+                { id: generateId(), title: 'tôi là người chơi leo tháp một mình 149', chapter: '149', neon: 'none' },
+                { id: generateId(), title: 'mật mã mê cung 92', chapter: '92', neon: 'none' }
+            ]},
+            { subcategory: 'fantasy (khác loài người)', items: [
+                { id: generateId(), title: 'trưởng giám ngục trông coi các ma nữ 51', chapter: '51', neon: 'none' },
+                { id: generateId(), title: 'bị cắn thành vương giả 34', chapter: '34', neon: 'none' },
+                { id: generateId(), title: 'Khô cốt hiệp sĩ /78', chapter: '78', neon: 'heart' },
+                { id: generateId(), title: 'người côn trùng 8', chapter: '8', neon: 'none' },
+                { id: generateId(), title: 'cương thi tiên sinh 51', chapter: '51', neon: 'none' },
+                { id: generateId(), title: 'chuyển sinh thành goblin', chapter: '', neon: '3' },
+                { id: generateId(), title: 'chuyển sinh thành liễu đột biến', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'chuyển sinh thành 1 cái cây ăn thịt 66', chapter: '66', neon: 'none' },
+                { id: generateId(), title: 'lão xà tu tiên truyện 58', chapter: '58', neon: '2' }
+            ]},
+            { subcategory: 'phép thuật', items: [
+                { id: generateId(), title: 'ánh sáng cuối con đường /148', chapter: '148', neon: 'heart' },
+                { id: generateId(), title: 'vợ tôi là quỷ vương 336', chapter: '336', neon: 'none' },
+                { id: generateId(), title: 'thánh cái khỉ gì đây là sức mạnh của y học hiện đại 77', chapter: '77', neon: 'none' }
+            ]},
+            { subcategory: 'thành phố', items: [
+                { id: generateId(), title: 'tôi ở thế giới khác dựa dẫm phụ nữ 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'đi săn tự động bằng phân thân 103', chapter: '103', neon: 'none' },
+                { id: generateId(), title: 'ta người chỉ cần nhìn thấy thanh máu có thể trừng phạt thần linh 13', chapter: '13', neon: 'none' },
+                { id: generateId(), title: 'druid tại ga seoul 79', chapter: '79', neon: 'none' },
+                { id: generateId(), title: 'seoul tử linh sư', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'tôi là thợ săn có kĩ năng tự sát sss 80', chapter: '80', neon: '4' },
+                { id: generateId(), title: 'tiểu thuyết mạng do thần viết 3', chapter: '3', neon: 'none' },
+                { id: generateId(), title: 'vua hiệp sĩ đã trở lại với 1 vị thần 132', chapter: '132', neon: 'none' },
+                { id: generateId(), title: 'giáo sư gián điệp 78', chapter: '78', neon: 'none' }
+            ]},
+            { subcategory: 'phản thần', items: [
+                { id: generateId(), title: 'sống sót trong trò chơi với tư cách là một cuồng nhân 19', chapter: '19', neon: '4' },
+                { id: generateId(), title: 'Có thật đây là anh hùng không /86', chapter: '86', neon: 'none' },
+                { id: generateId(), title: 'Anh hùng rác rưởi /113', chapter: '113', neon: 'heart' },
+                { id: generateId(), title: 'sắp xuất ngũ thì isekai 152', chapter: '152', neon: 'none' }
+            ]},
+            { subcategory: 'pokemon', items: [
+                { id: generateId(), title: 'cửa hàng sủng thú siêu thần 45', chapter: '45', neon: 'none' },
+                { id: generateId(), title: 'thần sủng tiến hóa 46', chapter: '46', neon: 'none' },
+                { id: generateId(), title: 'ta chỉ muốn an tĩnh chơi game 104', chapter: '104', neon: 'none' }
+            ]},
+            { subcategory: 'horror/DARK FANTASY', items: [
+                { id: generateId(), title: 'thuyết tiến hóa của loài người 56', chapter: '56', neon: 'none' },
+                { id: generateId(), title: 're monster 84', chapter: '84', neon: '4' },
+                { id: generateId(), title: 'gannibal 109', chapter: '109', neon: 'none' }
+            ]}
+        ],
+        
+        'kinh-doanh': [
+            { subcategory: 'đô thị thần hào', items: [
+                { id: generateId(), title: 'ta là hàn tam thiên 61', chapter: '61', neon: 'none' },
+                { id: generateId(), title: 'mỗi tuần ta có một nghề nghiệp mới 545', chapter: '545', neon: 'none' },
+                { id: generateId(), title: 'TA CÓ 90 TỶ TIỀN LIẾM CẨU! / 296', chapter: '296', neon: 'none' },
+                { id: generateId(), title: 'trọng sinh không làm chạn vương  tôi một mình nạp game thăng cấp 63', chapter: '63', neon: 'none' },
+                { id: generateId(), title: 'từ hôm nay tôi là tỷ phú 314 (manga toon)', chapter: '314', neon: 'none' },
+                { id: generateId(), title: 'bỏ làm simp chúa ta có trong tay cả tỉ thần hào 96', chapter: '96', neon: 'none' }
+            ]},
+            { subcategory: 'cổ đại', items: [
+                { id: generateId(), title: 'cực phẩm bại gia tử 17', chapter: '17', neon: 'none' },
+                { id: generateId(), title: 'đệ nhất hoàn khố 120', chapter: '120', neon: 'none' },
+                { id: generateId(), title: 'chàng rể mạnh nhất lịch sử 254', chapter: '254', neon: '4' },
+                { id: generateId(), title: 'chuyển sinh thành tiêu sư 118', chapter: '118', neon: 'none' },
+                { id: generateId(), title: 'công tử biệt tú 217', chapter: '217', neon: 'none' },
+                { id: generateId(), title: 'ta làm kiêu hùng tại dị giới 107', chapter: '107', neon: 'none' },
+                { id: generateId(), title: 'đại tần ta con trai tần thủy hoàng giết địch thăng cấp thành thần 113', chapter: '113', neon: '2' },
+                { id: generateId(), title: 'không cẩn thận, lưu danh muôn thủa 151', chapter: '151', neon: 'none' },
+                { id: generateId(), title: 'trọng sinh thành thần y thời tam quốc 160', chapter: '160', neon: '2' },
+                { id: generateId(), title: 'hoạn quan hồi quy tróc phong truy nguyệt 45', chapter: '45', neon: 'none' },
+                { id: generateId(), title: 'Muscle joseon 68', chapter: '68', neon: 'none' },
+                { id: generateId(), title: 'vương triều đen tối joseon 90', chapter: '90', neon: 'none' }
+            ]},
+            { subcategory: 'hiện đại', items: [
+                { id: generateId(), title: 'ta không muốn trùng sinh đâu 405', chapter: '405', neon: 'none' },
+                { id: generateId(), title: 'trùng sinh trở về 1983 làm phú hào  258', chapter: '258', neon: 'none' },
+                { id: generateId(), title: 'ta bị kẹt tại cùng 1 ngày 1000 năm 30', chapter: '30', neon: 'none' },
+                { id: generateId(), title: 'trở thành tài phiệt nhờ game 10', chapter: '10', neon: 'none' },
+                { id: generateId(), title: 'tiểu thiếu gia gia tộc tài phiệt 40', chapter: '40', neon: 'none' },
+                { id: generateId(), title: 'đây là luật 2', chapter: '2', neon: 'none' },
+                { id: generateId(), title: 'câu lạc bộ trường sinh 78', chapter: '78', neon: 'none' },
+                { id: generateId(), title: 'chúa tể đồng tiền 16', chapter: '16', neon: 'none' },
+                { id: generateId(), title: 'từ nhân viên vạn năng trở thành huyền thoại 82', chapter: '82', neon: 'none' }
+            ]}
+        ],
+        
+        'trung-sinh': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'kí sự hồi quy 74', chapter: '74', neon: 'none' },
+                { id: generateId(), title: 'hồi ký của huyền thoại học giả 10', chapter: '10', neon: 'none' },
+                { id: generateId(), title: 'toàn trí độc giả 275', chapter: '275', neon: 'none' },
+                { id: generateId(), title: 'nhân vật ngoài lề tiểu thuyết 120', chapter: '120', neon: 'none' },
+                { id: generateId(), title: 'chuyển sinh ma pháp đặc biệt yếu 254', chapter: '254', neon: 'none' },
+                { id: generateId(), title: 'luân hồi khốn khiếp 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'Con trai út nhà hầu tước /30', chapter: '30', neon: 'none' },
+                { id: generateId(), title: 'toàn trí độc giả /120', chapter: '120', neon: 'heart' },
+                { id: generateId(), title: 'bản chất của chuyển sinh 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'làm lại cuộc đời 43', chapter: '43', neon: 'none' },
+                { id: generateId(), title: 'hồi quy vô giá trị 62', chapter: '62', neon: 'none' },
+                { id: generateId(), title: 'với khả năng hồi quy bằng cái chết tôi thăng cấp trong thế giới đầy rẫy quái vật 15', chapter: '15', neon: 'none' },
+                { id: generateId(), title: 'sự ra đời của 1 anh hùng 38', chapter: '38', neon: 'none' },
+                { id: generateId(), title: 'đại ca trở lại tuổi 16 / 71', chapter: '71', neon: 'none' },
+                { id: generateId(), title: 'thiết huyết kiếm sĩ hồi quy', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'cậu út nhà công tước là sát thủ hồi quy / 78', chapter: '78', neon: 'none' },
+                { id: generateId(), title: 'nghịch thiên cải mệnh 100', chapter: '100', neon: 'none' }
+            ]}
+        ],
+        
+        'tu-tien': [
+            { subcategory: 'công pháp op', items: [
+                { id: generateId(), title: 'võ luyện đỉnh phong/2520,2472', chapter: '2520', neon: 'heart' },
+                { id: generateId(), title: 'nhất đẳng gia đinh/271', chapter: '271', neon: 'none' },
+                { id: generateId(), title: 'vạn tướng chi vương/160', chapter: '160', neon: 'heart' },
+                { id: generateId(), title: 'yêu thần kí /450', chapter: '450', neon: 'heart' },
+                { id: generateId(), title: 'tam thốn nhân gian  114', chapter: '114', neon: 'none' },
+                { id: generateId(), title: 'con trai của gia tộc nam cung thế gia 48', chapter: '48', neon: 'none' }
+            ]},
+            { subcategory: 'trùng sinh', items: [
+                { id: generateId(), title: 'thập đại hoàng đế đều là đồ đệ của ta 40', chapter: '40', neon: 'none' },
+                { id: generateId(), title: 'bổn tề tu chính là tiện đạo 215', chapter: '215', neon: 'none' },
+                { id: generateId(), title: 'vợ tôi và tôi thống trị tam giới 92', chapter: '92', neon: 'none' },
+                { id: generateId(), title: 'bắt đầu quật khởi từ làm lô đỉnh 62', chapter: '62', neon: 'none' },
+                { id: generateId(), title: 'vạn cổ chí tôn', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'ngự linh thế giới 549', chapter: '549', neon: 'none' },
+                { id: generateId(), title: 'thanh mai trúc mã của đệ nhất thiên hạ / 58', chapter: '58', neon: '3' }
+            ]},
+            { subcategory: 'hệ thống', items: [
+                { id: generateId(), title: 'ta ở nhà 100 năm ra ngoài đã vô địch 30', chapter: '30', neon: 'none' },
+                { id: generateId(), title: 'lựa chọn thần cấp ta không theo sáo lộ mạnh lên  110', chapter: '110', neon: 'none' },
+                { id: generateId(), title: 'nhất chiêu liên vô địch tu chân giới 28', chapter: '28', neon: 'none' },
+                { id: generateId(), title: 'tối cường phản sáo lộ hệ thống /635', chapter: '635', neon: 'heart' },
+                { id: generateId(), title: 'siêu đạo thần thuật 115', chapter: '115', neon: 'none' },
+                { id: generateId(), title: 'Trọng sinh thành cậu vàng tại dị thế 251', chapter: '251', neon: 'none' },
+                { id: generateId(), title: 'ta muốn an tĩnh hệ thống lại bắt ta tìm chết 75', chapter: '75', neon: 'none' },
+                { id: generateId(), title: 'thiên đạo đồ thư quán 247', chapter: '247', neon: '4' },
+                { id: generateId(), title: 'mở đầu nữ đế làm chính cung 31', chapter: '31', neon: 'none' },
+                { id: generateId(), title: 'thiên ma phi thăng truyện 123', chapter: '123', neon: 'none' },
+                { id: generateId(), title: 'thiên phú của ngươi giờ là của ta 63', chapter: '63', neon: 'none' },
+                { id: generateId(), title: 'ta dùng sách giải trí thành thánh nhân 128', chapter: '128', neon: 'none' },
+                { id: generateId(), title: 'hệ thống thăng cấp điên cuồng 105', chapter: '105', neon: 'none' }
+            ]},
+            { subcategory: 'võ đạo', items: [
+                { id: generateId(), title: 'cửu thiên kiếm pháp 46', chapter: '46', neon: 'none' },
+                { id: generateId(), title: 'bắc kiếm giang hồ 41', chapter: '41', neon: 'none' },
+                { id: generateId(), title: 'mình ta thôn phệ thiên địa  17', chapter: '17', neon: 'none' },
+                { id: generateId(), title: 'mạnh nhất lịch sử 9', chapter: '9', neon: 'none' },
+                { id: generateId(), title: 'thăng cấp vô hạn trong murim 149', chapter: '149', neon: 'none' },
+                { id: generateId(), title: 'ma hiệp côn luân 2', chapter: '2', neon: 'none' },
+                { id: generateId(), title: 'tử thần phiêu nguyệt 94', chapter: '94', neon: '3' },
+                { id: generateId(), title: 'cuồng ma tái thế 165.1', chapter: '165.1', neon: 'none' },
+                { id: generateId(), title: 'phi lôi đạo thuật 211', chapter: '211', neon: 'none' },
+                { id: generateId(), title: 'đao hoang tứ thiếu gia 202', chapter: '202', neon: 'none' },
+                { id: generateId(), title: 'câu chuyện sinh tồn của kiếm vương 61', chapter: '61', neon: 'none' }
+            ]},
+            { subcategory: 'đúng chất tu tiên', items: [
+                { id: generateId(), title: 'bộ thiên ca 6', chapter: '6', neon: 'none' },
+                { id: generateId(), title: 'linh khư 11', chapter: '11', neon: 'none' },
+                { id: generateId(), title: 'trường ca hành', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'khu ma lục 7', chapter: '7', neon: 'none' },
+                { id: generateId(), title: '8cổ chân nhân 2', chapter: '2', neon: '2' },
+                { id: generateId(), title: 'ngã dục phong thiên 2', chapter: '2', neon: 'none' }
+            ]}
+        ],
+        
+        'do-thi': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'huyết ma nhân 48', chapter: '48', neon: 'none' },
+                { id: generateId(), title: 'diệu thủ cuồng y 310', chapter: '310', neon: 'none' },
+                { id: generateId(), title: 'đô thị cực phẩm y thần 240', chapter: '240', neon: 'none' },
+                { id: generateId(), title: 'Toàn chức Pháp sư /405', chapter: '405', neon: 'none' },
+                { id: generateId(), title: 'tu tiên giả đại chiến siêu năng lực 44', chapter: '44', neon: 'none' },
+                { id: generateId(), title: 'Đại vương tha mạng/582', chapter: '582', neon: 'heart' },
+                { id: generateId(), title: 'song tu đạo lữ của tôi 82', chapter: '82', neon: 'none' },
+                { id: generateId(), title: 'Trọng sinh đô thị tu tiên tôn /774', chapter: '774', neon: 'heart' },
+                { id: generateId(), title: 'trọng sinh địa cầu tiên tôn /153', chapter: '153', neon: 'none' },
+                { id: generateId(), title: 'đệ nhất người ở rể /101', chapter: '101', neon: 'none' },
+                { id: generateId(), title: 'trên người ta có 1 con rồng 547', chapter: '547', neon: 'none' },
+                { id: generateId(), title: 'tu chân nói chuyện phiếm quân/86', chapter: '86', neon: 'none' },
+                { id: generateId(), title: 'tiên giới quy lai 62', chapter: '62', neon: 'none' },
+                { id: generateId(), title: 'tu tiên trở về vườn trường /367', chapter: '367', neon: 'none' },
+                { id: generateId(), title: 'tiên tôn lạc vô cực/158', chapter: '158', neon: 'none' },
+                { id: generateId(), title: 'thần cấp ngư phu/226', chapter: '226', neon: 'none' },
+                { id: generateId(), title: 'thần cấp thấu thị 11', chapter: '11', neon: 'none' },
+                { id: generateId(), title: 'toàn cầu cao võ 334', chapter: '334', neon: 'none' },
+                { id: generateId(), title: 'Thần chiến tranh /85', chapter: '85', neon: 'none' },
+                { id: generateId(), title: 'kiếm tu imba nhất quả đất 23', chapter: '23', neon: 'none' },
+                { id: generateId(), title: 'khắc kim đại lão 20', chapter: '20', neon: 'none' },
+                { id: generateId(), title: 'trấn quốc thần tế 233', chapter: '233', neon: 'none' },
+                { id: generateId(), title: 'vương giả săn mồi 119', chapter: '119', neon: 'none' }
+            ]}
+        ],
+        
+        'phan-dien': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'trảm nguyệt', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'ta trời sinh đã là nhân vật phản diện 112', chapter: '112', neon: '3' },
+                { id: generateId(), title: 'sự trở lại của anh hùng diệt thế/64', chapter: '64', neon: 'none' },
+                { id: generateId(), title: 'Kẻ săn anh hùng /100', chapter: '100', neon: 'none' },
+                { id: generateId(), title: 'đại quản gia là ma hoàng /328', chapter: '328', neon: 'heart' },
+                { id: generateId(), title: 'tao là ác nhân 74', chapter: '74', neon: 'none' },
+                { id: generateId(), title: 'đồ đệ của ta đều là  đại phản phái 317', chapter: '317', neon: '4' },
+                { id: generateId(), title: 'sư tôn nghịch đồ này không phải là thánh tử 148', chapter: '148', neon: 'none' },
+                { id: generateId(), title: 'Luân Hồi Ác Nhân 86', chapter: '86', neon: 'none' },
+                { id: generateId(), title: 'ta là nhân vật phản diện đại thiếu gia 35', chapter: '35', neon: 'none' },
+                { id: generateId(), title: 'Cuồng Ma Tái Thế 63', chapter: '63', neon: '3' },
+                { id: generateId(), title: 'ta! vô địch đại phản phái 48', chapter: '48', neon: 'none' },
+                { id: generateId(), title: 'ta không phải nhân vật phản diện 102', chapter: '102', neon: 'none' },
+                { id: generateId(), title: 'người ở rể bị ép thành phản diện 141', chapter: '141', neon: 'none' },
+                { id: generateId(), title: 'khởi tạo nhân vật phản diện 121', chapter: '121', neon: 'none' },
+                { id: generateId(), title: 'danh sách kẻ phản diện 146', chapter: '146', neon: 'none' },
+                { id: generateId(), title: 'công tử thực sự quá chính nghĩa 20', chapter: '20', neon: 'none' },
+                { id: generateId(), title: 'nhân vật phản diện này có chút lương tâm nhưng ko nhiều 259', chapter: '259', neon: 'none' },
+                { id: generateId(), title: 'nhân vật phản diện đại sư huynh tất cả các sư muội đều là bệnh kiều 37', chapter: '37', neon: 'none' },
+                { id: generateId(), title: 'kẻ luôn kết thúc bằng bad ending 6', chapter: '6', neon: '2' },
+                { id: generateId(), title: 'ma giáo giáo chủ tái xuất gian hồ 8', chapter: '8', neon: 'none' },
+                { id: generateId(), title: 'đế chế diệt vong 31', chapter: '31', neon: 'none' },
+                { id: generateId(), title: 'kẻ họa sát tử tù kazami tazura 11', chapter: '11', neon: 'none' },
+                { id: generateId(), title: 'lục nhân thập tự giá 211', chapter: '211', neon: '3' },
+                { id: generateId(), title: 'công lý tàn bạ0 28', chapter: '28', neon: 'none' },
+                { id: generateId(), title: 'maria đoạn tội 6', chapter: '6', neon: 'none' },
+                { id: generateId(), title: 'luân hồi ác nhân 84', chapter: '84', neon: 'none' },
+                { id: generateId(), title: 'Fukushuu wo koinegau saikyou yuusha wa,yami no chikara de senmetsu musou suru   58', chapter: '58', neon: 'none' },
+                { id: generateId(), title: 'Hazure Waku No Joutai Ijou Skill De Saikyou Ni Natta Ore Ga Subete Wo Juurin Suru Made  24', chapter: '24', neon: 'none' },
+                { id: generateId(), title: 'kẻ được triệu hồi tới thế giới giả tưởng vô số lần 29', chapter: '29', neon: 'none' },
+                { id: generateId(), title: 'Bị phản bội bởi đồng đội và sở hữu gacha không giới hạn 174', chapter: '174', neon: 'none' }
+            ]}
+        ],
+        
+        'manh': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'người trên vạn người /137', chapter: '137', neon: 'none' },
+                { id: generateId(), title: 'nguyên lai ta là tu tiên đại lão 92', chapter: '92', neon: 'none' },
+                { id: generateId(), title: 'ta bị nhốt tại cùng một ngày mười vạn năm 239', chapter: '239', neon: 'none' },
+                { id: generateId(), title: 'thiên hạ đệ nhất nhân 74', chapter: '74', neon: 'none' },
+                { id: generateId(), title: 'đỉnh cấp khi vận,lặng lẽ tu luyện ngàn năm 50', chapter: '50', neon: 'none' },
+                { id: generateId(), title: 'mashle:muscles and magic 36', chapter: '36', neon: 'none' },
+                { id: generateId(), title: 'gun x clover 17', chapter: '17', neon: 'none' },
+                { id: generateId(), title: 'vô địch từ cưỡng hôn ma nữ 31', chapter: '31', neon: 'none' },
+                { id: generateId(), title: 'ta vô địch lúc nào 185', chapter: '185', neon: 'none' },
+                { id: generateId(), title: 'Gậy gỗ cấp 99+ /119', chapter: '119', neon: 'none' },
+                { id: generateId(), title: 'chưởng môn khiêm tốn chút 27', chapter: '27', neon: 'none' },
+                { id: generateId(), title: 'mạnh nhất lịch sử  274', chapter: '274', neon: 'none' }
+            ]}
+        ],
+        
+        'vo-han-luu': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'ta là tà đế/356', chapter: '356', neon: 'none' },
+                { id: generateId(), title: 'ta quét phó bản ở khắp thế giới 12', chapter: '12', neon: 'none' },
+                { id: generateId(), title: 'vô hạn khủng bố 2', chapter: '2', neon: 'none' },
+                { id: generateId(), title: 'vạn tra triều hoàng 269', chapter: '269', neon: 'none' },
+                { id: generateId(), title: 'gian phi của vạn tra triều hoàng rất bận(fuhuz)', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'Xuyên nhanh mau rửa tội cho nv phản diện', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'nữ phụ bình tĩnh chút', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'hế thống chế tạo nữ thần', chapter: '', neon: 'none' }
+            ]}
+        ],
+        
+        'quy-than': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'thợ cắt tóc cho diêm vương 11', chapter: '11', neon: 'none' },
+                { id: generateId(), title: 'ngày tôi sinh ra bách quỷ dạ hành tuyết thi hộ đạo 3', chapter: '3', neon: 'none' },
+                { id: generateId(), title: 'dược sĩ kì lạ bệnh nhân của tôi đều rất khủng bố 84', chapter: '84', neon: 'none' },
+                { id: generateId(), title: 'con quỷ đã sẵn sàng cho bửa tối 19', chapter: '19', neon: 'none' },
+                { id: generateId(), title: 'tạ u thiên sư 19', chapter: '19', neon: 'none' },
+                { id: generateId(), title: 'đại tượng vô hình 153', chapter: '153', neon: 'none' },
+                { id: generateId(), title: 'quỷ bí chi chủ', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'nhất nhân chi hạ', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'địa sát 72 phép thần thông 17', chapter: '17', neon: 'none' },
+                { id: generateId(), title: 'truyền võ 220', chapter: '220', neon: 'none' },
+                { id: generateId(), title: 'ta ở địa phủ mở hậu cung 95', chapter: '95', neon: 'none' },
+                { id: generateId(), title: 'đấu yểm thần 369', chapter: '369', neon: '2' }
+            ]},
+            { subcategory: 'vô hạn lưu', items: [
+                { id: generateId(), title: 'trở thành thần chủ CTHULHU 19', chapter: '19', neon: 'none' },
+                { id: generateId(), title: 'bắt đầu từ cửu đầu điểu 114', chapter: '114', neon: 'none' },
+                { id: generateId(), title: 'người đưa thư vô hạn 245', chapter: '245', neon: 'none' },
+                { id: generateId(), title: 'bắt đầu với trăm vạn minh tệ 49', chapter: '49', neon: 'none' },
+                { id: generateId(), title: 'thần trò chơi dục vọng 76', chapter: '76', neon: 'none' }
+            ]},
+            { subcategory: 'mindbreak', items: [
+                { id: generateId(), title: 'tình mẹ bao la 46', chapter: '46', neon: 'none' }
+            ]}
+        ],
+        
+        'ngon': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'dạy hư đồ đệ phản diện r phải làm sao đây 21', chapter: '21', neon: 'none' },
+                { id: generateId(), title: 'lớ ngớ vớ phải tình yêu 107', chapter: '107', neon: 'none' },
+                { id: generateId(), title: 'tìm lại camelia 8', chapter: '8', neon: 'none' },
+                { id: generateId(), title: 'oan gia chung nhà 80', chapter: '80', neon: 'none' },
+                { id: generateId(), title: 'một ngày nọ tôi bỗng trở thành công chúa 2', chapter: '2', neon: 'none' },
+                { id: generateId(), title: 'chào nhé ko làm thông gia nữa đâu 67', chapter: '67', neon: 'none' },
+                { id: generateId(), title: 'Nếu Là Phản Diện, Liệu Tôi Sẽ Chết? 21', chapter: '21', neon: 'none' },
+                { id: generateId(), title: 'bà xã nhà tôi đến từ ngàn năm trước 122', chapter: '122', neon: 'none' },
+                { id: generateId(), title: 'toi có ông chồng hay ghen 46', chapter: '46', neon: 'none' },
+                { id: generateId(), title: 'lừa tình 9', chapter: '9', neon: 'none' },
+                { id: generateId(), title: 'cưỡng đoạt nàng dâu 2', chapter: '2', neon: 'none' }
+            ]},
+            { subcategory: 'Bán ecchi', items: [
+                { id: generateId(), title: 'yumeochi mơ về những ngày ta yêu nhau 22', chapter: '22', neon: 'none' },
+                { id: generateId(), title: 'phòng củA TÔI liên kết với hầm ngục 17', chapter: '17', neon: 'none' },
+                { id: generateId(), title: 'chị gái tôi là đại minh tinh 16', chapter: '16', neon: 'none' },
+                { id: generateId(), title: 'học tỷ đừng livestream nữa 3', chapter: '3', neon: 'none' },
+                { id: generateId(), title: 'làm sao để chạy trốn dàn hậu cung', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'RÕ RÀNG TÔI CHỈ MUỐN CHƠI GAME, XIN ĐỪNG KÉO TÔI VÀO LĨNH VỰC TÌNH YÊU', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'làm sao để chạy trốn dàn harem 180', chapter: '180', neon: 'none' },
+                { id: generateId(), title: 'hắc đạo này có chút manh', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'hantsu x torasshu', chapter: '', neon: '3' },
+                { id: generateId(), title: 'sự quyến rũ của gái 2.5d', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'mato seihei no slave 124', chapter: '124', neon: '3' },
+                { id: generateId(), title: 'đến đây nào ma pháp thiếu nữ 6', chapter: '6', neon: 'none' },
+                { id: generateId(), title: 'musume no shinshitsu 5', chapter: '5', neon: 'none' },
+                { id: generateId(), title: 'quán cafe nữ thần  109', chapter: '109', neon: 'none' }
+            ]},
+            { subcategory: 'tu tiên', items: [
+                { id: generateId(), title: 'bắt đầu chấn kinh nữ đế lão bà ta vô địch 49', chapter: '49', neon: 'none' },
+                { id: generateId(), title: 'trời sinh mị cốt ta bị đồ nhi yandere để mắt tới 29', chapter: '29', neon: 'none' },
+                { id: generateId(), title: 'My Harem Grew So Large, I Was Forced to Ascend / 55', chapter: '55', neon: 'none' },
+                { id: generateId(), title: 'VAI ÁC SƯ TÔN MANG THEO CÁC ĐỒ ĐỆ VÔ ĐỊCH THIÊN HẠ 50', chapter: '50', neon: 'none' },
+                { id: generateId(), title: 'trước khi vô địch ta nợ tình quá nhiều 22', chapter: '22', neon: 'none' },
+                { id: generateId(), title: 'ma vương trở lại/48', chapter: '48', neon: 'none' },
+                { id: generateId(), title: 'CẨU LƯƠNG THÀNH CHUẨN THÁNH, TA ĐƯỢC NỮ ĐẾ TRIỆU HOÁN 6', chapter: '6', neon: 'none' },
+                { id: generateId(), title: 'hảo đồ nhi hãy tha cho vi sư 76', chapter: '76', neon: 'none' },
+                { id: generateId(), title: 'đồ đệ của ta đều là nữ ma đầu 190 (mangatoon)', chapter: '190', neon: 'none' },
+                { id: generateId(), title: 'tu luyện thành tiên ta chỉ muốn nuôi nữ đồ đệ 5', chapter: '5', neon: 'none' },
+                { id: generateId(), title: 'ta dưỡng ra nhân vật phản diện là nữ đế yandere 11', chapter: '11', neon: 'none' },
+                { id: generateId(), title: 'toàn bộ tu chân giới muội tử đều muốn bắt ta', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'tinh linh ám đế 260', chapter: '260', neon: '4' },
+                { id: generateId(), title: 'ta nằm vùng tại ma giới 87', chapter: '87', neon: 'none' },
+                { id: generateId(), title: 'tuyệt sắc đạo lữ đều nói ngô hoàng thể chất vô địch 122', chapter: '122', neon: 'none' }
+            ]}
+        ],
+        
+        'ecchi': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'senki survival saga:isekai no unmei o kaketa mujintou fujun iseikouyuu', chapter: '', neon: '4' },
+                { id: generateId(), title: '7 nàng công chúa ngủ say', chapter: '', neon: '2' },
+                { id: generateId(), title: 'reincarnation coliseum 34 (sechbn)', chapter: '34', neon: '4' },
+                { id: generateId(), title: 'dead tube 109', chapter: '109', neon: '2' },
+                { id: generateId(), title: 'tengoku no masaic', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'kono ko shirimasenka', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'murata kouji', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'đấu trường chuyển sinh 14', chapter: '14', neon: '2' },
+                { id: generateId(), title: 'độc là dungeon 12.5', chapter: '12.5', neon: 'none' },
+                { id: generateId(), title: 'healer báo thù 48.5', chapter: '48.5', neon: 'none' },
+                { id: generateId(), title: 'chúng tôi đã làm được rồi 77', chapter: '77', neon: 'none' },
+                { id: generateId(), title: 'rosen garten saga 28', chapter: '28', neon: 'none' },
+                { id: generateId(), title: 'destiny lovers 101', chapter: '101', neon: 'none' },
+                { id: generateId(), title: 'destiny lovers 2  : 37', chapter: '37', neon: 'none' },
+                { id: generateId(), title: 'home room 63', chapter: '63', neon: 'none' },
+                { id: generateId(), title: 'nozoki ana 35', chapter: '35', neon: 'none' },
+                { id: generateId(), title: 'sex and dungeon 10', chapter: '10', neon: 'none' },
+                { id: generateId(), title: 'ushiro no shoumen kamui san 40', chapter: '40', neon: 'none' },
+                { id: generateId(), title: 'dâm hùng end 40', chapter: '40', neon: 'none' },
+                { id: generateId(), title: 'isekai de tochi o katte noujou o tsukurou', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'tái sinh thành quý tộc với kĩ năng appraisal', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'oukoku e tsuzuku michi dorei kenshi no nariagari eiyũtan 34', chapter: '34', neon: 'none' },
+                { id: generateId(), title: 'zutto ôtkonoko da to omette ita gakitaishou ga  onnanoko deshita 10', chapter: '10', neon: 'none' },
+                { id: generateId(), title: 'karami zakari:boku no honto to kimi no uso 3', chapter: '3', neon: 'none' },
+                { id: generateId(), title: 'MUKUCHINA MIYASHITA-SAN NO SHIKIYOKU CHANNEL 3.2', chapter: '3.2', neon: 'none' },
+                { id: generateId(), title: 'hentai ouji to warawanai neko 34.5', chapter: '34.5', neon: 'none' },
+                { id: generateId(), title: 'Kekkon Yubiwa Monogatari  9', chapter: '9', neon: 'none' },
+                { id: generateId(), title: 'kaguya sama wa kokurasetai DOUJINSHI 18', chapter: '18', neon: 'none' },
+                { id: generateId(), title: 'himekishi ga classmate', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'mauo no hajimekata 43', chapter: '43', neon: 'none' },
+                { id: generateId(), title: 'i tried asking in dogeza 24', chapter: '24', neon: 'none' },
+                { id: generateId(), title: 'hoán kiếm trọng', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'dungeon ni hisomu yandere na kanojo ni ore wa nando mo korosareru / 26', chapter: '26', neon: 'none' },
+                { id: generateId(), title: 'Elf loli sinh tồn ký', chapter: '', neon: '2' }
+            ]}
+        ],
+        
+        'phim': [
+            { subcategory: '', items: [
+                { id: generateId(), title: 'tư vô tà phim 8', chapter: '8', neon: 'none' },
+                { id: generateId(), title: 'nhất niệm vĩnh hằng phim 64 p2', chapter: '64', neon: 'none' },
+                { id: generateId(), title: 'tiên nghịch 117', chapter: '117', neon: 'none' },
+                { id: generateId(), title: 'phim thế giới hoàn mỹ rt45', chapter: 'rt45', neon: 'none' },
+                { id: generateId(), title: 'phim phàm nhân tu tiên', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'BLACK CLOVER phim/134', chapter: '134', neon: 'none' },
+                { id: generateId(), title: 'nguyệt đạo dị giới p1', chapter: 'p1', neon: 'none' },
+                { id: generateId(), title: 'nguyệt đạo dị giới p2 18', chapter: '18', neon: 'none' },
+                { id: generateId(), title: 'konosuba /71', chapter: '71', neon: 'none' },
+                { id: generateId(), title: 'the boys p1', chapter: 'p1', neon: 'none' },
+                { id: generateId(), title: 'the boys p2 4', chapter: '4', neon: 'none' },
+                { id: generateId(), title: 'Alice in the borderland', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'breaking bad', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'oishi no ko phim 1', chapter: '1', neon: 'none' },
+                { id: generateId(), title: 'peacemarker', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'nguyên long 1', chapter: '1', neon: 'none' },
+                { id: generateId(), title: 'junji ito maniac japanese tales of the macabre (truyện ma nhật bản)', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'inuyashiki (ông bác siêu nhân)', chapter: '', neon: 'none' },
+                { id: generateId(), title: 'Maou No Ore Ga Dorei Elf Wo Yome Ni Shitanda Ga, Dou Medereba Ii? 10', chapter: '10', neon: 'none' },
+                { id: generateId(), title: 'baki dai raitaisai hen 9', chapter: '9', neon: 'none' }
+            ]}
+        ]
+    };
 
     // App state
     const appState = {
         currentCategory: null,
         currentSort: 'default',
-        isLoading: false
+        searchTerm: ''
     };
 
-    // API Service
-    const apiService = {
-        async fetchCategories() {
-            const response = await fetch(`${API_BASE_URL}/api/categories`);
-            return await response.json();
-        },
+    // Helper functions
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
 
-        async fetchComicsGrouped() {
-            const response = await fetch(`${API_BASE_URL}/api/comics/grouped`);
-            return await response.json();
-        },
-
-        async fetchStats() {
-            const response = await fetch(`${API_BASE_URL}/api/stats`);
-            return await response.json();
-        },
-
-        async addComic(comicData) {
-            const response = await fetch(`${API_BASE_URL}/api/comics`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(comicData)
-            });
-            return await response.json();
-        },
-
-        async updateComic(id, updateData) {
-            const response = await fetch(`${API_BASE_URL}/api/comics/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData)
-            });
-            return await response.json();
-        },
-
-        async updateChapter(id, chapter) {
-            const response = await fetch(`${API_BASE_URL}/api/comics/${id}/chapter`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chapter })
-            });
-            return await response.json();
-        },
-
-        async deleteComic(id) {
-            const response = await fetch(`${API_BASE_URL}/api/comics/${id}`, {
-                method: 'DELETE'
-            });
-            return response;
-        },
-
-        async importComics(comics) {
-            const response = await fetch(`${API_BASE_URL}/api/comics/import`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ comics })
-            });
-            return await response.json();
-        },
-
-        async searchComics(query) {
-            const response = await fetch(`${API_BASE_URL}/api/comics?search=${encodeURIComponent(query)}&limit=100`);
-            return await response.json();
+    function saveToLocalStorage() {
+        try {
+            localStorage.setItem('comicLibraryData', JSON.stringify(contentData));
+            console.log('Data saved to localStorage');
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
         }
-    };
+    }
+
+    function loadFromLocalStorage() {
+        try {
+            const savedData = localStorage.getItem('comicLibraryData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                contentData = parsedData;
+                console.log('Data loaded from localStorage');
+                return true;
+            }
+        } catch (error) {
+            console.error('Error loading from localStorage:', error);
+        }
+        return false;
+    }
+
+    function resetToDefaultData() {
+        if (confirm('Bạn có chắc muốn đặt lại toàn bộ dữ liệu về mặc định? Dữ liệu hiện tại sẽ bị mất!')) {
+            contentData.items = JSON.parse(JSON.stringify(defaultData));
+            saveToLocalStorage();
+            showToast('Đã đặt lại dữ liệu mặc định', 'success');
+            initializeApp();
+        }
+    }
+
+    function calculateStats() {
+        let totalItems = 0;
+        let readingCount = 0;
+        const totalCategories = contentData.categories.length;
+        
+        Object.values(contentData.items).forEach(categoryItems => {
+            categoryItems.forEach(subcat => {
+                totalItems += subcat.items.length;
+                subcat.items.forEach(item => {
+                    if (item.chapter && item.chapter.trim() !== '') {
+                        readingCount++;
+                    }
+                });
+            });
+        });
+        
+        return {
+            totalItems,
+            totalCategories,
+            readingCount
+        };
+    }
+
+    function getRatingText(rating) {
+        switch(rating) {
+            case 'heart': return '💕 Đặc biệt';
+            case '4': return '**** 4 sao';
+            case '3': return '*** 3 sao';
+            case '2': return '** 2 sao';
+            case '1': return '* 1 sao';
+            default: return 'Chưa đánh giá';
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'Chưa cập nhật';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 60) {
+            return `${diffMins} phút trước`;
+        } else if (diffHours < 24) {
+            return `${diffHours} giờ trước`;
+        } else if (diffDays < 7) {
+            return `${diffDays} ngày trước`;
+        } else {
+            return date.toLocaleDateString('vi-VN');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        // Set message and color
+        toastMessage.textContent = message;
+        
+        if (type === 'error') {
+            toast.style.background = 'var(--danger)';
+            toast.querySelector('i').className = 'fas fa-exclamation-circle';
+        } else if (type === 'warning') {
+            toast.style.background = 'var(--accent)';
+            toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+        } else {
+            toast.style.background = 'var(--success)';
+            toast.querySelector('i').className = 'fas fa-check-circle';
+        }
+        
+        // Show toast
+        toast.style.display = 'flex';
+        
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 
     // Initialize the application
-    document.addEventListener('DOMContentLoaded', async function() {
-        await initializeApp();
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
         setupEventListeners();
     });
 
-    async function initializeApp() {
-        showLoading(true);
+    function initializeApp() {
+        console.log('Initializing app...');
         
-        try {
-            // Load categories and comics in parallel
-            const [categories, comicsGrouped] = await Promise.all([
-                apiService.fetchCategories(),
-                apiService.fetchComicsGrouped()
-            ]);
-
-            contentData.categories = categories;
-            contentData.items = comicsGrouped;
-
-            // Render categories list
-            renderCategories();
-            
-            // Set first category as active
-            if (contentData.categories.length > 0) {
-                const firstCategory = contentData.categories[0];
-                showCategory(firstCategory.category_id);
-                updateCategoryTitle(firstCategory);
-            }
-            
-            // Populate category dropdown in add form
-            populateCategoryDropdown();
-            
-            // Update stats
-            await updateStats();
-        } catch (error) {
-            console.error('Failed to initialize app:', error);
-            showToast('Không thể tải dữ liệu từ server', 'error');
-        } finally {
-            showLoading(false);
+        // Try to load from localStorage first
+        const loaded = loadFromLocalStorage();
+        
+        if (!loaded) {
+            // If no localStorage data, use default data
+            console.log('Using default data');
+            contentData.items = JSON.parse(JSON.stringify(defaultData));
+            saveToLocalStorage();
         }
+        
+        // Render categories list
+        renderCategories();
+        
+        // Set first category as active
+        if (contentData.categories.length > 0) {
+            const firstCategory = contentData.categories[0];
+            showCategory(firstCategory.id);
+            updateCategoryTitle(firstCategory);
+            
+            // Set first category as active in sidebar
+            setTimeout(() => {
+                const firstCategoryElement = document.querySelector(`.category-item[data-id="${firstCategory.id}"]`);
+                if (firstCategoryElement) {
+                    firstCategoryElement.classList.add('active');
+                }
+            }, 100);
+        }
+        
+        // Populate category dropdown in add form
+        populateCategoryDropdown();
+        
+        // Update stats
+        updateStats();
+        
+        console.log('App initialized successfully');
     }
 
     function setupEventListeners() {
@@ -1680,7 +1744,10 @@
         
         // Add comic button
         document.getElementById('addComicBtn').addEventListener('click', showAddComicModal);
-        document.getElementById('saveAllBtn').addEventListener('click', () => showToast('Dữ liệu đã được lưu tự động', 'success'));
+        document.getElementById('saveAllBtn').addEventListener('click', () => {
+            saveToLocalStorage();
+            showToast('Đã lưu dữ liệu thành công!', 'success');
+        });
         document.getElementById('importBtn').addEventListener('click', showImportModal);
         
         // Modal close buttons
@@ -1692,7 +1759,10 @@
         document.getElementById('cancelImport').addEventListener('click', hideImportModal);
         
         // Import buttons
-        document.getElementById('importDefault').addEventListener('click', importDefaultData);
+        document.getElementById('importDefault').addEventListener('click', () => {
+            resetToDefaultData();
+            hideImportModal();
+        });
         document.getElementById('importJSON').addEventListener('click', showJSONInput);
         
         // Form submissions
@@ -1718,15 +1788,15 @@
         contentData.categories.forEach(category => {
             // Count items in category
             let itemCount = 0;
-            if (contentData.items[category.category_id]) {
-                contentData.items[category.category_id].forEach(subcat => {
+            if (contentData.items[category.id]) {
+                contentData.items[category.id].forEach(subcat => {
                     itemCount += subcat.items.length;
                 });
             }
             
             const categoryElement = document.createElement('div');
             categoryElement.className = 'category-item';
-            categoryElement.dataset.id = category.category_id;
+            categoryElement.dataset.id = category.id;
             categoryElement.innerHTML = `
                 <div>
                     <div class="category-name">${category.name}</div>
@@ -1748,21 +1818,23 @@
                 categoryElement.classList.add('active');
                 
                 // Show category content
-                showCategory(category.category_id);
+                showCategory(category.id);
                 
                 // Update category title
                 updateCategoryTitle(category);
                 
                 // Reset search
                 document.getElementById('searchInput').value = '';
+                appState.searchTerm = '';
             });
             
             categoriesList.appendChild(categoryElement);
         });
     }
 
-    async function showCategory(categoryId) {
+    function showCategory(categoryId) {
         appState.currentCategory = categoryId;
+        appState.searchTerm = '';
         
         // Hide all category contents
         document.querySelectorAll('.category-content').forEach(content => {
@@ -1773,7 +1845,7 @@
         document.getElementById('noResults').style.display = 'none';
         
         // Find category
-        const category = contentData.categories.find(cat => cat.category_id === categoryId);
+        const category = contentData.categories.find(cat => cat.id === categoryId);
         const items = contentData.items[categoryId];
         
         // Create category content container if it doesn't exist
@@ -1847,7 +1919,7 @@
         const itemId = item.id;
         const itemTitle = item.title || '';
         const itemChapter = item.chapter || '';
-        const itemRating = item.rating || 'none';
+        const itemRating = item.neon || 'none';
         const itemTags = item.tags || [];
         const itemDescription = item.description || '';
         const lastUpdated = item.lastUpdated || new Date().toISOString();
@@ -1856,6 +1928,14 @@
         itemElement.dataset.id = itemId;
         
         const ratingText = getRatingText(itemRating);
+        
+        // Format tags if it's a string
+        let tagsArray = [];
+        if (typeof itemTags === 'string') {
+            tagsArray = itemTags.split(',').map(tag => tag.trim()).filter(tag => tag);
+        } else if (Array.isArray(itemTags)) {
+            tagsArray = itemTags;
+        }
         
         itemElement.innerHTML = `
             <div class="item-header">
@@ -1866,9 +1946,9 @@
             <div class="item-body">
                 ${itemDescription ? `<p style="color: var(--gray-light); font-size: 0.9rem; margin-bottom: 10px;">${itemDescription}</p>` : ''}
                 
-                ${itemTags.length > 0 ? `
+                ${tagsArray.length > 0 ? `
                     <div class="item-tags">
-                        ${itemTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        ${tagsArray.map(tag => `<span class="tag">${tag}</span>`).join('')}
                     </div>
                 ` : ''}
                 
@@ -1907,36 +1987,28 @@
         const deleteBtn = itemElement.querySelector('.delete-item');
         const chapterInput = itemElement.querySelector('.chapter-input');
         
-        updateBtn.addEventListener('click', async function() {
+        updateBtn.addEventListener('click', function() {
             const newChapter = chapterInput.value.trim();
-            if (newChapter && newChapter !== itemChapter) {
-                await updateChapter(
+            if (newChapter !== itemChapter) {
+                updateChapter(
                     this.dataset.id,
+                    this.dataset.category,
+                    this.dataset.subcategory,
                     newChapter
                 );
-                // Refresh the item
-                const refreshedItem = await apiService.updateChapter(this.dataset.id, newChapter);
-                if (refreshedItem) {
-                    chapterInput.value = refreshedItem.chapter;
-                    showToast('Đã cập nhật chapter!');
-                }
             }
         });
         
-        chapterInput.addEventListener('keypress', async function(e) {
+        chapterInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const newChapter = this.value.trim();
-                if (newChapter && newChapter !== itemChapter) {
-                    await updateChapter(
+                if (newChapter !== itemChapter) {
+                    updateChapter(
                         this.dataset.id,
+                        this.dataset.category,
+                        this.dataset.subcategory,
                         newChapter
                     );
-                    // Refresh the item
-                    const refreshedItem = await apiService.updateChapter(this.dataset.id, newChapter);
-                    if (refreshedItem) {
-                        this.value = refreshedItem.chapter;
-                        showToast('Đã cập nhật chapter!');
-                    }
                 }
             }
         });
@@ -1945,15 +2017,16 @@
             showEditChapterModal(
                 this.dataset.id,
                 this.dataset.category,
-                this.dataset.subcategory,
-                item
+                this.dataset.subcategory
             );
         });
         
-        deleteBtn.addEventListener('click', async function() {
+        deleteBtn.addEventListener('click', function() {
             if (confirm('Bạn có chắc muốn xóa truyện này?')) {
-                await deleteComic(
-                    this.dataset.id
+                deleteComic(
+                    this.dataset.id,
+                    this.dataset.category,
+                    this.dataset.subcategory
                 );
             }
         });
@@ -1961,12 +2034,44 @@
         return itemElement;
     }
 
-    async function handleAddComic(e) {
+    function updateChapter(itemId, categoryId, subcategory, newChapter) {
+        // Find and update the item
+        const categoryItems = contentData.items[categoryId];
+        if (!categoryItems) return;
+        
+        for (const subcat of categoryItems) {
+            const itemIndex = subcat.items.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                subcat.items[itemIndex].chapter = newChapter;
+                subcat.items[itemIndex].lastUpdated = new Date().toISOString();
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Update stats
+                updateStats();
+                
+                // Show success message
+                showToast('Đã cập nhật chapter!');
+                
+                // Refresh the category view if not in search mode
+                if (!appState.searchTerm && appState.currentCategory === categoryId) {
+                    showCategory(categoryId);
+                }
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    function handleAddComic(e) {
         e.preventDefault();
         
         // Get form values
         const title = document.getElementById('comicTitle').value.trim();
-        const category_id = document.getElementById('comicCategory').value;
+        const categoryId = document.getElementById('comicCategory').value;
         const subcategory = document.getElementById('comicSubcategory').value.trim();
         const chapter = document.getElementById('comicChapter').value.trim();
         const rating = document.getElementById('comicRating').value;
@@ -1977,59 +2082,98 @@
         const description = document.getElementById('comicDescription').value.trim();
         
         // Validate
-        if (!title || !category_id || !chapter) {
+        if (!title || !categoryId || !chapter) {
             showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
             return;
         }
         
-        try {
-            // Add to database
-            const newItem = await apiService.addComic({
-                title,
-                category_id,
-                subcategory,
-                chapter,
-                rating,
-                tags,
-                description
+        // Create new item
+        const newItem = {
+            id: generateId(),
+            title,
+            chapter,
+            neon: rating,
+            tags,
+            description,
+            lastUpdated: new Date().toISOString()
+        };
+        
+        // Add to data structure
+        if (!contentData.items[categoryId]) {
+            contentData.items[categoryId] = [];
+        }
+        
+        // Find or create subcategory
+        let subcatObj = contentData.items[categoryId].find(sc => sc.subcategory === subcategory);
+        if (!subcatObj) {
+            subcatObj = { subcategory, items: [] };
+            contentData.items[categoryId].push(subcatObj);
+        }
+        
+        subcatObj.items.push(newItem);
+        
+        // Save to localStorage
+        saveToLocalStorage();
+        
+        // Hide modal
+        hideAddComicModal();
+        
+        // Show success message
+        showToast('Đã thêm truyện thành công!');
+        
+        // Update stats
+        updateStats();
+        
+        // Switch to the category
+        const category = contentData.categories.find(cat => cat.id === categoryId);
+        if (category) {
+            // Update active category
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.id === categoryId) {
+                    item.classList.add('active');
+                }
             });
             
-            // Hide modal
-            hideAddComicModal();
-            
-            // Show success message
-            showToast('Đã thêm truyện thành công!');
-            
-            // Refresh data
-            await refreshData();
-            
-            // Switch to the category
-            const category = contentData.categories.find(cat => cat.category_id === category_id);
-            if (category) {
-                // Update active category
-                document.querySelectorAll('.category-item').forEach(item => {
-                    item.classList.remove('active');
-                    if (item.dataset.id === category_id) {
-                        item.classList.add('active');
-                    }
-                });
-                
-                showCategory(category_id);
-                updateCategoryTitle(category);
-            }
-            
-            // Update stats
-            await updateStats();
-        } catch (error) {
-            console.error('Error adding comic:', error);
-            showToast('Lỗi khi thêm truyện', 'error');
+            showCategory(categoryId);
+            updateCategoryTitle(category);
         }
     }
 
-    async function handleUpdateChapter(e) {
+    function showEditChapterModal(itemId, categoryId, subcategory) {
+        // Find the item
+        const categoryItems = contentData.items[categoryId];
+        if (!categoryItems) return;
+        
+        let targetItem = null;
+        for (const subcat of categoryItems) {
+            const item = subcat.items.find(item => item.id === itemId);
+            if (item) {
+                targetItem = item;
+                break;
+            }
+        }
+        
+        if (!targetItem) return;
+        
+        // Fill form
+        document.getElementById('editComicId').value = itemId;
+        document.getElementById('editCategoryId').value = categoryId;
+        document.getElementById('editSubcategoryName').value = subcategory;
+        document.getElementById('editComicTitle').value = targetItem.title || '';
+        document.getElementById('editComicChapter').value = targetItem.chapter || '';
+        document.getElementById('editComicRating').value = targetItem.neon || 'none';
+        
+        // Show modal
+        document.getElementById('editChapterModal').style.display = 'flex';
+    }
+
+    function handleUpdateChapter(e) {
         e.preventDefault();
         
         const itemId = document.getElementById('editComicId').value;
+        const categoryId = document.getElementById('editCategoryId').value;
+        const subcategory = document.getElementById('editSubcategoryName').value;
         const newChapter = document.getElementById('editComicChapter').value.trim();
         const newRating = document.getElementById('editComicRating').value;
         
@@ -2038,50 +2182,83 @@
             return;
         }
         
-        try {
-            // Update in database
-            await apiService.updateComic(itemId, {
-                chapter: newChapter,
-                rating: newRating
-            });
-            
-            // Hide modal
-            hideEditChapterModal();
-            
-            // Show success message
-            showToast('Đã cập nhật thành công!');
-            
-            // Refresh data
-            await refreshData();
-            
-            // Update stats
-            await updateStats();
-        } catch (error) {
-            console.error('Error updating comic:', error);
-            showToast('Lỗi khi cập nhật', 'error');
+        // Find and update the item
+        const categoryItems = contentData.items[categoryId];
+        if (!categoryItems) return;
+        
+        for (const subcat of categoryItems) {
+            const itemIndex = subcat.items.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                subcat.items[itemIndex].chapter = newChapter;
+                subcat.items[itemIndex].neon = newRating;
+                subcat.items[itemIndex].lastUpdated = new Date().toISOString();
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Hide modal
+                hideEditChapterModal();
+                
+                // Show success message
+                showToast('Đã cập nhật thành công!');
+                
+                // Update stats
+                updateStats();
+                
+                // Refresh the view
+                if (appState.searchTerm) {
+                    handleSearch();
+                } else if (appState.currentCategory === categoryId) {
+                    showCategory(categoryId);
+                }
+                
+                return;
+            }
+        }
+        
+        showToast('Không tìm thấy truyện để cập nhật', 'error');
+    }
+
+    function deleteComic(itemId, categoryId, subcategory) {
+        // Find and remove the item
+        const categoryItems = contentData.items[categoryId];
+        if (!categoryItems) return;
+        
+        for (let i = 0; i < categoryItems.length; i++) {
+            const subcat = categoryItems[i];
+            const itemIndex = subcat.items.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                subcat.items.splice(itemIndex, 1);
+                
+                // Remove empty subcategory
+                if (subcat.items.length === 0) {
+                    categoryItems.splice(i, 1);
+                }
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Show success message
+                showToast('Đã xóa truyện thành công!');
+                
+                // Update stats
+                updateStats();
+                
+                // Refresh the view
+                if (appState.searchTerm) {
+                    handleSearch();
+                } else if (appState.currentCategory === categoryId) {
+                    showCategory(categoryId);
+                }
+                
+                return;
+            }
         }
     }
 
-    async function deleteComic(itemId) {
-        try {
-            await apiService.deleteComic(itemId);
-            
-            // Show success message
-            showToast('Đã xóa truyện thành công!');
-            
-            // Refresh data
-            await refreshData();
-            
-            // Update stats
-            await updateStats();
-        } catch (error) {
-            console.error('Error deleting comic:', error);
-            showToast('Lỗi khi xóa truyện', 'error');
-        }
-    }
-
-    async function handleSearch() {
+    function handleSearch() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        appState.searchTerm = searchTerm;
         
         // If search is empty, show current category
         if (searchTerm === '' && appState.currentCategory) {
@@ -2090,205 +2267,128 @@
             return;
         }
         
-        try {
-            const searchResults = await apiService.searchComics(searchTerm);
+        // Hide all category contents
+        document.querySelectorAll('.category-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Create search results container
+        let searchResultsContainer = document.getElementById('search-results');
+        if (!searchResultsContainer) {
+            searchResultsContainer = document.createElement('div');
+            searchResultsContainer.id = 'search-results';
+            searchResultsContainer.className = 'category-content';
+            document.getElementById('categoryContents').appendChild(searchResultsContainer);
+        }
+        
+        // Clear previous results
+        searchResultsContainer.innerHTML = '';
+        
+        // Search through all items
+        const searchResults = [];
+        Object.keys(contentData.items).forEach(categoryId => {
+            const categoryItems = contentData.items[categoryId];
+            if (!categoryItems) return;
             
-            // Hide all category contents
-            document.querySelectorAll('.category-content').forEach(content => {
-                content.classList.remove('active');
+            categoryItems.forEach(subcat => {
+                subcat.items.forEach(item => {
+                    if (item.title.toLowerCase().includes(searchTerm) ||
+                        (item.tags && item.tags.toString().toLowerCase().includes(searchTerm)) ||
+                        (item.description && item.description.toLowerCase().includes(searchTerm))) {
+                        searchResults.push({
+                            ...item,
+                            categoryId,
+                            subcategory: subcat.subcategory
+                        });
+                    }
+                });
+            });
+        });
+        
+        if (searchResults.length > 0) {
+            // Group results by category for display
+            const groupedByCategory = {};
+            searchResults.forEach(item => {
+                if (!groupedByCategory[item.categoryId]) {
+                    groupedByCategory[item.categoryId] = [];
+                }
+                groupedByCategory[item.categoryId].push(item);
             });
             
-            // Create search results container
-            let searchResultsContainer = document.getElementById('search-results');
-            if (!searchResultsContainer) {
-                searchResultsContainer = document.createElement('div');
-                searchResultsContainer.id = 'search-results';
-                searchResultsContainer.className = 'category-content';
-                document.getElementById('categoryContents').appendChild(searchResultsContainer);
-            }
-            
-            // Clear previous results
-            searchResultsContainer.innerHTML = '';
-            
-            if (searchResults.length > 0) {
-                // Group results by category for display
-                const groupedByCategory = {};
-                searchResults.forEach(item => {
-                    if (!groupedByCategory[item.category_id]) {
-                        groupedByCategory[item.category_id] = [];
-                    }
-                    groupedByCategory[item.category_id].push(item);
+            // Display results
+            Object.keys(groupedByCategory).forEach(categoryId => {
+                const category = contentData.categories.find(c => c.id === categoryId);
+                if (!category) return;
+                
+                const categoryResults = document.createElement('div');
+                categoryResults.className = 'subcategory';
+                
+                // Add category title
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.className = 'subcategory-title';
+                categoryTitle.innerHTML = `<i class="${category.icon}"></i> ${category.name} (${category.code})`;
+                categoryResults.appendChild(categoryTitle);
+                
+                // Create items container
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'items-grid';
+                
+                // Add items
+                groupedByCategory[categoryId].forEach(item => {
+                    const itemElement = createItemElement(item, categoryId, item.subcategory || '');
+                    itemsContainer.appendChild(itemElement);
                 });
                 
-                // Display results
-                Object.keys(groupedByCategory).forEach(categoryId => {
-                    const category = contentData.categories.find(c => c.category_id === categoryId);
-                    if (!category) return;
-                    
-                    const categoryResults = document.createElement('div');
-                    categoryResults.className = 'subcategory';
-                    
-                    // Add category title
-                    const categoryTitle = document.createElement('h3');
-                    categoryTitle.className = 'subcategory-title';
-                    categoryTitle.innerHTML = `<i class="${category.icon}"></i> ${category.name} (${category.code})`;
-                    categoryResults.appendChild(categoryTitle);
-                    
-                    // Create items container
-                    const itemsContainer = document.createElement('div');
-                    itemsContainer.className = 'items-grid';
-                    
-                    // Add items
-                    groupedByCategory[categoryId].forEach(item => {
-                        const itemElement = createItemElement(item, categoryId, item.subcategory || '');
-                        itemsContainer.appendChild(itemElement);
-                    });
-                    
-                    categoryResults.appendChild(itemsContainer);
-                    searchResultsContainer.appendChild(categoryResults);
-                });
-                
-                searchResultsContainer.classList.add('active');
-                document.getElementById('noResults').style.display = 'none';
-                
-                // Update category title
-                document.getElementById('currentCategoryTitle').innerHTML = `
-                    <i class="fas fa-search"></i> Kết quả tìm kiếm: "${searchTerm}" (${searchResults.length} kết quả)
-                `;
-            } else {
-                searchResultsContainer.classList.remove('active');
-                document.getElementById('noResults').style.display = 'block';
-                
-                // Update category title
-                document.getElementById('currentCategoryTitle').innerHTML = `
-                    <i class="fas fa-search"></i> Kết quả tìm kiếm
-                `;
-            }
-        } catch (error) {
-            console.error('Error searching:', error);
-            showToast('Lỗi khi tìm kiếm', 'error');
-        }
-    }
-
-    async function refreshData() {
-        try {
-            const [comicsGrouped, stats] = await Promise.all([
-                apiService.fetchComicsGrouped(),
-                apiService.fetchStats()
-            ]);
+                categoryResults.appendChild(itemsContainer);
+                searchResultsContainer.appendChild(categoryResults);
+            });
             
-            contentData.items = comicsGrouped;
+            searchResultsContainer.classList.add('active');
+            document.getElementById('noResults').style.display = 'none';
             
-            // Update stats display
-            document.getElementById('totalItems').textContent = stats.totalItems;
-            document.getElementById('totalCategories').textContent = stats.totalCategories;
-            document.getElementById('readingCount').textContent = stats.readingCount;
-            
-            // Refresh current view if exists
-            if (appState.currentCategory) {
-                showCategory(appState.currentCategory);
-            }
-            
-            // Refresh categories list
-            renderCategories();
-        } catch (error) {
-            console.error('Error refreshing data:', error);
-        }
-    }
-
-    async function updateStats() {
-        try {
-            const stats = await apiService.fetchStats();
-            
-            // Update stats display
-            document.getElementById('totalItems').textContent = stats.totalItems;
-            document.getElementById('totalCategories').textContent = stats.totalCategories;
-            document.getElementById('readingCount').textContent = stats.readingCount;
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        }
-    }
-
-    // Utility functions (giữ nguyên từ code cũ)
-    function showLoading(show) {
-        // Implement loading indicator if needed
-        if (show) {
-            // Show loading overlay
+            // Update category title
+            document.getElementById('currentCategoryTitle').innerHTML = `
+                <i class="fas fa-search"></i> Kết quả tìm kiếm: "${searchTerm}" (${searchResults.length} kết quả)
+            `;
         } else {
-            // Hide loading overlay
+            searchResultsContainer.classList.remove('active');
+            document.getElementById('noResults').style.display = 'block';
+            
+            // Update category title
+            document.getElementById('currentCategoryTitle').innerHTML = `
+                <i class="fas fa-search"></i> Kết quả tìm kiếm
+            `;
         }
     }
 
-    function getRatingText(rating) {
-        switch(rating) {
-            case 'heart': return '💕 Đặc biệt';
-            case '4': return '**** 4 sao';
-            case '3': return '*** 3 sao';
-            case '2': return '** 2 sao';
-            case '1': return '* 1 sao';
-            default: return 'Chưa đánh giá';
-        }
+    function updateStats() {
+        const stats = calculateStats();
+        
+        // Update stats display
+        document.getElementById('totalItems').textContent = stats.totalItems;
+        document.getElementById('totalCategories').textContent = stats.totalCategories;
+        document.getElementById('readingCount').textContent = stats.readingCount;
     }
 
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
+    function populateCategoryDropdown() {
+        const dropdown = document.getElementById('comicCategory');
+        dropdown.innerHTML = '<option value="">Chọn thể loại</option>';
         
-        if (diffMins < 60) {
-            return `${diffMins} phút trước`;
-        } else if (diffHours < 24) {
-            return `${diffHours} giờ trước`;
-        } else if (diffDays < 7) {
-            return `${diffDays} ngày trước`;
-        } else {
-            return date.toLocaleDateString('vi-VN');
-        }
+        contentData.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = `${category.name} (${category.code})`;
+            dropdown.appendChild(option);
+        });
     }
 
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        // Set message and color
-        toastMessage.textContent = message;
-        
-        if (type === 'error') {
-            toast.style.background = 'var(--danger)';
-            toast.querySelector('i').className = 'fas fa-exclamation-circle';
-        } else if (type === 'warning') {
-            toast.style.background = 'var(--accent)';
-            toast.querySelector('i').className = 'fas fa-exclamation-triangle';
-        } else {
-            toast.style.background = 'var(--success)';
-            toast.querySelector('i').className = 'fas fa-check-circle';
-        }
-        
-        // Show toast
-        toast.style.display = 'flex';
-        
-        // Auto hide after 3 seconds
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
+    function updateCategoryTitle(category) {
+        document.getElementById('currentCategoryTitle').innerHTML = `
+            <i class="${category.icon}" style="color: ${category.color};"></i> ${category.name} (${category.code})
+        `;
     }
 
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Modal functions (giữ nguyên)
+    // Modal functions
     function showAddComicModal() {
         const modal = document.getElementById('addComicModal');
         const form = document.getElementById('addComicForm');
@@ -2307,19 +2407,6 @@
 
     function hideAddComicModal() {
         document.getElementById('addComicModal').style.display = 'none';
-    }
-
-    function showEditChapterModal(itemId, categoryId, subcategory, item) {
-        // Fill form
-        document.getElementById('editComicId').value = itemId;
-        document.getElementById('editCategoryId').value = categoryId;
-        document.getElementById('editSubcategoryName').value = subcategory;
-        document.getElementById('editComicTitle').value = item.title || '';
-        document.getElementById('editComicChapter').value = item.chapter || '';
-        document.getElementById('editComicRating').value = item.rating || 'none';
-        
-        // Show modal
-        document.getElementById('editChapterModal').style.display = 'flex';
     }
 
     function hideEditChapterModal() {
@@ -2342,24 +2429,6 @@
         setTimeout(() => {
             document.getElementById('jsonInput').focus();
         }, 100);
-    }
-
-    function populateCategoryDropdown() {
-        const dropdown = document.getElementById('comicCategory');
-        dropdown.innerHTML = '<option value="">Chọn thể loại</option>';
-        
-        contentData.categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.category_id;
-            option.textContent = `${category.name} (${category.code})`;
-            dropdown.appendChild(option);
-        });
-    }
-
-    function updateCategoryTitle(category) {
-        document.getElementById('currentCategoryTitle').innerHTML = `
-            <i class="${category.icon}" style="color: ${category.color};"></i> ${category.name} (${category.code})
-        `;
     }
 </script>
 </body>
