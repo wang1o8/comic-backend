@@ -1,0 +1,2509 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư Viện Truyện & Phim - Quản lý Chapter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --card-border: rgba(99, 102, 241, 0.2);
+            
+            /* Neon colors */
+            --neon-red: #ff0055;
+            --neon-blue: #00ccff;
+            --neon-green: #00ff88;
+            --neon-purple: #aa00ff;
+            --neon-yellow: #ffcc00;
+            --neon-pink: #ff00ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            background: linear-gradient(90deg, 
+                rgba(99, 102, 241, 0.1) 0%, 
+                rgba(16, 185, 129, 0.1) 50%, 
+                rgba(99, 102, 241, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+        }
+
+        header p {
+            color: var(--gray-light);
+            font-size: 1.2rem;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Search container */
+        .search-container {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 18px 20px 18px 60px;
+            border-radius: 50px;
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--light);
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.7);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            flex: 0 0 320px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-height: 85vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .categories-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-item {
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-item:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateX(5px);
+        }
+
+        .category-item.active {
+            background: rgba(99, 102, 241, 0.3);
+            border-left-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .category-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .category-code {
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 25px;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Category Content */
+        .category-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        /* Subcategories */
+        .subcategory {
+            margin-bottom: 30px;
+        }
+
+        .subcategory-title {
+            font-size: 1.4rem;
+            color: var(--neon-yellow);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Items Grid */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .item {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid var(--gray);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            flex: 1;
+        }
+
+        .item-rating {
+            background: rgba(100, 116, 139, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .item-body {
+            margin-bottom: 15px;
+        }
+
+        .item-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            padding: 3px 8px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--neon-blue);
+        }
+
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .chapter-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chapter-input {
+            width: 80px;
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--light);
+            text-align: center;
+        }
+
+        .chapter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-update {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-update:hover {
+            background: #16a34a;
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Neon Effects */
+        .item.neon-heart {
+            border-left-color: var(--neon-red);
+            box-shadow: 0 5px 15px rgba(255, 0, 85, 0.2);
+        }
+
+        .item.neon-heart .item-rating {
+            color: var(--neon-red);
+            background: rgba(255, 0, 85, 0.1);
+        }
+
+        .item.neon-4 {
+            border-left-color: var(--neon-purple);
+            box-shadow: 0 5px 15px rgba(170, 0, 255, 0.2);
+        }
+
+        .item.neon-4 .item-rating {
+            color: var(--neon-purple);
+            background: rgba(170, 0, 255, 0.1);
+        }
+
+        .item.neon-3 {
+            border-left-color: var(--neon-yellow);
+            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.2);
+        }
+
+        .item.neon-3 .item-rating {
+            color: var(--neon-yellow);
+            background: rgba(255, 204, 0, 0.1);
+        }
+
+        .item.neon-2 {
+            border-left-color: var(--neon-green);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .item.neon-2 .item-rating {
+            color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .item.neon-1 {
+            border-left-color: var(--neon-blue);
+            box-shadow: 0 5px 15px rgba(0, 204, 255, 0.2);
+        }
+
+        .item.neon-1 .item-rating {
+            color: var(--neon-blue);
+            background: rgba(0, 204, 255, 0.1);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray-light);
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            background: rgba(100, 116, 139, 0.5);
+            color: var(--light);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--gray);
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--gray);
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            background: var(--success);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                flex: 0 0 280px;
+            }
+            
+            .items-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .search-box {
+                padding: 15px 15px 15px 50px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--primary-dark), var(--secondary));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-book-open"></i> Thư Viện Truyện & Phim</h1>
+            <p>Quản lý và theo dõi truyện bạn đang đọc</p>
+        </header>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalItems">0</span>
+                    <span class="stat-label">Tổng số truyện</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="totalCategories">0</span>
+                    <span class="stat-label">Thể loại</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="readingCount">0</span>
+                    <span class="stat-label">Đang đọc</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="addComicBtn">
+                    <i class="fas fa-plus"></i> Thêm truyện mới
+                </button>
+                <button class="btn btn-success" id="saveAllBtn">
+                    <i class="fas fa-save"></i> Lưu tất cả
+                </button>
+                <button class="btn btn-warning" id="importBtn">
+                    <i class="fas fa-file-import"></i> Nhập dữ liệu
+                </button>
+            </div>
+        </div>
+
+        
+
+        <!-- Search Container -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-box" id="searchInput" placeholder="Tìm kiếm truyện, phim, thể loại...">
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar with Categories -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2><i class="fas fa-list"></i> Danh Mục Thể Loại</h2>
+                </div>
+                <div class="categories-list" id="categoriesList">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <h2 class="section-title" id="currentCategoryTitle">
+                    <i class="fas fa-star"></i> Chọn thể loại để xem
+                </h2>
+                
+                <div id="categoryContents">
+                    <!-- Category contents will be populated by JavaScript -->
+                </div>
+                
+                <div class="no-results" id="noResults">
+                    <i class="fas fa-search fa-3x"></i>
+                    <p>Không tìm thấy kết quả phù hợp với từ khóa tìm kiếm</p>
+                    <p class="suggestion">Thử tìm kiếm với từ khóa khác hoặc thêm truyện mới</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Comic Modal -->
+        <div class="modal" id="addComicModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title"><i class="fas fa-plus"></i> Thêm truyện mới</h3>
+                    <button class="close-modal" id="closeAddModal">&times;</button>
+                </div>
+                
+                <form id="addComicForm">
+                    <div class="form-group">
+                        <label class="form-label">Tên truyện *</label>
+                        <input type="text" class="form-input" id="comicTitle" required placeholder="Nhập tên truyện">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Thể loại *</label>
+                        <select class="form-select" id="comicCategory" required>
+                            <option value="">Chọn thể loại</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mục con (tùy chọn)</label>
+                        <input type="text" class="form-input" id="comicSubcategory" placeholder="Ví dụ: combat, hài, tu tiên...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chapter hiện tại *</label>
+                        <input type="text" class="form-input" id="comicChapter" required placeholder="Ví dụ: 128, 45.5, p1...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Đánh giá</label>
+                        <select class="form-select" id="comicRating">
+                            <option value="none">Không đánh giá</option>
+                            <option value="heart">💕 Đặc biệt</option>
+                            <option value="4">**** 4 sao</option>
+                            <option value="3">*** 3 sao</option>
+                            <option value="2">** 2 sao</option>
+                            <option value="1">* 1 sao</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Thẻ (phân cách bằng dấu phẩy)</label>
+                        <input type="text" class="form-input" id="comicTags" placeholder="Ví dụ: học đường, hài hước, chiến đấu">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mô tả (tùy chọn)</label>
+                        <textarea class="form-textarea" id="comicDescription" placeholder="Mô tả ngắn về truyện..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" id="cancelAdd">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Thêm truyện</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Chapter Modal -->
+        <div class="modal" id="editChapterModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title"><i class="fas fa-edit"></i> Cập nhật chapter</h3>
+                    <button class="close-modal" id="closeEditModal">&times;</button>
+                </div>
+                
+                <form id="editChapterForm">
+                    <input type="hidden" id="editComicId">
+                    <input type="hidden" id="editCategoryId">
+                    <input type="hidden" id="editSubcategoryName">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tên truyện</label>
+                        <input type="text" class="form-input" id="editComicTitle" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chapter hiện tại *</label>
+                        <input type="text" class="form-input" id="editComicChapter" required placeholder="Nhập chapter mới">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Đánh giá</label>
+                        <select class="form-select" id="editComicRating">
+                            <option value="none">Không đánh giá</option>
+                            <option value="heart">💕 Đặc biệt</option>
+                            <option value="4">**** 4 sao</option>
+                            <option value="3">*** 3 sao</option>
+                            <option value="2">** 2 sao</option>
+                            <option value="1">* 1 sao</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" id="cancelEdit">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Import Data Modal -->
+        <div class="modal" id="importModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title"><i class="fas fa-file-import"></i> Nhập dữ liệu</h3>
+                    <button class="close-modal" id="closeImportModal">&times;</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Chọn phương thức nhập</label>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" id="importDefault">Nhập dữ liệu mẫu</button>
+                        <button class="btn btn-success" id="importJSON">Nhập từ JSON</button>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="jsonInputContainer" style="display: none;">
+                    <label class="form-label">Dán JSON dữ liệu vào đây</label>
+                    <textarea class="form-textarea" id="jsonInput" placeholder="Dán nội dung JSON vào đây..." rows="10"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelImport">Hủy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">
+            <i class="fas fa-check-circle"></i>
+            <span id="toastMessage">Đã lưu thành công!</span>
+        </div>
+
+        <footer>
+            <p>Thư viện tổng hợp | Dữ liệu được lưu tự động</p>
+            <p style="margin-top: 10px; color: var(--gray-light); font-size: 0.8rem;">
+                <i class="fas fa-info-circle"></i> Dữ liệu được lưu trong trình duyệt của bạn
+            </p>
+            <p style="margin-top: 20px;">© 2023 Thư Viện Truyện & Phim. Tất cả các quyền được bảo lưu.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Data structure for all content
+        let contentData = {
+            categories: [
+                { id: 'hoc-duong', name: 'HỌC ĐƯỜNG', code: '1111', icon: 'fas fa-school', color: '#6366f1' },
+                { id: 'mat-the', name: 'MẠT THẾ', code: '2222', icon: 'fas fa-skull-crossbones', color: '#ef4444' },
+                { id: 'he-thong', name: 'HỆ THỐNG', code: '3333', icon: 'fas fa-cogs', color: '#10b981' },
+                { id: 'xay-dung', name: 'XÂY DỰNG', code: '4444', icon: 'fas fa-building', color: '#f59e0b' },
+                { id: 'di-gioi', name: 'DỊ GIỚI', code: '5555', icon: 'fas fa-globe-asia', color: '#8b5cf6' },
+                { id: 'kinh-doanh', name: 'KINH DOANH', code: '6666', icon: 'fas fa-chart-line', color: '#06b6d4' },
+                { id: 'trung-sinh', name: 'TRÙNG SINH', code: '7777', icon: 'fas fa-redo', color: '#ec4899' },
+                { id: 'ngon', name: 'NGÔN', code: '8888', icon: 'fas fa-heart', color: '#f43f5e' },
+                { id: 'tu-tien', name: 'TU TIÊN', code: 'AAA', icon: 'fas fa-mountain', color: '#22c55e' },
+                { id: 'do-thi', name: 'ĐÔ THỊ', code: 'BBB', icon: 'fas fa-city', color: '#3b82f6' },
+                { id: 'phan-dien', name: 'PHẢN DIỆN', code: 'CCC', icon: 'fas fa-user-ninja', color: '#0ea5e9' },
+                { id: 'vo-han-luu', name: 'VÔ HẠN LƯU', code: 'EEE', icon: 'fas fa-infinity', color: '#a855f7' },
+                { id: 'manh', name: 'MẠNH', code: 'DDD', icon: 'fas fa-fist-raised', color: '#f97316' },
+                { id: 'quy-than', name: 'QUỶ THẦN', code: 'FFF', icon: 'fas fa-ghost', color: '#6b7280' },
+                { id: 'ecchi', name: 'ECCHI', code: '9999', icon: 'fas fa-fire', color: '#dc2626' },
+                { id: 'phim', name: 'PHIM', code: '0000', icon: 'fas fa-film', color: '#8b5cf6' }
+            ],
+            
+            items: {
+                // Will be populated from localStorage or default data
+            }
+        };
+
+        // Default data from your file
+        const defaultData = {
+                 'hoc-duong': [
+                    { subcategory: 'combat', items: [
+                        { title: 'thể thao cực hạn 6', chapter: '6', neon: 'none' },
+                        { title: 'Cách chiến thắng mọi trận đấu /128', chapter: '128', neon: 'heart' },
+                        { title: 'Lookism- hoán đổi diệu kì /555', chapter: '555', neon: 'heart' },
+                        { title: 'bá chủ học đường 61 p1', chapter: '61', neon: 'none' },
+                        { title: 'king game 8', chapter: '8', neon: 'none' },
+                        { title: 'bố vạn năng 24', chapter: '24', neon: 'none' },
+                        { title: 'để có thể sống sót 108', chapter: '108', neon: 'none' },
+                        { title: 'bạn học của tôi là lính đánh thuê 218', chapter: '218', neon: 'none' },
+                        { title: 'giả vờ làm phế vật học đường 9', chapter: '9', neon: 'none' },
+                        { title: 'giáo dục chân chính 204', chapter: '204', neon: '2' }
+                    ]},
+                    { subcategory: 'hài', items: [
+                        { title: 'Cô gái từ ứng dụng nhắn tin kì lạ /161', chapter: '161', neon: 'none' },
+                        { title: 'friendzone /90', chapter: '90', neon: 'none' },
+                        { title: 'Grand blue 77', chapter: '77', neon: '3' },
+                        { title: 'sun ken rock 28', chapter: '28', neon: 'none' },
+                        { title: 'danshi koukousei no nichijou', chapter: '', neon: 'none' },
+                        { title: 'tomodachi game', chapter: '', neon: 'none' },
+                        { title: 'con mèo đô vật của tôi 5', chapter: '5', neon: 'none' },
+                        { title: 'nữ diễn viên tài năng', chapter: '', neon: 'none' },
+                        { title: 'oishi no ko 89', chapter: '89', neon: 'none' }
+                    ]}
+                ],
+                
+                'mat-the': [
+                    { subcategory: '', items: [
+                        { title: 'kẻ đa tài /38', chapter: '38', neon: 'none' },
+                        { title: 'tôi chuyển vàng tại mạt thế/383', chapter: '383', neon: 'none' },
+                        { title: 'Trở Về Làm Đại Lão Thời Mạt Thế/ 272', chapter: '272', neon: 'heart' },
+                        { title: 'mạt thế đạo tặc hành 103', chapter: '103', neon: 'none' },
+                        { title: 'Mạt thế siêu cấp hệ thống /236', chapter: '236', neon: 'none' },
+                        { title: 'return survival 145', chapter: '145', neon: '3' },
+                        { title: 'bạn gái tôi là zombie 44', chapter: '44', neon: 'none' },
+                        { title: 'ta có 1 tà cung điện vàng trong những ngày mạt thế 41', chapter: '41', neon: 'none' },
+                        { title: 'giải thoát 99 n9 ở mạt thế 129', chapter: '129', neon: 'none' },
+                        { title: 'toàn cầu băng phong ta chế tạo phòng an toàn tại tận thế 99', chapter: '99', neon: 'none' },
+                        { title: 'tích trữ 10 vạn vật tư trước ngày tận thế 202', chapter: '202', neon: 'none' },
+                        { title: 'luân bàn thế giới 172.2', chapter: '172.2', neon: 'none' },
+                        { title: 'ta có một tòa mạt thế mê cung 150', chapter: '150', neon: 'none' },
+                        { title: 'mạt thế phàm nhân 531', chapter: '531', neon: 'none' },
+                        { title: 'mạt thế vi vương 32', chapter: '32', neon: 'none' },
+                        { title: 'sau mạt thế tôi trở thành zombie', chapter: '', neon: 'none' },
+                        { title: 'thảm họa ong độc', chapter: '', neon: 'none' },
+                        { title: 'liệu nhân loại có cần nền văn minh hậu tận thế không 4', chapter: '4', neon: 'none' },
+                        { title: 'kẻ đa tài',chapter: '38', neon: 'none', tags: 'mạt thế',description: 'hay'},
+                    ]}
+                ],
+                
+                'he-thong': [
+                    { subcategory: '', items: [
+                        { title: 'Ta có thể thấy tỉ lệ thành công /114', chapter: '114', neon: 'none' },
+                        { title: 'Toi viết sách để thăng cấp /115.5', chapter: '115.5', neon: 'none' },
+                        { title: 'Thương nhân thánh thần /63', chapter: '63', neon: 'none' },
+                        { title: 'đại y lăng nhiên 271', chapter: '271', neon: 'none' }
+                    ]},
+                    { subcategory: 'học đường', items: [
+                        { title: 'Nhiệm vụ diệu kì /69', chapter: '69', neon: 'none' },
+                        { title: 'Nhiệm vụ đời thực /69', chapter: '69', neon: 'none' },
+                        { title: 'đại thiên tài bất khả chiến bại là ta 53', chapter: '53', neon: 'none' }
+                    ]},
+                    { subcategory: 'dị giới', items: [
+                        { title: 'Hóa thân thành cá /6', chapter: '6', neon: 'none' },
+                        { title: 'Chuyển Sinh Thành Liễu Đột Biến / 97', chapter: '97', neon: 'none' },
+                        { title: 'vừa chơi đã có tài khoản cường giả/20', chapter: '20', neon: 'none' }
+                    ]}
+                ],
+                
+                'xay-dung': [
+                    { subcategory: 'tu tiên', items: [
+                        { title: 'hoa sơn tái xuất  149', chapter: '149', neon: 'none' },
+                        { title: 'chuyến sinh vào thế giới võ lâm 123', chapter: '123', neon: 'none' },
+                        { title: 'dị giới kiến tạo tối cường thiếu lâm tự 44', chapter: '44', neon: 'none' },
+                        { title: 'vạn cổ tối cường tông/382', chapter: '382', neon: 'heart' },
+                        { title: 'tổ sư gia đứng đầu lịch sử /201', chapter: '201', neon: 'none' },
+                        { title: 'chiếm cái đỉnh núi làm đại vương 145', chapter: '145', neon: 'none' },
+                        { title: 'điên rồi sao ba tuổi làm chưởng môn 11', chapter: '11', neon: 'none' },
+                        { title: 'đệ tử của ta đều là súp bờ thần 53', chapter: '53', neon: 'none' },
+                        { title: 'chuyên gia côn trùng tại đường gia 63', chapter: '63', neon: 'none' }
+                    ]},
+                    { subcategory: 'võ thuật', items: [
+                        { title: 'bác sĩ trùng sinh về murim 104', chapter: '104', neon: 'none' },
+                        { title: 'ta có 1 sơn trại /1023', chapter: '1023', neon: '3' }
+                    ]},
+                    { subcategory: 'hầm ngục', items: [
+                        { title: 'người mới này quá mạnh 40', chapter: '40', neon: '2' },
+                        { title: 'làm nông dân trong tòa tháp thử thách 95', chapter: '95', neon: '2' },
+                        { title: 'tái thiết hầm ngục/124', chapter: '124', neon: 'heart' },
+                        { title: 'hồi ức trong ngục tối 106', chapter: '106', neon: '4' }
+                    ]},
+                    { subcategory: 'dị giới', items: [
+                        { title: 'bậc thày thiết kế điền trang 78', chapter: '78', neon: 'none' },
+                        { title: 'học viện phá sản', chapter: '', neon: 'none' },
+                        { title: 'anh hùng giai cấp tư sản 132', chapter: '132', neon: 'none' },
+                        { title: 'từ hôm nay ta bắt đầu làm thành chủ 423', chapter: '423', neon: 'none' },
+                        { title: 'thả vu nữ đó ra 459', chapter: '459', neon: '3' },
+                        { title: 'thợ rèn huyền thoại 167', chapter: '167', neon: '2' },
+                        { title: 'gacha vô hạn 144', chapter: '144', neon: 'none' },
+                        { title: 'trở thành hung thần trong trò chơi thủ thành 12', chapter: '12', neon: 'none' },
+                        { title: 'Hiền nhân tái sinh bị bỏ rơi – Tạo ra đế quốc quỷ vĩ đại mạnh nhất trong khu rừng quỷ /13', chapter: '13', neon: 'none' },
+                        { title: 'thưa quỷ vương chugns ta bội thu rồi 41', chapter: '41', neon: 'none' },
+                        { title: 'cuộc sống thong dong ở dị giới /13', chapter: '13', neon: 'none' },
+                        { title: 'Cuộc sống thiên đường bắt đầu với Vua hang động ~ Trở thành người mạnh nhất với kỹ năng khai thác – Chapter 18.1', chapter: '18.1', neon: 'none' },
+                        { title: 'soara và ngôi nhà cho quái vật 17', chapter: '17', neon: 'none' },
+                        { title: 'isekai de tochi o katte noujou o tsukurou 6', chapter: '6', neon: 'none' }
+                    ]}
+                ],
+                
+                'di-gioi': [
+                    { subcategory: '', items: [
+                        { title: 'sau khi bị ốc sên truy sát 12', chapter: '12', neon: 'none' },
+                        { title: 'tôi ở thế giới khác dựa dẫm phụ nữ 41', chapter: '41', neon: 'none' },
+                        { title: 'phát sóng trực tiếp quét ngang dị giới', chapter: '', neon: 'none' },
+                        { title: 'thống lĩnh học viện chỉ bằng dao sashimi 47', chapter: '47', neon: 'none' },
+                        { title: 'đệ nhất danh sách 178', chapter: '178', neon: 'none' },
+                        { title: 'mệnh danh thuật bóng tối 4', chapter: '4', neon: 'none' },
+                        { title: 'assassin de aru ore no sutetasu ga yuusha yori mo akiraka ni tsuyoi nodaga', chapter: '', neon: 'none' },
+                        { title: 'yondome wa iyana shi zokusei majutsushi 28.1', chapter: '28.1', neon: 'none' },
+                        { title: 'break blade', chapter: '', neon: 'none' },
+                        { title: 'the new gate 2', chapter: '2', neon: 'none' }
+                    ]},
+                    { subcategory: 'sống dai thành huyền thoại', items: [
+                        { title: 'dã nhân tái sinh 45', chapter: '45', neon: '3' },
+                        { title: 'trở lại thời kì đồ đá', chapter: '', neon: 'none' }
+                    ]},
+                    { subcategory: 'võ thuật', items: [
+                        { title: 'thiên hạ đệ nhất lữ bố 139', chapter: '139', neon: 'none' },
+                        { title: 'kingdom vương giả thiên hạ', chapter: '', neon: 'none' },
+                        { title: 'con đường của võ giả 241', chapter: '241', neon: 'none' },
+                        { title: 'cơn bão đỏ 22', chapter: '22', neon: 'none' },
+                        { title: 'player 63 (mangabtt)', chapter: '63', neon: '4' },
+                        { title: 'hành trình đế vương 169', chapter: '169', neon: '2' },
+                        { title: 'nhân trùng đại chiến 83', chapter: '83', neon: '4' },
+                        { title: 'quý tộc lười biếng bỗng trở thành thiên tài 138', chapter: '138', neon: 'none' },
+                        { title: 'bất bại chân ma 165', chapter: '165', neon: 'none' },
+                        { title: 'hardcore leveling warrior p1 xong', chapter: 'p1', neon: 'none' },
+                        { title: 'hardcore leveling warrior p2 113', chapter: '113', neon: 'none' }
+                    ]},
+                    { subcategory: 'công nghệ', items: [
+                        { title: 'người trái đất quả thật tàn ác/115', chapter: '115', neon: 'heart' },
+                        { title: 'anh hùng ta ko làm lâu rồi', chapter: '', neon: 'none' },
+                        { title: 'siêu thần chế tạp sư 66', chapter: '66', neon: 'none' },
+                        { title: 'siêu thần cơ giới sư 186', chapter: '186', neon: 'none' },
+                        { title: 'ta dựa vào thu thập vật phẩm để tăng cấp 18', chapter: '18', neon: 'none' }
+                    ]},
+                    { subcategory: 'game', items: [
+                        { title: 'kẻ thách đấu 4', chapter: '4', neon: 'none' },
+                        { title: 'người chơi khắc kim 48', chapter: '48', neon: '4' },
+                        { title: 'tôi đến từ thế giới trò chơi 105', chapter: '105', neon: 'none' },
+                        { title: 'trò chơi hệ chữa trị của tôi 14', chapter: '14', neon: 'none' },
+                        { title: 'đoạt mạng bằng trị liệu thuật 144', chapter: '144', neon: 'none' },
+                        { title: 'nền văn minh nebula', chapter: '', neon: 'none' },
+                        { title: 'quỷ troll mạnh nhất thế giới 147', chapter: '147', neon: 'none' },
+                        { title: 'người chơi mạnh nhất hồi quy lần thứ 100 68', chapter: '68', neon: 'none' }
+                    ]},
+                    { subcategory: 'leo tháp', items: [
+                        { title: 'level 1 player /38', chapter: '38', neon: 'none' },
+                        { title: 'Người chơi không thể thăng cấp /69', chapter: '69', neon: 'none' },
+                        { title: 'Vua trộm mộ /411 (end)', chapter: '411', neon: 'heart' },
+                        { title: 'Tòa tháp bí ẩn', chapter: '', neon: 'none' },
+                        { title: 'the dugeon master/113,5', chapter: '113.5', neon: 'heart' },
+                        { title: 'mắc kẹt trong tòa tháp thử thách 36', chapter: '36', neon: 'none' },
+                        { title: 'tôi là người chơi leo tháp một mình 149', chapter: '149', neon: 'none' },
+                        { title: 'mật mã mê cung 92', chapter: '92', neon: 'none' }
+                    ]},
+                    { subcategory: 'fantasy (khác loài người)', items: [
+                        { title: 'trưởng giám ngục trông coi các ma nữ 51', chapter: '51', neon: 'none' },
+                        { title: 'bị cắn thành vương giả 34', chapter: '34', neon: 'none' },
+                        { title: 'Khô cốt hiệp sĩ /78', chapter: '78', neon: 'heart' },
+                        { title: 'người côn trùng 8', chapter: '8', neon: 'none' },
+                        { title: 'cương thi tiên sinh 51', chapter: '51', neon: 'none' },
+                        { title: 'chuyển sinh thành goblin', chapter: '', neon: '3' },
+                        { title: 'chuyển sinh thành liễu đột biến', chapter: '', neon: 'none' },
+                        { title: 'chuyển sinh thành 1 cái cây ăn thịt 66', chapter: '66', neon: 'none' },
+                        { title: 'lão xà tu tiên truyện 58', chapter: '58', neon: '2' }
+                    ]},
+                    { subcategory: 'phép thuật', items: [
+                        { title: 'ánh sáng cuối con đường /148', chapter: '148', neon: 'heart' },
+                        { title: 'vợ tôi là quỷ vương 336', chapter: '336', neon: 'none' },
+                        { title: 'thánh cái khỉ gì đây là sức mạnh của y học hiện đại 77', chapter: '77', neon: 'none' }
+                    ]},
+                    { subcategory: 'thành phố', items: [
+                        { title: 'tôi ở thế giới khác dựa dẫm phụ nữ 41', chapter: '41', neon: 'none' },
+                        { title: 'đi săn tự động bằng phân thân 103', chapter: '103', neon: 'none' },
+                        { title: 'ta người chỉ cần nhìn thấy thanh máu có thể trừng phạt thần linh 13', chapter: '13', neon: 'none' },
+                        { title: 'druid tại ga seoul 79', chapter: '79', neon: 'none' },
+                        { title: 'seoul tử linh sư', chapter: '', neon: 'none' },
+                        { title: 'tôi là thợ săn có kĩ năng tự sát sss 80', chapter: '80', neon: '4' },
+                        { title: 'tiểu thuyết mạng do thần viết 3', chapter: '3', neon: 'none' },
+                        { title: 'vua hiệp sĩ đã trở lại với 1 vị thần 132', chapter: '132', neon: 'none' },
+                        { title: 'giáo sư gián điệp 78', chapter: '78', neon: 'none' }
+                    ]},
+                    { subcategory: 'phản thần', items: [
+                        { title: 'sống sót trong trò chơi với tư cách là một cuồng nhân 19', chapter: '19', neon: '4' },
+                        { title: 'Có thật đây là anh hùng không /86', chapter: '86', neon: 'none' },
+                        { title: 'Anh hùng rác rưởi /113', chapter: '113', neon: 'heart' },
+                        { title: 'sắp xuất ngũ thì isekai 152', chapter: '152', neon: 'none' }
+                    ]},
+                    { subcategory: 'pokemon', items: [
+                        { title: 'cửa hàng sủng thú siêu thần 45', chapter: '45', neon: 'none' },
+                        { title: 'thần sủng tiến hóa 46', chapter: '46', neon: 'none' },
+                        { title: 'ta chỉ muốn an tĩnh chơi game 104', chapter: '104', neon: 'none' }
+                    ]},
+                    { subcategory: 'horror/DARK FANTASY', items: [
+                        { title: 'thuyết tiến hóa của loài người 56', chapter: '56', neon: 'none' },
+                        { title: 're monster 84', chapter: '84', neon: '4' },
+                        { title: 'gannibal 109', chapter: '109', neon: 'none' }
+                    ]}
+                ],
+                
+                'kinh-doanh': [
+                    { subcategory: 'đô thị thần hào', items: [
+                        { title: 'ta là hàn tam thiên 61', chapter: '61', neon: 'none' },
+                        { title: 'mỗi tuần ta có một nghề nghiệp mới 545', chapter: '545', neon: 'none' },
+                        { title: 'TA CÓ 90 TỶ TIỀN LIẾM CẨU! / 296', chapter: '296', neon: 'none' },
+                        { title: 'trọng sinh không làm chạn vương  tôi một mình nạp game thăng cấp 63', chapter: '63', neon: 'none' },
+                        { title: 'từ hôm nay tôi là tỷ phú 314 (manga toon)', chapter: '314', neon: 'none' },
+                        { title: 'bỏ làm simp chúa ta có trong tay cả tỉ thần hào 96', chapter: '96', neon: 'none' }
+                    ]},
+                    { subcategory: 'cổ đại', items: [
+                        { title: 'cực phẩm bại gia tử 17', chapter: '17', neon: 'none' },
+                        { title: 'đệ nhất hoàn khố 120', chapter: '120', neon: 'none' },
+                        { title: 'chàng rể mạnh nhất lịch sử 254', chapter: '254', neon: '4' },
+                        { title: 'chuyển sinh thành tiêu sư 118', chapter: '118', neon: 'none' },
+                        { title: 'công tử biệt tú 217', chapter: '217', neon: 'none' },
+                        { title: 'ta làm kiêu hùng tại dị giới 107', chapter: '107', neon: 'none' },
+                        { title: 'đại tần ta con trai tần thủy hoàng giết địch thăng cấp thành thần 113', chapter: '113', neon: '2' },
+                        { title: 'không cẩn thận, lưu danh muôn thủa 151', chapter: '151', neon: 'none' },
+                        { title: 'trọng sinh thành thần y thời tam quốc 160', chapter: '160', neon: '2' },
+                        { title: 'hoạn quan hồi quy tróc phong truy nguyệt 45', chapter: '45', neon: 'none' },
+                        { title: 'Muscle joseon 68', chapter: '68', neon: 'none' },
+                        { title: 'vương triều đen tối joseon 90', chapter: '90', neon: 'none' }
+                    ]},
+                    { subcategory: 'hiện đại', items: [
+                        { title: 'ta không muốn trùng sinh đâu 405', chapter: '405', neon: 'none' },
+                        { title: 'trùng sinh trở về 1983 làm phú hào  258', chapter: '258', neon: 'none' },
+                        { title: 'ta bị kẹt tại cùng 1 ngày 1000 năm 30', chapter: '30', neon: 'none' },
+                        { title: 'trở thành tài phiệt nhờ game 10', chapter: '10', neon: 'none' },
+                        { title: 'tiểu thiếu gia gia tộc tài phiệt 40', chapter: '40', neon: 'none' },
+                        { title: 'đây là luật 2', chapter: '2', neon: 'none' },
+                        { title: 'câu lạc bộ trường sinh 78', chapter: '78', neon: 'none' },
+                        { title: 'chúa tể đồng tiền 16', chapter: '16', neon: 'none' },
+                        { title: 'từ nhân viên vạn năng trở thành huyền thoại 82', chapter: '82', neon: 'none' }
+                    ]}
+                ],
+                
+                'trung-sinh': [
+                    { subcategory: '', items: [
+                        { title: 'kí sự hồi quy 74', chapter: '74', neon: 'none' },
+                        { title: 'hồi ký của huyền thoại học giả 10', chapter: '10', neon: 'none' },
+                        { title: 'toàn trí độc giả 275', chapter: '275', neon: 'none' },
+                        { title: 'nhân vật ngoài lề tiểu thuyết 120', chapter: '120', neon: 'none' },
+                        { title: 'chuyển sinh ma pháp đặc biệt yếu 254', chapter: '254', neon: 'none' },
+                        { title: 'luân hồi khốn khiếp 41', chapter: '41', neon: 'none' },
+                        { title: 'Con trai út nhà hầu tước /30', chapter: '30', neon: 'none' },
+                        { title: 'toàn trí độc giả /120', chapter: '120', neon: 'heart' },
+                        { title: 'bản chất của chuyển sinh 41', chapter: '41', neon: 'none' },
+                        { title: 'làm lại cuộc đời 43', chapter: '43', neon: 'none' },
+                        { title: 'hồi quy vô giá trị 62', chapter: '62', neon: 'none' },
+                        { title: 'với khả năng hồi quy bằng cái chết tôi thăng cấp trong thế giới đầy rẫy quái vật 15', chapter: '15', neon: 'none' },
+                        { title: 'sự ra đời của 1 anh hùng 38', chapter: '38', neon: 'none' },
+                        { title: 'đại ca trở lại tuổi 16 / 71', chapter: '71', neon: 'none' },
+                        { title: 'thiết huyết kiếm sĩ hồi quy', chapter: '', neon: 'none' },
+                        { title: 'cậu út nhà công tước là sát thủ hồi quy / 78', chapter: '78', neon: 'none' },
+                        { title: 'nghịch thiên cải mệnh 100', chapter: '100', neon: 'none' }
+                    ]}
+                ],
+                
+                'tu-tien': [
+                    { subcategory: 'công pháp op', items: [
+                        { title: 'võ luyện đỉnh phong/2520,2472', chapter: '2520', neon: 'heart' },
+                        { title: 'nhất đẳng gia đinh/271', chapter: '271', neon: 'none' },
+                        { title: 'vạn tướng chi vương/160', chapter: '160', neon: 'heart' },
+                        { title: 'yêu thần kí /450', chapter: '450', neon: 'heart' },
+                        { title: 'tam thốn nhân gian  114', chapter: '114', neon: 'none' },
+                        { title: 'con trai của gia tộc nam cung thế gia 48', chapter: '48', neon: 'none' }
+                    ]},
+                    { subcategory: 'trùng sinh', items: [
+                        { title: 'thập đại hoàng đế đều là đồ đệ của ta 40', chapter: '40', neon: 'none' },
+                        { title: 'bổn tề tu chính là tiện đạo 215', chapter: '215', neon: 'none' },
+                        { title: 'vợ tôi và tôi thống trị tam giới 92', chapter: '92', neon: 'none' },
+                        { title: 'bắt đầu quật khởi từ làm lô đỉnh 62', chapter: '62', neon: 'none' },
+                        { title: 'vạn cổ chí tôn', chapter: '', neon: 'none' },
+                        { title: 'ngự linh thế giới 549', chapter: '549', neon: 'none' },
+                        { title: 'thanh mai trúc mã của đệ nhất thiên hạ / 58', chapter: '58', neon: '3' }
+                    ]},
+                    { subcategory: 'hệ thống', items: [
+                        { title: 'ta ở nhà 100 năm ra ngoài đã vô địch 30', chapter: '30', neon: 'none' },
+                        { title: 'lựa chọn thần cấp ta không theo sáo lộ mạnh lên  110', chapter: '110', neon: 'none' },
+                        { title: 'nhất chiêu liên vô địch tu chân giới 28', chapter: '28', neon: 'none' },
+                        { title: 'tối cường phản sáo lộ hệ thống /635', chapter: '635', neon: 'heart' },
+                        { title: 'siêu đạo thần thuật 115', chapter: '115', neon: 'none' },
+                        { title: 'Trọng sinh thành cậu vàng tại dị thế 251', chapter: '251', neon: 'none' },
+                        { title: 'ta muốn an tĩnh hệ thống lại bắt ta tìm chết 75', chapter: '75', neon: 'none' },
+                        { title: 'thiên đạo đồ thư quán 247', chapter: '247', neon: '4' },
+                        { title: 'mở đầu nữ đế làm chính cung 31', chapter: '31', neon: 'none' },
+                        { title: 'thiên ma phi thăng truyện 123', chapter: '123', neon: 'none' },
+                        { title: 'thiên phú của ngươi giờ là của ta 63', chapter: '63', neon: 'none' },
+                        { title: 'ta dùng sách giải trí thành thánh nhân 128', chapter: '128', neon: 'none' },
+                        { title: 'hệ thống thăng cấp điên cuồng 105', chapter: '105', neon: 'none' }
+                    ]},
+                    { subcategory: 'võ đạo', items: [
+                        { title: 'cửu thiên kiếm pháp 46', chapter: '46', neon: 'none' },
+                        { title: 'bắc kiếm giang hồ 41', chapter: '41', neon: 'none' },
+                        { title: 'mình ta thôn phệ thiên địa  17', chapter: '17', neon: 'none' },
+                        { title: 'mạnh nhất lịch sử 9', chapter: '9', neon: 'none' },
+                        { title: 'thăng cấp vô hạn trong murim 149', chapter: '149', neon: 'none' },
+                        { title: 'ma hiệp côn luân 2', chapter: '2', neon: 'none' },
+                        { title: 'tử thần phiêu nguyệt 94', chapter: '94', neon: '3' },
+                        { title: 'cuồng ma tái thế 165.1', chapter: '165.1', neon: 'none' },
+                        { title: 'phi lôi đạo thuật 211', chapter: '211', neon: 'none' },
+                        { title: 'đao hoang tứ thiếu gia 202', chapter: '202', neon: 'none' },
+                        { title: 'câu chuyện sinh tồn của kiếm vương 61', chapter: '61', neon: 'none' }
+                    ]},
+                    { subcategory: 'đúng chất tu tiên', items: [
+                        { title: 'bộ thiên ca 6', chapter: '6', neon: 'none' },
+                        { title: 'linh khư 11', chapter: '11', neon: 'none' },
+                        { title: 'trường ca hành', chapter: '', neon: 'none' },
+                        { title: 'khu ma lục 7', chapter: '7', neon: 'none' },
+                        { title: '8cổ chân nhân 2', chapter: '2', neon: '2' },
+                        { title: 'ngã dục phong thiên 2', chapter: '2', neon: 'none' }
+                    ]}
+                ],
+                
+                'do-thi': [
+                    { subcategory: '', items: [
+                        { title: 'huyết ma nhân 48', chapter: '48', neon: 'none' },
+                        { title: 'diệu thủ cuồng y 310', chapter: '310', neon: 'none' },
+                        { title: 'đô thị cực phẩm y thần 240', chapter: '240', neon: 'none' },
+                        { title: 'Toàn chức Pháp sư /405', chapter: '405', neon: 'none' },
+                        { title: 'tu tiên giả đại chiến siêu năng lực 44', chapter: '44', neon: 'none' },
+                        { title: 'Đại vương tha mạng/582', chapter: '582', neon: 'heart' },
+                        { title: 'song tu đạo lữ của tôi 82', chapter: '82', neon: 'none' },
+                        { title: 'Trọng sinh đô thị tu tiên tôn /774', chapter: '774', neon: 'heart' },
+                        { title: 'trọng sinh địa cầu tiên tôn /153', chapter: '153', neon: 'none' },
+                        { title: 'đệ nhất người ở rể /101', chapter: '101', neon: 'none' },
+                        { title: 'trên người ta có 1 con rồng 547', chapter: '547', neon: 'none' },
+                        { title: 'tu chân nói chuyện phiếm quân/86', chapter: '86', neon: 'none' },
+                        { title: 'tiên giới quy lai 62', chapter: '62', neon: 'none' },
+                        { title: 'tu tiên trở về vườn trường /367', chapter: '367', neon: 'none' },
+                        { title: 'tiên tôn lạc vô cực/158', chapter: '158', neon: 'none' },
+                        { title: 'thần cấp ngư phu/226', chapter: '226', neon: 'none' },
+                        { title: 'thần cấp thấu thị 11', chapter: '11', neon: 'none' },
+                        { title: 'toàn cầu cao võ 334', chapter: '334', neon: 'none' },
+                        { title: 'Thần chiến tranh /85', chapter: '85', neon: 'none' },
+                        { title: 'kiếm tu imba nhất quả đất 23', chapter: '23', neon: 'none' },
+                        { title: 'khắc kim đại lão 20', chapter: '20', neon: 'none' },
+                        { title: 'trấn quốc thần tế 233', chapter: '233', neon: 'none' },
+                        { title: 'vương giả săn mồi 119', chapter: '119', neon: 'none' }
+                    ]}
+                ],
+                
+                'phan-dien': [
+                    { subcategory: '', items: [
+                        { title: 'trảm nguyệt', chapter: '', neon: 'none' },
+                        { title: 'ta trời sinh đã là nhân vật phản diện 112', chapter: '112', neon: '3' },
+                        { title: 'sự trở lại của anh hùng diệt thế/64', chapter: '64', neon: 'none' },
+                        { title: 'Kẻ săn anh hùng /100', chapter: '100', neon: 'none' },
+                        { title: 'đại quản gia là ma hoàng /328', chapter: '328', neon: 'heart' },
+                        { title: 'tao là ác nhân 74', chapter: '74', neon: 'none' },
+                        { title: 'đồ đệ của ta đều là  đại phản phái 317', chapter: '317', neon: '4' },
+                        { title: 'sư tôn nghịch đồ này không phải là thánh tử 148', chapter: '148', neon: 'none' },
+                        { title: 'Luân Hồi Ác Nhân 86', chapter: '86', neon: 'none' },
+                        { title: 'ta là nhân vật phản diện đại thiếu gia 35', chapter: '35', neon: 'none' },
+                        { title: 'Cuồng Ma Tái Thế 63', chapter: '63', neon: '3' },
+                        { title: 'ta! vô địch đại phản phái 48', chapter: '48', neon: 'none' },
+                        { title: 'ta không phải nhân vật phản diện 102', chapter: '102', neon: 'none' },
+                        { title: 'người ở rể bị ép thành phản diện 141', chapter: '141', neon: 'none' },
+                        { title: 'khởi tạo nhân vật phản diện 121', chapter: '121', neon: 'none' },
+                        { title: 'danh sách kẻ phản diện 146', chapter: '146', neon: 'none' },
+                        { title: 'công tử thực sự quá chính nghĩa 20', chapter: '20', neon: 'none' },
+                        { title: 'nhân vật phản diện này có chút lương tâm nhưng ko nhiều 259', chapter: '259', neon: 'none' },
+                        { title: 'nhân vật phản diện đại sư huynh tất cả các sư muội đều là bệnh kiều 37', chapter: '37', neon: 'none' },
+                        { title: 'kẻ luôn kết thúc bằng bad ending 6', chapter: '6', neon: '2' },
+                        { title: 'ma giáo giáo chủ tái xuất gian hồ 8', chapter: '8', neon: 'none' },
+                        { title: 'đế chế diệt vong 31', chapter: '31', neon: 'none' },
+                        { title: 'kẻ họa sát tử tù kazami tazura 11', chapter: '11', neon: 'none' },
+                        { title: 'lục nhân thập tự giá 211', chapter: '211', neon: '3' },
+                        { title: 'công lý tàn bạ0 28', chapter: '28', neon: 'none' },
+                        { title: 'maria đoạn tội 6', chapter: '6', neon: 'none' },
+                        { title: 'luân hồi ác nhân 84', chapter: '84', neon: 'none' },
+                        { title: 'Fukushuu wo koinegau saikyou yuusha wa,yami no chikara de senmetsu musou suru   58', chapter: '58', neon: 'none' },
+                        { title: 'Hazure Waku No Joutai Ijou Skill De Saikyou Ni Natta Ore Ga Subete Wo Juurin Suru Made  24', chapter: '24', neon: 'none' },
+                        { title: 'kẻ được triệu hồi tới thế giới giả tưởng vô số lần 29', chapter: '29', neon: 'none' },
+                        { title: 'Bị phản bội bởi đồng đội và sở hữu gacha không giới hạn 174', chapter: '174', neon: 'none' }
+                    ]}
+                ],
+                
+                'manh': [
+                    { subcategory: '', items: [
+                        { title: 'người trên vạn người /137', chapter: '137', neon: 'none' },
+                        { title: 'nguyên lai ta là tu tiên đại lão 92', chapter: '92', neon: 'none' },
+                        { title: 'ta bị nhốt tại cùng một ngày mười vạn năm 239', chapter: '239', neon: 'none' },
+                        { title: 'thiên hạ đệ nhất nhân 74', chapter: '74', neon: 'none' },
+                        { title: 'đỉnh cấp khi vận,lặng lẽ tu luyện ngàn năm 50', chapter: '50', neon: 'none' },
+                        { title: 'mashle:muscles and magic 36', chapter: '36', neon: 'none' },
+                        { title: 'gun x clover 17', chapter: '17', neon: 'none' },
+                        { title: 'vô địch từ cưỡng hôn ma nữ 31', chapter: '31', neon: 'none' },
+                        { title: 'ta vô địch lúc nào 185', chapter: '185', neon: 'none' },
+                        { title: 'Gậy gỗ cấp 99+ /119', chapter: '119', neon: 'none' },
+                        { title: 'chưởng môn khiêm tốn chút 27', chapter: '27', neon: 'none' },
+                        { title: 'mạnh nhất lịch sử  274', chapter: '274', neon: 'none' }
+                    ]}
+                ],
+                
+                'vo-han-luu': [
+                    { subcategory: '', items: [
+                        { title: 'ta là tà đế/356', chapter: '356', neon: 'none' },
+                        { title: 'ta quét phó bản ở khắp thế giới 12', chapter: '12', neon: 'none' },
+                        { title: 'vô hạn khủng bố 2', chapter: '2', neon: 'none' },
+                        { title: 'vạn tra triều hoàng 269', chapter: '269', neon: 'none' },
+                        { title: 'gian phi của vạn tra triều hoàng rất bận(fuhuz)', chapter: '', neon: 'none' },
+                        { title: 'Xuyên nhanh mau rửa tội cho nv phản diện', chapter: '', neon: 'none' },
+                        { title: 'nữ phụ bình tĩnh chút', chapter: '', neon: 'none' },
+                        { title: 'hế thống chế tạo nữ thần', chapter: '', neon: 'none' }
+                    ]}
+                ],
+                
+                'quy-than': [
+                    { subcategory: '', items: [
+                        { title: 'thợ cắt tóc cho diêm vương 11', chapter: '11', neon: 'none' },
+                        { title: 'ngày tôi sinh ra bách quỷ dạ hành tuyết thi hộ đạo 3', chapter: '3', neon: 'none' },
+                        { title: 'dược sĩ kì lạ bệnh nhân của tôi đều rất khủng bố 84', chapter: '84', neon: 'none' },
+                        { title: 'con quỷ đã sẵn sàng cho bửa tối 19', chapter: '19', neon: 'none' },
+                        { title: 'tạ u thiên sư 19', chapter: '19', neon: 'none' },
+                        { title: 'đại tượng vô hình 153', chapter: '153', neon: 'none' },
+                        { title: 'quỷ bí chi chủ', chapter: '', neon: 'none' },
+                        { title: 'nhất nhân chi hạ', chapter: '', neon: 'none' },
+                        { title: 'địa sát 72 phép thần thông 17', chapter: '17', neon: 'none' },
+                        { title: 'truyền võ 220', chapter: '220', neon: 'none' },
+                        { title: 'ta ở địa phủ mở hậu cung 95', chapter: '95', neon: 'none' },
+                        { title: 'đấu yểm thần 369', chapter: '369', neon: '2' }
+                    ]},
+                    { subcategory: 'vô hạn lưu', items: [
+                        { title: 'trở thành thần chủ CTHULHU 19', chapter: '19', neon: 'none' },
+                        { title: 'bắt đầu từ cửu đầu điểu 114', chapter: '114', neon: 'none' },
+                        { title: 'người đưa thư vô hạn 245', chapter: '245', neon: 'none' },
+                        { title: 'bắt đầu với trăm vạn minh tệ 49', chapter: '49', neon: 'none' },
+                        { title: 'thần trò chơi dục vọng 76', chapter: '76', neon: 'none' }
+                    ]},
+                    { subcategory: 'mindbreak', items: [
+                        { title: 'tình mẹ bao la 46', chapter: '46', neon: 'none' }
+                    ]}
+                ],
+                
+                'ngon': [
+                    { subcategory: '', items: [
+                        { title: 'dạy hư đồ đệ phản diện r phải làm sao đây 21', chapter: '21', neon: 'none' },
+                        { title: 'lớ ngớ vớ phải tình yêu 107', chapter: '107', neon: 'none' },
+                        { title: 'tìm lại camelia 8', chapter: '8', neon: 'none' },
+                        { title: 'oan gia chung nhà 80', chapter: '80', neon: 'none' },
+                        { title: 'một ngày nọ tôi bỗng trở thành công chúa 2', chapter: '2', neon: 'none' },
+                        { title: 'chào nhé ko làm thông gia nữa đâu 67', chapter: '67', neon: 'none' },
+                        { title: 'Nếu Là Phản Diện, Liệu Tôi Sẽ Chết? 21', chapter: '21', neon: 'none' },
+                        { title: 'bà xã nhà tôi đến từ ngàn năm trước 122', chapter: '122', neon: 'none' },
+                        { title: 'toi có ông chồng hay ghen 46', chapter: '46', neon: 'none' },
+                        { title: 'lừa tình 9', chapter: '9', neon: 'none' },
+                        { title: 'cưỡng đoạt nàng dâu 2', chapter: '2', neon: 'none' }
+                    ]},
+                    { subcategory: 'Bán ecchi', items: [
+                        { title: 'yumeochi mơ về những ngày ta yêu nhau 22', chapter: '22', neon: 'none' },
+                        { title: 'phòng củA TÔI liên kết với hầm ngục 17', chapter: '17', neon: 'none' },
+                        { title: 'chị gái tôi là đại minh tinh 16', chapter: '16', neon: 'none' },
+                        { title: 'học tỷ đừng livestream nữa 3', chapter: '3', neon: 'none' },
+                        { title: 'làm sao để chạy trốn dàn hậu cung', chapter: '', neon: 'none' },
+                        { title: 'RÕ RÀNG TÔI CHỈ MUỐN CHƠI GAME, XIN ĐỪNG KÉO TÔI VÀO LĨNH VỰC TÌNH YÊU', chapter: '', neon: 'none' },
+                        { title: 'làm sao để chạy trốn dàn harem 180', chapter: '180', neon: 'none' },
+                        { title: 'hắc đạo này có chút manh', chapter: '', neon: 'none' },
+                        { title: 'hantsu x torasshu', chapter: '', neon: '3' },
+                        { title: 'sự quyến rũ của gái 2.5d', chapter: '', neon: 'none' },
+                        { title: 'mato seihei no slave 124', chapter: '124', neon: '3' },
+                        { title: 'đến đây nào ma pháp thiếu nữ 6', chapter: '6', neon: 'none' },
+                        { title: 'musume no shinshitsu 5', chapter: '5', neon: 'none' },
+                        { title: 'quán cafe nữ thần  109', chapter: '109', neon: 'none' }
+                    ]},
+                    { subcategory: 'tu tiên', items: [
+                        { title: 'bắt đầu chấn kinh nữ đế lão bà ta vô địch 49', chapter: '49', neon: 'none' },
+                        { title: 'trời sinh mị cốt ta bị đồ nhi yandere để mắt tới 29', chapter: '29', neon: 'none' },
+                        { title: 'My Harem Grew So Large, I Was Forced to Ascend / 55', chapter: '55', neon: 'none' },
+                        { title: 'VAI ÁC SƯ TÔN MANG THEO CÁC ĐỒ ĐỆ VÔ ĐỊCH THIÊN HẠ 50', chapter: '50', neon: 'none' },
+                        { title: 'trước khi vô địch ta nợ tình quá nhiều 22', chapter: '22', neon: 'none' },
+                        { title: 'ma vương trở lại/48', chapter: '48', neon: 'none' },
+                        { title: 'CẨU LƯƠNG THÀNH CHUẨN THÁNH, TA ĐƯỢC NỮ ĐẾ TRIỆU HOÁN 6', chapter: '6', neon: 'none' },
+                        { title: 'hảo đồ nhi hãy tha cho vi sư 76', chapter: '76', neon: 'none' },
+                        { title: 'đồ đệ của ta đều là nữ ma đầu 190 (mangatoon)', chapter: '190', neon: 'none' },
+                        { title: 'tu luyện thành tiên ta chỉ muốn nuôi nữ đồ đệ 5', chapter: '5', neon: 'none' },
+                        { title: 'ta dưỡng ra nhân vật phản diện là nữ đế yandere 11', chapter: '11', neon: 'none' },
+                        { title: 'toàn bộ tu chân giới muội tử đều muốn bắt ta', chapter: '', neon: 'none' },
+                        { title: 'tinh linh ám đế 260', chapter: '260', neon: '4' },
+                        { title: 'ta nằm vùng tại ma giới 87', chapter: '87', neon: 'none' },
+                        { title: 'tuyệt sắc đạo lữ đều nói ngô hoàng thể chất vô địch 122', chapter: '122', neon: 'none' }
+                    ]}
+                ],
+                
+                'ecchi': [
+                    { subcategory: '', items: [
+                        { title: 'senki survival saga:isekai no unmei o kaketa mujintou fujun iseikouyuu', chapter: '', neon: '4' },
+                        { title: '7 nàng công chúa ngủ say', chapter: '', neon: '2' },
+                        { title: 'reincarnation coliseum 34 (sechbn)', chapter: '34', neon: '4' },
+                        { title: 'dead tube 109', chapter: '109', neon: '2' },
+                        { title: 'tengoku no masaic', chapter: '', neon: 'none' },
+                        { title: 'kono ko shirimasenka', chapter: '', neon: 'none' },
+                        { title: 'murata kouji', chapter: '', neon: 'none' },
+                        { title: 'đấu trường chuyển sinh 14', chapter: '14', neon: '2' },
+                        { title: 'độc là dungeon 12.5', chapter: '12.5', neon: 'none' },
+                        { title: 'healer báo thù 48.5', chapter: '48.5', neon: 'none' },
+                        { title: 'chúng tôi đã làm được rồi 77', chapter: '77', neon: 'none' },
+                        { title: 'rosen garten saga 28', chapter: '28', neon: 'none' },
+                        { title: 'destiny lovers 101', chapter: '101', neon: 'none' },
+                        { title: 'destiny lovers 2  : 37', chapter: '37', neon: 'none' },
+                        { title: 'home room 63', chapter: '63', neon: 'none' },
+                        { title: 'nozoki ana 35', chapter: '35', neon: 'none' },
+                        { title: 'sex and dungeon 10', chapter: '10', neon: 'none' },
+                        { title: 'ushiro no shoumen kamui san 40', chapter: '40', neon: 'none' },
+                        { title: 'dâm hùng end 40', chapter: '40', neon: 'none' },
+                        { title: 'isekai de tochi o katte noujou o tsukurou', chapter: '', neon: 'none' },
+                        { title: 'tái sinh thành quý tộc với kĩ năng appraisal', chapter: '', neon: 'none' },
+                        { title: 'oukoku e tsuzuku michi dorei kenshi no nariagari eiyũtan 34', chapter: '34', neon: 'none' },
+                        { title: 'zutto ôtkonoko da to omette ita gakitaishou ga  onnanoko deshita 10', chapter: '10', neon: 'none' },
+                        { title: 'karami zakari:boku no honto to kimi no uso 3', chapter: '3', neon: 'none' },
+                        { title: 'MUKUCHINA MIYASHITA-SAN NO SHIKIYOKU CHANNEL 3.2', chapter: '3.2', neon: 'none' },
+                        { title: 'hentai ouji to warawanai neko 34.5', chapter: '34.5', neon: 'none' },
+                        { title: 'Kekkon Yubiwa Monogatari  9', chapter: '9', neon: 'none' },
+                        { title: 'kaguya sama wa kokurasetai DOUJINSHI 18', chapter: '18', neon: 'none' },
+                        { title: 'himekishi ga classmate', chapter: '', neon: 'none' },
+                        { title: 'mauo no hajimekata 43', chapter: '43', neon: 'none' },
+                        { title: 'i tried asking in dogeza 24', chapter: '24', neon: 'none' },
+                        { title: 'hoán kiếm trọng', chapter: '', neon: 'none' },
+                        { title: 'dungeon ni hisomu yandere na kanojo ni ore wa nando mo korosareru / 26', chapter: '26', neon: 'none' },
+                        { title: 'Elf loli sinh tồn ký', chapter: '', neon: '2' }
+                    ]}
+                ],
+                
+                'phim': [
+                    { subcategory: '', items: [
+                        { title: 'tư vô tà phim 8', chapter: '8', neon: 'none' },
+                        { title: 'nhất niệm vĩnh hằng phim 64 p2', chapter: '64', neon: 'none' },
+                        { title: 'tiên nghịch 117', chapter: '117', neon: 'none' },
+                        { title: 'phim thế giới hoàn mỹ rt45', chapter: 'rt45', neon: 'none' },
+                        { title: 'phim phàm nhân tu tiên', chapter: '', neon: 'none' },
+                        { title: 'BLACK CLOVER phim/134', chapter: '134', neon: 'none' },
+                        { title: 'nguyệt đạo dị giới p1', chapter: 'p1', neon: 'none' },
+                        { title: 'nguyệt đạo dị giới p2 18', chapter: '18', neon: 'none' },
+                        { title: 'konosuba /71', chapter: '71', neon: 'none' },
+                        { title: 'the boys p1', chapter: 'p1', neon: 'none' },
+                        { title: 'the boys p2 4', chapter: '4', neon: 'none' },
+                        { title: 'Alice in the borderland', chapter: '', neon: 'none' },
+                        { title: 'breaking bad', chapter: '', neon: 'none' },
+                        { title: 'oishi no ko phim 1', chapter: '1', neon: 'none' },
+                        { title: 'peacemarker', chapter: '', neon: 'none' },
+                        { title: 'nguyên long 1', chapter: '1', neon: 'none' },
+                        { title: 'junji ito maniac japanese tales of the macabre (truyện ma nhật bản)', chapter: '', neon: 'none' },
+                        { title: 'inuyashiki (ông bác siêu nhân)', chapter: '', neon: 'none' },
+                        { title: 'Maou No Ore Ga Dorei Elf Wo Yome Ni Shitanda Ga, Dou Medereba Ii? 10', chapter: '10', neon: 'none' },
+                        { title: 'baki dai raitaisai hen 9', chapter: '9', neon: 'none' }
+                    ]}
+                ]
+            };
+
+        // App state
+        const appState = {
+            currentCategory: null,
+            currentSort: 'default',
+            isLoading: false
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load data from localStorage
+            loadFromLocalStorage();
+            
+            // Initialize app
+            initializeApp();
+            setupEventListeners();
+            updateStats();
+        });
+
+        function initializeApp() {
+            // Render categories list
+            renderCategories();
+            
+            // Set first category as active
+            if (contentData.categories.length > 0) {
+                const firstCategory = contentData.categories[0];
+                showCategory(firstCategory.id);
+                updateCategoryTitle(firstCategory);
+            }
+            
+            // Populate category dropdown in add form
+            populateCategoryDropdown();
+            
+            // Update stats
+            updateStats();
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            
+            // Add comic button
+            document.getElementById('addComicBtn').addEventListener('click', showAddComicModal);
+            document.getElementById('saveAllBtn').addEventListener('click', saveAllData);
+            document.getElementById('importBtn').addEventListener('click', showImportModal);
+            
+            // Modal close buttons
+            document.getElementById('closeAddModal').addEventListener('click', hideAddComicModal);
+            document.getElementById('cancelAdd').addEventListener('click', hideAddComicModal);
+            document.getElementById('closeEditModal').addEventListener('click', hideEditChapterModal);
+            document.getElementById('cancelEdit').addEventListener('click', hideEditChapterModal);
+            document.getElementById('closeImportModal').addEventListener('click', hideImportModal);
+            document.getElementById('cancelImport').addEventListener('click', hideImportModal);
+            
+            // Import buttons
+            document.getElementById('importDefault').addEventListener('click', importDefaultData);
+            document.getElementById('importJSON').addEventListener('click', showJSONInput);
+            
+            // Form submissions
+            document.getElementById('addComicForm').addEventListener('submit', handleAddComic);
+            document.getElementById('editChapterForm').addEventListener('submit', handleUpdateChapter);
+            
+            // Close modal when clicking outside
+            document.getElementById('addComicModal').addEventListener('click', function(e) {
+                if (e.target === this) hideAddComicModal();
+            });
+            document.getElementById('editChapterModal').addEventListener('click', function(e) {
+                if (e.target === this) hideEditChapterModal();
+            });
+            document.getElementById('importModal').addEventListener('click', function(e) {
+                if (e.target === this) hideImportModal();
+            });
+        }
+
+        function renderCategories() {
+            const categoriesList = document.getElementById('categoriesList');
+            categoriesList.innerHTML = '';
+            
+            contentData.categories.forEach(category => {
+                // Count items in category
+                let itemCount = 0;
+                if (contentData.items[category.id]) {
+                    contentData.items[category.id].forEach(subcat => {
+                        itemCount += subcat.items.length;
+                    });
+                }
+                
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category-item';
+                categoryElement.dataset.id = category.id;
+                categoryElement.innerHTML = `
+                    <div>
+                        <div class="category-name">${category.name}</div>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <span class="category-code">${category.code}</span>
+                            <span style="color: var(--gray); font-size: 0.85rem;">${itemCount} truyện</span>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                `;
+                
+                categoryElement.addEventListener('click', () => {
+                    // Remove active class from all categories
+                    document.querySelectorAll('.category-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked category
+                    categoryElement.classList.add('active');
+                    
+                    // Show category content
+                    showCategory(category.id);
+                    
+                    // Update category title
+                    updateCategoryTitle(category);
+                    
+                    // Reset search
+                    document.getElementById('searchInput').value = '';
+                });
+                
+                categoriesList.appendChild(categoryElement);
+            });
+        }
+
+        function showCategory(categoryId) {
+            appState.currentCategory = categoryId;
+            
+            // Hide all category contents
+            document.querySelectorAll('.category-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Hide no results message
+            document.getElementById('noResults').style.display = 'none';
+            
+            // Find category
+            const category = contentData.categories.find(cat => cat.id === categoryId);
+            const items = contentData.items[categoryId];
+            
+            // Create category content container if it doesn't exist
+            let categoryContent = document.getElementById(`category-${categoryId}`);
+            
+            if (!categoryContent) {
+                categoryContent = document.createElement('div');
+                categoryContent.id = `category-${categoryId}`;
+                categoryContent.className = 'category-content';
+                document.getElementById('categoryContents').appendChild(categoryContent);
+            }
+            
+            // Clear previous content
+            categoryContent.innerHTML = '';
+            
+            // If no items for this category
+            if (!items || items.length === 0) {
+                categoryContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <i class="fas fa-book fa-3x" style="margin-bottom: 20px; opacity: 0.5;"></i>
+                        <p>Chưa có nội dung cho thể loại này.</p>
+                        <button class="btn btn-primary" id="addFirstComic" style="margin-top: 20px;">
+                            <i class="fas fa-plus"></i> Thêm truyện đầu tiên
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listener to the button
+                setTimeout(() => {
+                    document.getElementById('addFirstComic')?.addEventListener('click', showAddComicModal);
+                }, 100);
+                
+                categoryContent.classList.add('active');
+                return;
+            }
+            
+            // Render subcategories and items
+            items.forEach(subcat => {
+                const subcategoryElement = document.createElement('div');
+                subcategoryElement.className = 'subcategory';
+                
+                // Add subcategory title if exists
+                if (subcat.subcategory) {
+                    const subcategoryTitle = document.createElement('h3');
+                    subcategoryTitle.className = 'subcategory-title';
+                    subcategoryTitle.innerHTML = `<i class="fas fa-folder"></i> ${subcat.subcategory}`;
+                    subcategoryElement.appendChild(subcategoryTitle);
+                }
+                
+                // Create items container
+                const itemsContainer = document.createElement('div');
+                itemsContainer.className = 'items-grid';
+                
+                // Add items
+                subcat.items.forEach(item => {
+                    const itemElement = createItemElement(item, categoryId, subcat.subcategory || '');
+                    itemsContainer.appendChild(itemElement);
+                });
+                
+                subcategoryElement.appendChild(itemsContainer);
+                categoryContent.appendChild(subcategoryElement);
+            });
+            
+            // Show the category content
+            categoryContent.classList.add('active');
+        }
+
+        function createItemElement(item, categoryId, subcategory) {
+            const itemElement = document.createElement('div');
+            
+            // Determine item format and handle both old and new formats
+            const itemId = item.id || generateId();
+            const itemTitle = item.title || '';
+            const itemChapter = item.chapter || '';
+            const itemRating = item.rating || item.neon || 'none';
+            const itemTags = item.tags || [];
+            const itemDescription = item.description || '';
+            const lastUpdated = item.lastUpdated || new Date().toISOString();
+            
+            itemElement.className = `item ${itemRating !== 'none' ? 'neon-' + itemRating : ''}`;
+            itemElement.dataset.id = itemId;
+            
+            const ratingText = getRatingText(itemRating);
+            
+            itemElement.innerHTML = `
+                <div class="item-header">
+                    <div class="item-title">${itemTitle}</div>
+                    <div class="item-rating">${ratingText}</div>
+                </div>
+                
+                <div class="item-body">
+                    ${itemDescription ? `<p style="color: var(--gray-light); font-size: 0.9rem; margin-bottom: 10px;">${itemDescription}</p>` : ''}
+                    
+                    ${itemTags.length > 0 ? `
+                        <div class="item-tags">
+                            ${itemTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div style="color: var(--gray); font-size: 0.85rem; margin-top: 10px;">
+                        <i class="far fa-clock"></i> Cập nhật: ${formatDate(lastUpdated)}
+                    </div>
+                </div>
+                
+                <div class="item-footer">
+                    <div class="chapter-controls">
+                        <div style="font-weight: 600;">Chapter:</div>
+                        <input type="text" class="chapter-input" value="${itemChapter}" 
+                               data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                        <button class="btn-sm btn-update update-chapter" 
+                                data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                            <i class="fas fa-save"></i> Cập nhật
+                        </button>
+                    </div>
+                    
+                    <div class="item-actions">
+                        <button class="btn-sm btn-primary edit-item" 
+                                data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-sm btn-delete delete-item" 
+                                data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            const updateBtn = itemElement.querySelector('.update-chapter');
+            const editBtn = itemElement.querySelector('.edit-item');
+            const deleteBtn = itemElement.querySelector('.delete-item');
+            const chapterInput = itemElement.querySelector('.chapter-input');
+            
+            updateBtn.addEventListener('click', function() {
+                const newChapter = chapterInput.value.trim();
+                if (newChapter && newChapter !== itemChapter) {
+                    updateChapter(
+                        this.dataset.id,
+                        this.dataset.category,
+                        this.dataset.subcategory,
+                        newChapter
+                    );
+                }
+            });
+            
+            chapterInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const newChapter = this.value.trim();
+                    if (newChapter && newChapter !== itemChapter) {
+                        updateChapter(
+                            this.dataset.id,
+                            this.dataset.category,
+                            this.dataset.subcategory,
+                            newChapter
+                        );
+                    }
+                }
+            });
+            
+            editBtn.addEventListener('click', function() {
+                showEditChapterModal(
+                    this.dataset.id,
+                    this.dataset.category,
+                    this.dataset.subcategory
+                );
+            });
+            
+            deleteBtn.addEventListener('click', function() {
+                if (confirm('Bạn có chắc muốn xóa truyện này?')) {
+                    deleteComic(
+                        this.dataset.id,
+                        this.dataset.category,
+                        this.dataset.subcategory
+                    );
+                }
+            });
+            
+            return itemElement;
+        }
+
+        function showAddComicModal() {
+            const modal = document.getElementById('addComicModal');
+            const form = document.getElementById('addComicForm');
+            
+            // Reset form
+            form.reset();
+            
+            // Set default category to current category if exists
+            if (appState.currentCategory) {
+                document.getElementById('comicCategory').value = appState.currentCategory;
+            }
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+
+        function hideAddComicModal() {
+            document.getElementById('addComicModal').style.display = 'none';
+        }
+
+        function showEditChapterModal(itemId, categoryId, subcategory) {
+            // Find the item
+            const item = findItem(itemId, categoryId, subcategory);
+            if (!item) return;
+            
+            // Fill form
+            document.getElementById('editComicId').value = itemId;
+            document.getElementById('editCategoryId').value = categoryId;
+            document.getElementById('editSubcategoryName').value = subcategory;
+            document.getElementById('editComicTitle').value = item.title || '';
+            document.getElementById('editComicChapter').value = item.chapter || '';
+            document.getElementById('editComicRating').value = item.rating || item.neon || 'none';
+            
+            // Show modal
+            document.getElementById('editChapterModal').style.display = 'flex';
+        }
+
+        function hideEditChapterModal() {
+            document.getElementById('editChapterModal').style.display = 'none';
+        }
+
+        function showImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            document.getElementById('jsonInputContainer').style.display = 'none';
+            document.getElementById('jsonInput').value = '';
+        }
+
+        function hideImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        function showJSONInput() {
+            document.getElementById('jsonInputContainer').style.display = 'block';
+            
+            // When JSON input is shown, add event listener for paste
+            setTimeout(() => {
+                document.getElementById('jsonInput').focus();
+            }, 100);
+        }
+
+        function populateCategoryDropdown() {
+            const dropdown = document.getElementById('comicCategory');
+            dropdown.innerHTML = '<option value="">Chọn thể loại</option>';
+            
+            contentData.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = `${category.name} (${category.code})`;
+                dropdown.appendChild(option);
+            });
+        }
+
+        function handleAddComic(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const title = document.getElementById('comicTitle').value.trim();
+            const categoryId = document.getElementById('comicCategory').value;
+            const subcategory = document.getElementById('comicSubcategory').value.trim();
+            const chapter = document.getElementById('comicChapter').value.trim();
+            const rating = document.getElementById('comicRating').value;
+            const tags = document.getElementById('comicTags').value
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
+            const description = document.getElementById('comicDescription').value.trim();
+            
+            // Validate
+            if (!title || !categoryId || !chapter) {
+                showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+                return;
+            }
+            
+            // Generate unique ID
+            const id = generateId();
+            
+            // Create new item (new format)
+            const newItem = {
+                id,
+                title,
+                chapter,
+                rating,
+                tags,
+                description: description || '',
+                lastUpdated: new Date().toISOString()
+            };
+            
+            // Add to data structure
+            if (!contentData.items[categoryId]) {
+                contentData.items[categoryId] = [];
+            }
+            
+            // Find or create subcategory
+            let subcatIndex = contentData.items[categoryId].findIndex(sc => sc.subcategory === subcategory);
+            if (subcatIndex === -1) {
+                contentData.items[categoryId].push({
+                    subcategory: subcategory || '',
+                    items: [newItem]
+                });
+            } else {
+                contentData.items[categoryId][subcatIndex].items.push(newItem);
+            }
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Hide modal
+            hideAddComicModal();
+            
+            // Show success message
+            showToast('Đã thêm truyện thành công!');
+            
+            // Refresh current view
+            if (appState.currentCategory === categoryId) {
+                showCategory(categoryId);
+            } else {
+                // Switch to the category
+                const category = contentData.categories.find(cat => cat.id === categoryId);
+                if (category) {
+                    // Update active category
+                    document.querySelectorAll('.category-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.dataset.id === categoryId) {
+                            item.classList.add('active');
+                        }
+                    });
+                    
+                    showCategory(categoryId);
+                    updateCategoryTitle(category);
+                }
+            }
+            
+            // Update stats
+            updateStats();
+        }
+
+        function handleUpdateChapter(e) {
+            e.preventDefault();
+            
+            const itemId = document.getElementById('editComicId').value;
+            const categoryId = document.getElementById('editCategoryId').value;
+            const subcategory = document.getElementById('editSubcategoryName').value;
+            const newChapter = document.getElementById('editComicChapter').value.trim();
+            const newRating = document.getElementById('editComicRating').value;
+            
+            if (!newChapter) {
+                showToast('Vui lòng nhập chapter', 'error');
+                return;
+            }
+            
+            // Update the item
+            const item = findItem(itemId, categoryId, subcategory);
+            if (item) {
+                item.chapter = newChapter;
+                item.rating = newRating;
+                // Remove old 'neon' property if exists
+                if (item.neon) delete item.neon;
+                item.lastUpdated = new Date().toISOString();
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Hide modal
+                hideEditChapterModal();
+                
+                // Show success message
+                showToast('Đã cập nhật chapter thành công!');
+                
+                // Refresh view
+                showCategory(categoryId);
+                
+                // Update stats
+                updateStats();
+            }
+        }
+
+        function updateChapter(itemId, categoryId, subcategory, newChapter) {
+            if (!newChapter) return;
+            
+            const item = findItem(itemId, categoryId, subcategory);
+            if (item && item.chapter !== newChapter) {
+                item.chapter = newChapter;
+                item.lastUpdated = new Date().toISOString();
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Show success message
+                showToast('Đã cập nhật chapter!');
+                
+                // Update stats
+                updateStats();
+            }
+        }
+
+        function deleteComic(itemId, categoryId, subcategory) {
+            // Find the subcategory
+            const categoryItems = contentData.items[categoryId];
+            if (!categoryItems) return;
+            
+            const subcatIndex = categoryItems.findIndex(sc => sc.subcategory === subcategory);
+            if (subcatIndex === -1) return;
+            
+            // Remove the item
+            const itemIndex = categoryItems[subcatIndex].items.findIndex(item => item.id === itemId);
+            if (itemIndex === -1) return;
+            
+            categoryItems[subcatIndex].items.splice(itemIndex, 1);
+            
+            // If subcategory is now empty, remove it
+            if (categoryItems[subcatIndex].items.length === 0) {
+                categoryItems.splice(subcatIndex, 1);
+            }
+            
+            // If category is now empty, remove it
+            if (categoryItems.length === 0) {
+                delete contentData.items[categoryId];
+            }
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Show success message
+            showToast('Đã xóa truyện thành công!');
+            
+            // Refresh view
+            if (appState.currentCategory === categoryId) {
+                showCategory(categoryId);
+            }
+            
+            // Update stats
+            updateStats();
+        }
+
+        function findItem(itemId, categoryId, subcategory) {
+            const categoryItems = contentData.items[categoryId];
+            if (!categoryItems) return null;
+            
+            const subcat = categoryItems.find(sc => sc.subcategory === subcategory);
+            if (!subcat) return null;
+            
+            return subcat.items.find(item => item.id === itemId) || null;
+        }
+
+        function importDefaultData() {
+            if (confirm('Bạn có chắc muốn nhập dữ liệu mẫu? Dữ liệu hiện tại sẽ được thêm vào (không xóa dữ liệu cũ).')) {
+                // Convert default data to new format and add to existing data
+                Object.keys(defaultData).forEach(categoryId => {
+                    if (!contentData.items[categoryId]) {
+                        contentData.items[categoryId] = [];
+                    }
+                    
+                    defaultData[categoryId].forEach(defaultSubcat => {
+                        // Check if subcategory exists
+                        let subcatIndex = contentData.items[categoryId].findIndex(
+                            sc => sc.subcategory === defaultSubcat.subcategory
+                        );
+                        
+                        if (subcatIndex === -1) {
+                            // Create new subcategory with converted items
+                            const convertedItems = defaultSubcat.items.map(item => ({
+                                id: generateId(),
+                                title: item.title,
+                                chapter: item.chapter,
+                                rating: item.neon,
+                                tags: extractTagsFromTitle(item.title),
+                                description: '',
+                                lastUpdated: new Date().toISOString()
+                            }));
+                            
+                            contentData.items[categoryId].push({
+                                subcategory: defaultSubcat.subcategory,
+                                items: convertedItems
+                            });
+                        } else {
+                            // Add items to existing subcategory
+                            defaultSubcat.items.forEach(defaultItem => {
+                                // Check if item already exists by title
+                                const exists = contentData.items[categoryId][subcatIndex].items.some(
+                                    item => item.title === defaultItem.title
+                                );
+                                
+                                if (!exists) {
+                                    contentData.items[categoryId][subcatIndex].items.push({
+                                        id: generateId(),
+                                        title: defaultItem.title,
+                                        chapter: defaultItem.chapter,
+                                        rating: defaultItem.neon,
+                                        tags: extractTagsFromTitle(defaultItem.title),
+                                        description: '',
+                                        lastUpdated: new Date().toISOString()
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Hide modal
+                hideImportModal();
+                
+                // Show success message
+                showToast('Đã nhập dữ liệu mẫu thành công!');
+                
+                // Refresh view if current category is in imported data
+                if (appState.currentCategory && contentData.items[appState.currentCategory]) {
+                    showCategory(appState.currentCategory);
+                }
+                
+                // Update stats
+                updateStats();
+            }
+        }
+
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            // If search is empty, show current category
+            if (searchTerm === '' && appState.currentCategory) {
+                showCategory(appState.currentCategory);
+                document.getElementById('noResults').style.display = 'none';
+                return;
+            }
+            
+            // Hide all category contents
+            document.querySelectorAll('.category-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Create search results container
+            let searchResults = document.getElementById('search-results');
+            if (!searchResults) {
+                searchResults = document.createElement('div');
+                searchResults.id = 'search-results';
+                searchResults.className = 'category-content';
+                document.getElementById('categoryContents').appendChild(searchResults);
+            }
+            
+            // Clear previous results
+            searchResults.innerHTML = '';
+            
+            // Search through all items
+            let hasResults = false;
+            let resultCount = 0;
+            
+            contentData.categories.forEach(category => {
+                const items = contentData.items[category.id];
+                if (!items) return;
+                
+                let categoryHasResults = false;
+                const categoryResults = document.createElement('div');
+                categoryResults.className = 'subcategory';
+                
+                // Search in each subcategory
+                items.forEach(subcat => {
+                    subcat.items.forEach(item => {
+                        const searchableText = [
+                            item.title,
+                            ...(item.tags || []),
+                            item.description || ''
+                        ].join(' ').toLowerCase();
+                        
+                        if (searchableText.includes(searchTerm)) {
+                            if (!categoryHasResults) {
+                                // Add category title
+                                const categoryTitle = document.createElement('h3');
+                                categoryTitle.className = 'subcategory-title';
+                                categoryTitle.innerHTML = `<i class="fas fa-folder"></i> ${category.name} (${category.code})`;
+                                categoryResults.appendChild(categoryTitle);
+                                
+                                // Create items container
+                                const itemsContainer = document.createElement('div');
+                                itemsContainer.className = 'items-grid';
+                                categoryResults.appendChild(itemsContainer);
+                                categoryHasResults = true;
+                            }
+                            
+                            // Add item to results
+                            const itemElement = createItemElement(item, category.id, subcat.subcategory || '');
+                            categoryResults.querySelector('.items-grid').appendChild(itemElement);
+                            hasResults = true;
+                            resultCount++;
+                        }
+                    });
+                });
+                
+                // If this category has results, add it to search results
+                if (categoryHasResults) {
+                    searchResults.appendChild(categoryResults);
+                }
+            });
+            
+            // Show/hide no results message
+            if (hasResults) {
+                searchResults.classList.add('active');
+                document.getElementById('noResults').style.display = 'none';
+                
+                // Update category title
+                document.getElementById('currentCategoryTitle').innerHTML = `
+                    <i class="fas fa-search"></i> Kết quả tìm kiếm: "${searchTerm}" (${resultCount} kết quả)
+                `;
+            } else {
+                searchResults.classList.remove('active');
+                document.getElementById('noResults').style.display = 'block';
+                
+                // Update category title
+                document.getElementById('currentCategoryTitle').innerHTML = `
+                    <i class="fas fa-search"></i> Kết quả tìm kiếm
+                `;
+            }
+        }
+
+        function updateCategoryTitle(category) {
+            document.getElementById('currentCategoryTitle').innerHTML = `
+                <i class="${category.icon}" style="color: ${category.color};"></i> ${category.name} (${category.code})
+            `;
+        }
+
+        function updateStats() {
+            // Calculate total items and reading count
+            let totalItems = 0;
+            let readingCount = 0;
+            
+            Object.values(contentData.items).forEach(categoryItems => {
+                categoryItems.forEach(subcat => {
+                    totalItems += subcat.items.length;
+                    readingCount += subcat.items.filter(item => item.chapter && item.chapter !== '0').length;
+                });
+            });
+            
+            // Update stats display
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('totalCategories').textContent = contentData.categories.length;
+            document.getElementById('readingCount').textContent = readingCount;
+        }
+
+        function getRatingText(rating) {
+            switch(rating) {
+                case 'heart': return '💕 Đặc biệt';
+                case '4': return '**** 4 sao';
+                case '3': return '*** 3 sao';
+                case '2': return '** 2 sao';
+                case '1': return '* 1 sao';
+                default: return 'Chưa đánh giá';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 60) {
+                return `${diffMins} phút trước`;
+            } else if (diffHours < 24) {
+                return `${diffHours} giờ trước`;
+            } else if (diffDays < 7) {
+                return `${diffDays} ngày trước`;
+            } else {
+                return date.toLocaleDateString('vi-VN');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set message and color
+            toastMessage.textContent = message;
+            
+            if (type === 'error') {
+                toast.style.background = 'var(--danger)';
+                toast.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                toast.style.background = 'var(--accent)';
+                toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+            } else {
+                toast.style.background = 'var(--success)';
+                toast.querySelector('i').className = 'fas fa-check-circle';
+            }
+            
+            // Show toast
+            toast.style.display = 'flex';
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function generateId() {
+            return 'item-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function extractTagsFromTitle(title) {
+            const tags = [];
+            
+            // Common tags based on title patterns
+            if (title.toLowerCase().includes('học đường')) tags.push('học đường');
+            if (title.toLowerCase().includes('mạt thế')) tags.push('mạt thế');
+            if (title.toLowerCase().includes('tu tiên')) tags.push('tu tiên');
+            if (title.toLowerCase().includes('dị giới')) tags.push('dị giới');
+            if (title.toLowerCase().includes('trùng sinh')) tags.push('trùng sinh');
+            if (title.toLowerCase().includes('hài')) tags.push('hài hước');
+            if (title.toLowerCase().includes('chiến đấu') || title.toLowerCase().includes('combat')) tags.push('chiến đấu');
+            if (title.toLowerCase().includes('hệ thống')) tags.push('hệ thống');
+            
+            return tags;
+        }
+
+        // LocalStorage functions
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('comicLibraryData', JSON.stringify(contentData));
+                console.log('Đã lưu dữ liệu vào localStorage');
+            } catch (e) {
+                console.error('Lỗi khi lưu vào localStorage:', e);
+                showToast('Lỗi khi lưu dữ liệu', 'error');
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('comicLibraryData');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    if (parsedData) {
+                        // Merge with current data structure
+                        contentData = parsedData;
+                        
+                        // Ensure all categories from default are present
+                        const defaultCategories = contentData.categories;
+                        const savedCategories = parsedData.categories || [];
+                        
+                        // Merge categories
+                        const mergedCategories = [...defaultCategories];
+                        savedCategories.forEach(savedCat => {
+                            if (!mergedCategories.find(cat => cat.id === savedCat.id)) {
+                                mergedCategories.push(savedCat);
+                            }
+                        });
+                        contentData.categories = mergedCategories;
+                        
+                        // Convert old format items to new format if needed
+                        convertOldFormatItems();
+                        
+                        console.log('Đã tải dữ liệu từ localStorage');
+                        showToast('Đã tải dữ liệu đã lưu', 'success');
+                    }
+                }
+            } catch (e) {
+                console.error('Lỗi khi tải từ localStorage:', e);
+                showToast('Lỗi khi tải dữ liệu đã lưu', 'error');
+            }
+        }
+
+        function convertOldFormatItems() {
+            // Convert items from old format to new format if needed
+            Object.keys(contentData.items).forEach(categoryId => {
+                contentData.items[categoryId].forEach(subcat => {
+                    subcat.items = subcat.items.map(item => {
+                        // If item doesn't have id, it's in old format
+                        if (!item.id) {
+                            return {
+                                id: generateId(),
+                                title: item.title,
+                                chapter: item.chapter,
+                                rating: item.neon || item.rating || 'none',
+                                tags: item.tags || extractTagsFromTitle(item.title),
+                                description: item.description || '',
+                                lastUpdated: item.lastUpdated || new Date().toISOString()
+                            };
+                        }
+                        return item;
+                    });
+                });
+            });
+        }
+
+        function saveAllData() {
+            saveToLocalStorage();
+            showToast('Đã lưu tất cả dữ liệu thành công!');
+        }
+
+        // Utility function for debounce
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Auto-save when leaving page
+        window.addEventListener('beforeunload', function() {
+            saveToLocalStorage();
+        });
+
+        // Auto-save every 30 seconds
+        setInterval(saveToLocalStorage, 30000);
+    </script>
+</body>
+</html>
