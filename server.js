@@ -14,8 +14,14 @@ const pool = new Pool({
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
+  origin: [
+    'https://comicko.netlify.app',
+    'http://localhost:3000',
+    'https://comicco.netlify.app' // Your old domain
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -399,7 +405,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Thêm route này vào server.js (trước app.listen)
 app.get('/', (req, res) => {
     res.json({
         message: 'Comic Library API',
@@ -415,7 +420,7 @@ app.get('/', (req, res) => {
 
 // Hoặc nếu muốn redirect đến docs
 app.get('/', (req, res) => {
-    res.redirect('https://github.com/your-username/comic-library');
+    res.redirect('https://github.com/wang1o8/comic-backend.git');
 });
 
 // Start server
