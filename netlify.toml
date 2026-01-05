@@ -1,0 +1,25 @@
+[build]
+  publish = "."  # Publish current directory
+  functions = "netlify/functions"  # If using functions
+
+[[redirects]]
+  from = "/*"
+  to = "/truyen.html"
+  status = 200
+
+# If you have API routes
+[[redirects]]
+  from = "/api/*"
+  to = "https://comic-backend-cuef.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# For SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/truyen.html"
+  status = 200
+
+[dev]
+  targetPort = 3000
+  framework = "#static"

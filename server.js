@@ -399,6 +399,25 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Thêm route này vào server.js (trước app.listen)
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Comic Library API',
+        endpoints: {
+            categories: '/api/categories',
+            comics: '/api/comics',
+            stats: '/api/stats',
+            health: '/health'
+        },
+        version: '1.0.0'
+    });
+});
+
+// Hoặc nếu muốn redirect đến docs
+app.get('/', (req, res) => {
+    res.redirect('https://github.com/your-username/comic-library');
+});
+
 // Start server
 app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
