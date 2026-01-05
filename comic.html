@@ -1555,32 +1555,108 @@
                 ]
             };
 
-        // App state
-        const appState = {
-            currentCategory: null,
-            currentSort: 'default',
-            isLoading: false
-        };
+    // API Configuration
+    const API_BASE_URL = 'https://comic-backend-cuef.onrender.com'; // Thay bằng URL backend thực tế
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load data from localStorage
-            loadFromLocalStorage();
-            
-            // Initialize app
-            initializeApp();
-            setupEventListeners();
-            updateStats();
-        });
+    // App state
+    const appState = {
+        currentCategory: null,
+        currentSort: 'default',
+        isLoading: false
+    };
 
-        function initializeApp() {
+    // API Service
+    const apiService = {
+        async fetchCategories() {
+            const response = await fetch(`${API_BASE_URL}/api/categories`);
+            return await response.json();
+        },
+
+        async fetchComicsGrouped() {
+            const response = await fetch(`${API_BASE_URL}/api/comics/grouped`);
+            return await response.json();
+        },
+
+        async fetchStats() {
+            const response = await fetch(`${API_BASE_URL}/api/stats`);
+            return await response.json();
+        },
+
+        async addComic(comicData) {
+            const response = await fetch(`${API_BASE_URL}/api/comics`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(comicData)
+            });
+            return await response.json();
+        },
+
+        async updateComic(id, updateData) {
+            const response = await fetch(`${API_BASE_URL}/api/comics/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData)
+            });
+            return await response.json();
+        },
+
+        async updateChapter(id, chapter) {
+            const response = await fetch(`${API_BASE_URL}/api/comics/${id}/chapter`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chapter })
+            });
+            return await response.json();
+        },
+
+        async deleteComic(id) {
+            const response = await fetch(`${API_BASE_URL}/api/comics/${id}`, {
+                method: 'DELETE'
+            });
+            return response;
+        },
+
+        async importComics(comics) {
+            const response = await fetch(`${API_BASE_URL}/api/comics/import`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comics })
+            });
+            return await response.json();
+        },
+
+        async searchComics(query) {
+            const response = await fetch(`${API_BASE_URL}/api/comics?search=${encodeURIComponent(query)}&limit=100`);
+            return await response.json();
+        }
+    };
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', async function() {
+        await initializeApp();
+        setupEventListeners();
+    });
+
+    async function initializeApp() {
+        showLoading(true);
+        
+        try {
+            // Load categories and comics in parallel
+            const [categories, comicsGrouped] = await Promise.all([
+                apiService.fetchCategories(),
+                apiService.fetchComicsGrouped()
+            ]);
+
+            contentData.categories = categories;
+            contentData.items = comicsGrouped;
+
             // Render categories list
             renderCategories();
             
             // Set first category as active
             if (contentData.categories.length > 0) {
                 const firstCategory = contentData.categories[0];
-                showCategory(firstCategory.id);
+                showCategory(firstCategory.category_id);
                 updateCategoryTitle(firstCategory);
             }
             
@@ -1588,416 +1664,335 @@
             populateCategoryDropdown();
             
             // Update stats
-            updateStats();
+            await updateStats();
+        } catch (error) {
+            console.error('Failed to initialize app:', error);
+            showToast('Không thể tải dữ liệu từ server', 'error');
+        } finally {
+            showLoading(false);
         }
+    }
 
-        function setupEventListeners() {
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', debounce(handleSearch, 300));
-            
-            // Add comic button
-            document.getElementById('addComicBtn').addEventListener('click', showAddComicModal);
-            document.getElementById('saveAllBtn').addEventListener('click', saveAllData);
-            document.getElementById('importBtn').addEventListener('click', showImportModal);
-            
-            // Modal close buttons
-            document.getElementById('closeAddModal').addEventListener('click', hideAddComicModal);
-            document.getElementById('cancelAdd').addEventListener('click', hideAddComicModal);
-            document.getElementById('closeEditModal').addEventListener('click', hideEditChapterModal);
-            document.getElementById('cancelEdit').addEventListener('click', hideEditChapterModal);
-            document.getElementById('closeImportModal').addEventListener('click', hideImportModal);
-            document.getElementById('cancelImport').addEventListener('click', hideImportModal);
-            
-            // Import buttons
-            document.getElementById('importDefault').addEventListener('click', importDefaultData);
-            document.getElementById('importJSON').addEventListener('click', showJSONInput);
-            
-            // Form submissions
-            document.getElementById('addComicForm').addEventListener('submit', handleAddComic);
-            document.getElementById('editChapterForm').addEventListener('submit', handleUpdateChapter);
-            
-            // Close modal when clicking outside
-            document.getElementById('addComicModal').addEventListener('click', function(e) {
-                if (e.target === this) hideAddComicModal();
-            });
-            document.getElementById('editChapterModal').addEventListener('click', function(e) {
-                if (e.target === this) hideEditChapterModal();
-            });
-            document.getElementById('importModal').addEventListener('click', function(e) {
-                if (e.target === this) hideImportModal();
-            });
-        }
+    function setupEventListeners() {
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
+        
+        // Add comic button
+        document.getElementById('addComicBtn').addEventListener('click', showAddComicModal);
+        document.getElementById('saveAllBtn').addEventListener('click', () => showToast('Dữ liệu đã được lưu tự động', 'success'));
+        document.getElementById('importBtn').addEventListener('click', showImportModal);
+        
+        // Modal close buttons
+        document.getElementById('closeAddModal').addEventListener('click', hideAddComicModal);
+        document.getElementById('cancelAdd').addEventListener('click', hideAddComicModal);
+        document.getElementById('closeEditModal').addEventListener('click', hideEditChapterModal);
+        document.getElementById('cancelEdit').addEventListener('click', hideEditChapterModal);
+        document.getElementById('closeImportModal').addEventListener('click', hideImportModal);
+        document.getElementById('cancelImport').addEventListener('click', hideImportModal);
+        
+        // Import buttons
+        document.getElementById('importDefault').addEventListener('click', importDefaultData);
+        document.getElementById('importJSON').addEventListener('click', showJSONInput);
+        
+        // Form submissions
+        document.getElementById('addComicForm').addEventListener('submit', handleAddComic);
+        document.getElementById('editChapterForm').addEventListener('submit', handleUpdateChapter);
+        
+        // Close modal when clicking outside
+        document.getElementById('addComicModal').addEventListener('click', function(e) {
+            if (e.target === this) hideAddComicModal();
+        });
+        document.getElementById('editChapterModal').addEventListener('click', function(e) {
+            if (e.target === this) hideEditChapterModal();
+        });
+        document.getElementById('importModal').addEventListener('click', function(e) {
+            if (e.target === this) hideImportModal();
+        });
+    }
 
-        function renderCategories() {
-            const categoriesList = document.getElementById('categoriesList');
-            categoriesList.innerHTML = '';
-            
-            contentData.categories.forEach(category => {
-                // Count items in category
-                let itemCount = 0;
-                if (contentData.items[category.id]) {
-                    contentData.items[category.id].forEach(subcat => {
-                        itemCount += subcat.items.length;
-                    });
-                }
-                
-                const categoryElement = document.createElement('div');
-                categoryElement.className = 'category-item';
-                categoryElement.dataset.id = category.id;
-                categoryElement.innerHTML = `
-                    <div>
-                        <div class="category-name">${category.name}</div>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <span class="category-code">${category.code}</span>
-                            <span style="color: var(--gray); font-size: 0.85rem;">${itemCount} truyện</span>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right"></i>
-                `;
-                
-                categoryElement.addEventListener('click', () => {
-                    // Remove active class from all categories
-                    document.querySelectorAll('.category-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    
-                    // Add active class to clicked category
-                    categoryElement.classList.add('active');
-                    
-                    // Show category content
-                    showCategory(category.id);
-                    
-                    // Update category title
-                    updateCategoryTitle(category);
-                    
-                    // Reset search
-                    document.getElementById('searchInput').value = '';
+    function renderCategories() {
+        const categoriesList = document.getElementById('categoriesList');
+        categoriesList.innerHTML = '';
+        
+        contentData.categories.forEach(category => {
+            // Count items in category
+            let itemCount = 0;
+            if (contentData.items[category.category_id]) {
+                contentData.items[category.category_id].forEach(subcat => {
+                    itemCount += subcat.items.length;
                 });
-                
-                categoriesList.appendChild(categoryElement);
-            });
-        }
-
-        function showCategory(categoryId) {
-            appState.currentCategory = categoryId;
-            
-            // Hide all category contents
-            document.querySelectorAll('.category-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Hide no results message
-            document.getElementById('noResults').style.display = 'none';
-            
-            // Find category
-            const category = contentData.categories.find(cat => cat.id === categoryId);
-            const items = contentData.items[categoryId];
-            
-            // Create category content container if it doesn't exist
-            let categoryContent = document.getElementById(`category-${categoryId}`);
-            
-            if (!categoryContent) {
-                categoryContent = document.createElement('div');
-                categoryContent.id = `category-${categoryId}`;
-                categoryContent.className = 'category-content';
-                document.getElementById('categoryContents').appendChild(categoryContent);
             }
             
-            // Clear previous content
-            categoryContent.innerHTML = '';
-            
-            // If no items for this category
-            if (!items || items.length === 0) {
-                categoryContent.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--gray);">
-                        <i class="fas fa-book fa-3x" style="margin-bottom: 20px; opacity: 0.5;"></i>
-                        <p>Chưa có nội dung cho thể loại này.</p>
-                        <button class="btn btn-primary" id="addFirstComic" style="margin-top: 20px;">
-                            <i class="fas fa-plus"></i> Thêm truyện đầu tiên
-                        </button>
+            const categoryElement = document.createElement('div');
+            categoryElement.className = 'category-item';
+            categoryElement.dataset.id = category.category_id;
+            categoryElement.innerHTML = `
+                <div>
+                    <div class="category-name">${category.name}</div>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <span class="category-code">${category.code}</span>
+                        <span style="color: var(--gray); font-size: 0.85rem;">${itemCount} truyện</span>
                     </div>
-                `;
-                
-                // Add event listener to the button
-                setTimeout(() => {
-                    document.getElementById('addFirstComic')?.addEventListener('click', showAddComicModal);
-                }, 100);
-                
-                categoryContent.classList.add('active');
-                return;
-            }
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            `;
             
-            // Render subcategories and items
-            items.forEach(subcat => {
-                const subcategoryElement = document.createElement('div');
-                subcategoryElement.className = 'subcategory';
-                
-                // Add subcategory title if exists
-                if (subcat.subcategory) {
-                    const subcategoryTitle = document.createElement('h3');
-                    subcategoryTitle.className = 'subcategory-title';
-                    subcategoryTitle.innerHTML = `<i class="fas fa-folder"></i> ${subcat.subcategory}`;
-                    subcategoryElement.appendChild(subcategoryTitle);
-                }
-                
-                // Create items container
-                const itemsContainer = document.createElement('div');
-                itemsContainer.className = 'items-grid';
-                
-                // Add items
-                subcat.items.forEach(item => {
-                    const itemElement = createItemElement(item, categoryId, subcat.subcategory || '');
-                    itemsContainer.appendChild(itemElement);
+            categoryElement.addEventListener('click', () => {
+                // Remove active class from all categories
+                document.querySelectorAll('.category-item').forEach(item => {
+                    item.classList.remove('active');
                 });
                 
-                subcategoryElement.appendChild(itemsContainer);
-                categoryContent.appendChild(subcategoryElement);
+                // Add active class to clicked category
+                categoryElement.classList.add('active');
+                
+                // Show category content
+                showCategory(category.category_id);
+                
+                // Update category title
+                updateCategoryTitle(category);
+                
+                // Reset search
+                document.getElementById('searchInput').value = '';
             });
             
-            // Show the category content
-            categoryContent.classList.add('active');
-        }
+            categoriesList.appendChild(categoryElement);
+        });
+    }
 
-        function createItemElement(item, categoryId, subcategory) {
-            const itemElement = document.createElement('div');
-            
-            // Determine item format and handle both old and new formats
-            const itemId = item.id || generateId();
-            const itemTitle = item.title || '';
-            const itemChapter = item.chapter || '';
-            const itemRating = item.rating || item.neon || 'none';
-            const itemTags = item.tags || [];
-            const itemDescription = item.description || '';
-            const lastUpdated = item.lastUpdated || new Date().toISOString();
-            
-            itemElement.className = `item ${itemRating !== 'none' ? 'neon-' + itemRating : ''}`;
-            itemElement.dataset.id = itemId;
-            
-            const ratingText = getRatingText(itemRating);
-            
-            itemElement.innerHTML = `
-                <div class="item-header">
-                    <div class="item-title">${itemTitle}</div>
-                    <div class="item-rating">${ratingText}</div>
-                </div>
-                
-                <div class="item-body">
-                    ${itemDescription ? `<p style="color: var(--gray-light); font-size: 0.9rem; margin-bottom: 10px;">${itemDescription}</p>` : ''}
-                    
-                    ${itemTags.length > 0 ? `
-                        <div class="item-tags">
-                            ${itemTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    <div style="color: var(--gray); font-size: 0.85rem; margin-top: 10px;">
-                        <i class="far fa-clock"></i> Cập nhật: ${formatDate(lastUpdated)}
-                    </div>
-                </div>
-                
-                <div class="item-footer">
-                    <div class="chapter-controls">
-                        <div style="font-weight: 600;">Chapter:</div>
-                        <input type="text" class="chapter-input" value="${itemChapter}" 
-                               data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
-                        <button class="btn-sm btn-update update-chapter" 
-                                data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
-                            <i class="fas fa-save"></i> Cập nhật
-                        </button>
-                    </div>
-                    
-                    <div class="item-actions">
-                        <button class="btn-sm btn-primary edit-item" 
-                                data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-sm btn-delete delete-item" 
-                                data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+    async function showCategory(categoryId) {
+        appState.currentCategory = categoryId;
+        
+        // Hide all category contents
+        document.querySelectorAll('.category-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Hide no results message
+        document.getElementById('noResults').style.display = 'none';
+        
+        // Find category
+        const category = contentData.categories.find(cat => cat.category_id === categoryId);
+        const items = contentData.items[categoryId];
+        
+        // Create category content container if it doesn't exist
+        let categoryContent = document.getElementById(`category-${categoryId}`);
+        
+        if (!categoryContent) {
+            categoryContent = document.createElement('div');
+            categoryContent.id = `category-${categoryId}`;
+            categoryContent.className = 'category-content';
+            document.getElementById('categoryContents').appendChild(categoryContent);
+        }
+        
+        // Clear previous content
+        categoryContent.innerHTML = '';
+        
+        // If no items for this category
+        if (!items || items.length === 0) {
+            categoryContent.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--gray);">
+                    <i class="fas fa-book fa-3x" style="margin-bottom: 20px; opacity: 0.5;"></i>
+                    <p>Chưa có nội dung cho thể loại này.</p>
+                    <button class="btn btn-primary" id="addFirstComic" style="margin-top: 20px;">
+                        <i class="fas fa-plus"></i> Thêm truyện đầu tiên
+                    </button>
                 </div>
             `;
             
-            // Add event listeners
-            const updateBtn = itemElement.querySelector('.update-chapter');
-            const editBtn = itemElement.querySelector('.edit-item');
-            const deleteBtn = itemElement.querySelector('.delete-item');
-            const chapterInput = itemElement.querySelector('.chapter-input');
+            // Add event listener to the button
+            setTimeout(() => {
+                document.getElementById('addFirstComic')?.addEventListener('click', showAddComicModal);
+            }, 100);
             
-            updateBtn.addEventListener('click', function() {
-                const newChapter = chapterInput.value.trim();
+            categoryContent.classList.add('active');
+            return;
+        }
+        
+        // Render subcategories and items
+        items.forEach(subcat => {
+            const subcategoryElement = document.createElement('div');
+            subcategoryElement.className = 'subcategory';
+            
+            // Add subcategory title if exists
+            if (subcat.subcategory) {
+                const subcategoryTitle = document.createElement('h3');
+                subcategoryTitle.className = 'subcategory-title';
+                subcategoryTitle.innerHTML = `<i class="fas fa-folder"></i> ${subcat.subcategory}`;
+                subcategoryElement.appendChild(subcategoryTitle);
+            }
+            
+            // Create items container
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'items-grid';
+            
+            // Add items
+            subcat.items.forEach(item => {
+                const itemElement = createItemElement(item, categoryId, subcat.subcategory || '');
+                itemsContainer.appendChild(itemElement);
+            });
+            
+            subcategoryElement.appendChild(itemsContainer);
+            categoryContent.appendChild(subcategoryElement);
+        });
+        
+        // Show the category content
+        categoryContent.classList.add('active');
+    }
+
+    function createItemElement(item, categoryId, subcategory) {
+        const itemElement = document.createElement('div');
+        
+        const itemId = item.id;
+        const itemTitle = item.title || '';
+        const itemChapter = item.chapter || '';
+        const itemRating = item.rating || 'none';
+        const itemTags = item.tags || [];
+        const itemDescription = item.description || '';
+        const lastUpdated = item.lastUpdated || new Date().toISOString();
+        
+        itemElement.className = `item ${itemRating !== 'none' ? 'neon-' + itemRating : ''}`;
+        itemElement.dataset.id = itemId;
+        
+        const ratingText = getRatingText(itemRating);
+        
+        itemElement.innerHTML = `
+            <div class="item-header">
+                <div class="item-title">${itemTitle}</div>
+                <div class="item-rating">${ratingText}</div>
+            </div>
+            
+            <div class="item-body">
+                ${itemDescription ? `<p style="color: var(--gray-light); font-size: 0.9rem; margin-bottom: 10px;">${itemDescription}</p>` : ''}
+                
+                ${itemTags.length > 0 ? `
+                    <div class="item-tags">
+                        ${itemTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+                
+                <div style="color: var(--gray); font-size: 0.85rem; margin-top: 10px;">
+                    <i class="far fa-clock"></i> Cập nhật: ${formatDate(lastUpdated)}
+                </div>
+            </div>
+            
+            <div class="item-footer">
+                <div class="chapter-controls">
+                    <div style="font-weight: 600;">Chapter:</div>
+                    <input type="text" class="chapter-input" value="${itemChapter}" 
+                           data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                    <button class="btn-sm btn-update update-chapter" 
+                            data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+                
+                <div class="item-actions">
+                    <button class="btn-sm btn-primary edit-item" 
+                            data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-sm btn-delete delete-item" 
+                            data-id="${itemId}" data-category="${categoryId}" data-subcategory="${subcategory}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Add event listeners
+        const updateBtn = itemElement.querySelector('.update-chapter');
+        const editBtn = itemElement.querySelector('.edit-item');
+        const deleteBtn = itemElement.querySelector('.delete-item');
+        const chapterInput = itemElement.querySelector('.chapter-input');
+        
+        updateBtn.addEventListener('click', async function() {
+            const newChapter = chapterInput.value.trim();
+            if (newChapter && newChapter !== itemChapter) {
+                await updateChapter(
+                    this.dataset.id,
+                    newChapter
+                );
+                // Refresh the item
+                const refreshedItem = await apiService.updateChapter(this.dataset.id, newChapter);
+                if (refreshedItem) {
+                    chapterInput.value = refreshedItem.chapter;
+                    showToast('Đã cập nhật chapter!');
+                }
+            }
+        });
+        
+        chapterInput.addEventListener('keypress', async function(e) {
+            if (e.key === 'Enter') {
+                const newChapter = this.value.trim();
                 if (newChapter && newChapter !== itemChapter) {
-                    updateChapter(
+                    await updateChapter(
                         this.dataset.id,
-                        this.dataset.category,
-                        this.dataset.subcategory,
                         newChapter
                     );
-                }
-            });
-            
-            chapterInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const newChapter = this.value.trim();
-                    if (newChapter && newChapter !== itemChapter) {
-                        updateChapter(
-                            this.dataset.id,
-                            this.dataset.category,
-                            this.dataset.subcategory,
-                            newChapter
-                        );
+                    // Refresh the item
+                    const refreshedItem = await apiService.updateChapter(this.dataset.id, newChapter);
+                    if (refreshedItem) {
+                        this.value = refreshedItem.chapter;
+                        showToast('Đã cập nhật chapter!');
                     }
                 }
-            });
-            
-            editBtn.addEventListener('click', function() {
-                showEditChapterModal(
-                    this.dataset.id,
-                    this.dataset.category,
-                    this.dataset.subcategory
+            }
+        });
+        
+        editBtn.addEventListener('click', function() {
+            showEditChapterModal(
+                this.dataset.id,
+                this.dataset.category,
+                this.dataset.subcategory,
+                item
+            );
+        });
+        
+        deleteBtn.addEventListener('click', async function() {
+            if (confirm('Bạn có chắc muốn xóa truyện này?')) {
+                await deleteComic(
+                    this.dataset.id
                 );
-            });
-            
-            deleteBtn.addEventListener('click', function() {
-                if (confirm('Bạn có chắc muốn xóa truyện này?')) {
-                    deleteComic(
-                        this.dataset.id,
-                        this.dataset.category,
-                        this.dataset.subcategory
-                    );
-                }
-            });
-            
-            return itemElement;
-        }
-
-        function showAddComicModal() {
-            const modal = document.getElementById('addComicModal');
-            const form = document.getElementById('addComicForm');
-            
-            // Reset form
-            form.reset();
-            
-            // Set default category to current category if exists
-            if (appState.currentCategory) {
-                document.getElementById('comicCategory').value = appState.currentCategory;
             }
-            
-            // Show modal
-            modal.style.display = 'flex';
-        }
+        });
+        
+        return itemElement;
+    }
 
-        function hideAddComicModal() {
-            document.getElementById('addComicModal').style.display = 'none';
+    async function handleAddComic(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const title = document.getElementById('comicTitle').value.trim();
+        const category_id = document.getElementById('comicCategory').value;
+        const subcategory = document.getElementById('comicSubcategory').value.trim();
+        const chapter = document.getElementById('comicChapter').value.trim();
+        const rating = document.getElementById('comicRating').value;
+        const tags = document.getElementById('comicTags').value
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0);
+        const description = document.getElementById('comicDescription').value.trim();
+        
+        // Validate
+        if (!title || !category_id || !chapter) {
+            showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+            return;
         }
-
-        function showEditChapterModal(itemId, categoryId, subcategory) {
-            // Find the item
-            const item = findItem(itemId, categoryId, subcategory);
-            if (!item) return;
-            
-            // Fill form
-            document.getElementById('editComicId').value = itemId;
-            document.getElementById('editCategoryId').value = categoryId;
-            document.getElementById('editSubcategoryName').value = subcategory;
-            document.getElementById('editComicTitle').value = item.title || '';
-            document.getElementById('editComicChapter').value = item.chapter || '';
-            document.getElementById('editComicRating').value = item.rating || item.neon || 'none';
-            
-            // Show modal
-            document.getElementById('editChapterModal').style.display = 'flex';
-        }
-
-        function hideEditChapterModal() {
-            document.getElementById('editChapterModal').style.display = 'none';
-        }
-
-        function showImportModal() {
-            document.getElementById('importModal').style.display = 'flex';
-            document.getElementById('jsonInputContainer').style.display = 'none';
-            document.getElementById('jsonInput').value = '';
-        }
-
-        function hideImportModal() {
-            document.getElementById('importModal').style.display = 'none';
-        }
-
-        function showJSONInput() {
-            document.getElementById('jsonInputContainer').style.display = 'block';
-            
-            // When JSON input is shown, add event listener for paste
-            setTimeout(() => {
-                document.getElementById('jsonInput').focus();
-            }, 100);
-        }
-
-        function populateCategoryDropdown() {
-            const dropdown = document.getElementById('comicCategory');
-            dropdown.innerHTML = '<option value="">Chọn thể loại</option>';
-            
-            contentData.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = `${category.name} (${category.code})`;
-                dropdown.appendChild(option);
-            });
-        }
-
-        function handleAddComic(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const title = document.getElementById('comicTitle').value.trim();
-            const categoryId = document.getElementById('comicCategory').value;
-            const subcategory = document.getElementById('comicSubcategory').value.trim();
-            const chapter = document.getElementById('comicChapter').value.trim();
-            const rating = document.getElementById('comicRating').value;
-            const tags = document.getElementById('comicTags').value
-                .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag.length > 0);
-            const description = document.getElementById('comicDescription').value.trim();
-            
-            // Validate
-            if (!title || !categoryId || !chapter) {
-                showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
-                return;
-            }
-            
-            // Generate unique ID
-            const id = generateId();
-            
-            // Create new item (new format)
-            const newItem = {
-                id,
+        
+        try {
+            // Add to database
+            const newItem = await apiService.addComic({
                 title,
+                category_id,
+                subcategory,
                 chapter,
                 rating,
                 tags,
-                description: description || '',
-                lastUpdated: new Date().toISOString()
-            };
-            
-            // Add to data structure
-            if (!contentData.items[categoryId]) {
-                contentData.items[categoryId] = [];
-            }
-            
-            // Find or create subcategory
-            let subcatIndex = contentData.items[categoryId].findIndex(sc => sc.subcategory === subcategory);
-            if (subcatIndex === -1) {
-                contentData.items[categoryId].push({
-                    subcategory: subcategory || '',
-                    items: [newItem]
-                });
-            } else {
-                contentData.items[categoryId][subcatIndex].items.push(newItem);
-            }
-            
-            // Save to localStorage
-            saveToLocalStorage();
+                description
+            });
             
             // Hide modal
             hideAddComicModal();
@@ -2005,220 +2000,98 @@
             // Show success message
             showToast('Đã thêm truyện thành công!');
             
-            // Refresh current view
-            if (appState.currentCategory === categoryId) {
-                showCategory(categoryId);
-            } else {
-                // Switch to the category
-                const category = contentData.categories.find(cat => cat.id === categoryId);
-                if (category) {
-                    // Update active category
-                    document.querySelectorAll('.category-item').forEach(item => {
-                        item.classList.remove('active');
-                        if (item.dataset.id === categoryId) {
-                            item.classList.add('active');
-                        }
-                    });
-                    
-                    showCategory(categoryId);
-                    updateCategoryTitle(category);
-                }
+            // Refresh data
+            await refreshData();
+            
+            // Switch to the category
+            const category = contentData.categories.find(cat => cat.category_id === category_id);
+            if (category) {
+                // Update active category
+                document.querySelectorAll('.category-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.id === category_id) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                showCategory(category_id);
+                updateCategoryTitle(category);
             }
             
             // Update stats
-            updateStats();
+            await updateStats();
+        } catch (error) {
+            console.error('Error adding comic:', error);
+            showToast('Lỗi khi thêm truyện', 'error');
         }
+    }
 
-        function handleUpdateChapter(e) {
-            e.preventDefault();
-            
-            const itemId = document.getElementById('editComicId').value;
-            const categoryId = document.getElementById('editCategoryId').value;
-            const subcategory = document.getElementById('editSubcategoryName').value;
-            const newChapter = document.getElementById('editComicChapter').value.trim();
-            const newRating = document.getElementById('editComicRating').value;
-            
-            if (!newChapter) {
-                showToast('Vui lòng nhập chapter', 'error');
-                return;
-            }
-            
-            // Update the item
-            const item = findItem(itemId, categoryId, subcategory);
-            if (item) {
-                item.chapter = newChapter;
-                item.rating = newRating;
-                // Remove old 'neon' property if exists
-                if (item.neon) delete item.neon;
-                item.lastUpdated = new Date().toISOString();
-                
-                // Save to localStorage
-                saveToLocalStorage();
-                
-                // Hide modal
-                hideEditChapterModal();
-                
-                // Show success message
-                showToast('Đã cập nhật chapter thành công!');
-                
-                // Refresh view
-                showCategory(categoryId);
-                
-                // Update stats
-                updateStats();
-            }
+    async function handleUpdateChapter(e) {
+        e.preventDefault();
+        
+        const itemId = document.getElementById('editComicId').value;
+        const newChapter = document.getElementById('editComicChapter').value.trim();
+        const newRating = document.getElementById('editComicRating').value;
+        
+        if (!newChapter) {
+            showToast('Vui lòng nhập chapter', 'error');
+            return;
         }
-
-        function updateChapter(itemId, categoryId, subcategory, newChapter) {
-            if (!newChapter) return;
+        
+        try {
+            // Update in database
+            await apiService.updateComic(itemId, {
+                chapter: newChapter,
+                rating: newRating
+            });
             
-            const item = findItem(itemId, categoryId, subcategory);
-            if (item && item.chapter !== newChapter) {
-                item.chapter = newChapter;
-                item.lastUpdated = new Date().toISOString();
-                
-                // Save to localStorage
-                saveToLocalStorage();
-                
-                // Show success message
-                showToast('Đã cập nhật chapter!');
-                
-                // Update stats
-                updateStats();
-            }
+            // Hide modal
+            hideEditChapterModal();
+            
+            // Show success message
+            showToast('Đã cập nhật thành công!');
+            
+            // Refresh data
+            await refreshData();
+            
+            // Update stats
+            await updateStats();
+        } catch (error) {
+            console.error('Error updating comic:', error);
+            showToast('Lỗi khi cập nhật', 'error');
         }
+    }
 
-        function deleteComic(itemId, categoryId, subcategory) {
-            // Find the subcategory
-            const categoryItems = contentData.items[categoryId];
-            if (!categoryItems) return;
-            
-            const subcatIndex = categoryItems.findIndex(sc => sc.subcategory === subcategory);
-            if (subcatIndex === -1) return;
-            
-            // Remove the item
-            const itemIndex = categoryItems[subcatIndex].items.findIndex(item => item.id === itemId);
-            if (itemIndex === -1) return;
-            
-            categoryItems[subcatIndex].items.splice(itemIndex, 1);
-            
-            // If subcategory is now empty, remove it
-            if (categoryItems[subcatIndex].items.length === 0) {
-                categoryItems.splice(subcatIndex, 1);
-            }
-            
-            // If category is now empty, remove it
-            if (categoryItems.length === 0) {
-                delete contentData.items[categoryId];
-            }
-            
-            // Save to localStorage
-            saveToLocalStorage();
+    async function deleteComic(itemId) {
+        try {
+            await apiService.deleteComic(itemId);
             
             // Show success message
             showToast('Đã xóa truyện thành công!');
             
-            // Refresh view
-            if (appState.currentCategory === categoryId) {
-                showCategory(categoryId);
-            }
+            // Refresh data
+            await refreshData();
             
             // Update stats
-            updateStats();
+            await updateStats();
+        } catch (error) {
+            console.error('Error deleting comic:', error);
+            showToast('Lỗi khi xóa truyện', 'error');
         }
+    }
 
-        function findItem(itemId, categoryId, subcategory) {
-            const categoryItems = contentData.items[categoryId];
-            if (!categoryItems) return null;
-            
-            const subcat = categoryItems.find(sc => sc.subcategory === subcategory);
-            if (!subcat) return null;
-            
-            return subcat.items.find(item => item.id === itemId) || null;
+    async function handleSearch() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        
+        // If search is empty, show current category
+        if (searchTerm === '' && appState.currentCategory) {
+            showCategory(appState.currentCategory);
+            document.getElementById('noResults').style.display = 'none';
+            return;
         }
-
-        function importDefaultData() {
-            if (confirm('Bạn có chắc muốn nhập dữ liệu mẫu? Dữ liệu hiện tại sẽ được thêm vào (không xóa dữ liệu cũ).')) {
-                // Convert default data to new format and add to existing data
-                Object.keys(defaultData).forEach(categoryId => {
-                    if (!contentData.items[categoryId]) {
-                        contentData.items[categoryId] = [];
-                    }
-                    
-                    defaultData[categoryId].forEach(defaultSubcat => {
-                        // Check if subcategory exists
-                        let subcatIndex = contentData.items[categoryId].findIndex(
-                            sc => sc.subcategory === defaultSubcat.subcategory
-                        );
-                        
-                        if (subcatIndex === -1) {
-                            // Create new subcategory with converted items
-                            const convertedItems = defaultSubcat.items.map(item => ({
-                                id: generateId(),
-                                title: item.title,
-                                chapter: item.chapter,
-                                rating: item.neon,
-                                tags: extractTagsFromTitle(item.title),
-                                description: '',
-                                lastUpdated: new Date().toISOString()
-                            }));
-                            
-                            contentData.items[categoryId].push({
-                                subcategory: defaultSubcat.subcategory,
-                                items: convertedItems
-                            });
-                        } else {
-                            // Add items to existing subcategory
-                            defaultSubcat.items.forEach(defaultItem => {
-                                // Check if item already exists by title
-                                const exists = contentData.items[categoryId][subcatIndex].items.some(
-                                    item => item.title === defaultItem.title
-                                );
-                                
-                                if (!exists) {
-                                    contentData.items[categoryId][subcatIndex].items.push({
-                                        id: generateId(),
-                                        title: defaultItem.title,
-                                        chapter: defaultItem.chapter,
-                                        rating: defaultItem.neon,
-                                        tags: extractTagsFromTitle(defaultItem.title),
-                                        description: '',
-                                        lastUpdated: new Date().toISOString()
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
-                
-                // Save to localStorage
-                saveToLocalStorage();
-                
-                // Hide modal
-                hideImportModal();
-                
-                // Show success message
-                showToast('Đã nhập dữ liệu mẫu thành công!');
-                
-                // Refresh view if current category is in imported data
-                if (appState.currentCategory && contentData.items[appState.currentCategory]) {
-                    showCategory(appState.currentCategory);
-                }
-                
-                // Update stats
-                updateStats();
-            }
-        }
-
-        function handleSearch() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            
-            // If search is empty, show current category
-            if (searchTerm === '' && appState.currentCategory) {
-                showCategory(appState.currentCategory);
-                document.getElementById('noResults').style.display = 'none';
-                return;
-            }
+        
+        try {
+            const searchResults = await apiService.searchComics(searchTerm);
             
             // Hide all category contents
             document.querySelectorAll('.category-content').forEach(content => {
@@ -2226,79 +2099,64 @@
             });
             
             // Create search results container
-            let searchResults = document.getElementById('search-results');
-            if (!searchResults) {
-                searchResults = document.createElement('div');
-                searchResults.id = 'search-results';
-                searchResults.className = 'category-content';
-                document.getElementById('categoryContents').appendChild(searchResults);
+            let searchResultsContainer = document.getElementById('search-results');
+            if (!searchResultsContainer) {
+                searchResultsContainer = document.createElement('div');
+                searchResultsContainer.id = 'search-results';
+                searchResultsContainer.className = 'category-content';
+                document.getElementById('categoryContents').appendChild(searchResultsContainer);
             }
             
             // Clear previous results
-            searchResults.innerHTML = '';
+            searchResultsContainer.innerHTML = '';
             
-            // Search through all items
-            let hasResults = false;
-            let resultCount = 0;
-            
-            contentData.categories.forEach(category => {
-                const items = contentData.items[category.id];
-                if (!items) return;
-                
-                let categoryHasResults = false;
-                const categoryResults = document.createElement('div');
-                categoryResults.className = 'subcategory';
-                
-                // Search in each subcategory
-                items.forEach(subcat => {
-                    subcat.items.forEach(item => {
-                        const searchableText = [
-                            item.title,
-                            ...(item.tags || []),
-                            item.description || ''
-                        ].join(' ').toLowerCase();
-                        
-                        if (searchableText.includes(searchTerm)) {
-                            if (!categoryHasResults) {
-                                // Add category title
-                                const categoryTitle = document.createElement('h3');
-                                categoryTitle.className = 'subcategory-title';
-                                categoryTitle.innerHTML = `<i class="fas fa-folder"></i> ${category.name} (${category.code})`;
-                                categoryResults.appendChild(categoryTitle);
-                                
-                                // Create items container
-                                const itemsContainer = document.createElement('div');
-                                itemsContainer.className = 'items-grid';
-                                categoryResults.appendChild(itemsContainer);
-                                categoryHasResults = true;
-                            }
-                            
-                            // Add item to results
-                            const itemElement = createItemElement(item, category.id, subcat.subcategory || '');
-                            categoryResults.querySelector('.items-grid').appendChild(itemElement);
-                            hasResults = true;
-                            resultCount++;
-                        }
-                    });
+            if (searchResults.length > 0) {
+                // Group results by category for display
+                const groupedByCategory = {};
+                searchResults.forEach(item => {
+                    if (!groupedByCategory[item.category_id]) {
+                        groupedByCategory[item.category_id] = [];
+                    }
+                    groupedByCategory[item.category_id].push(item);
                 });
                 
-                // If this category has results, add it to search results
-                if (categoryHasResults) {
-                    searchResults.appendChild(categoryResults);
-                }
-            });
-            
-            // Show/hide no results message
-            if (hasResults) {
-                searchResults.classList.add('active');
+                // Display results
+                Object.keys(groupedByCategory).forEach(categoryId => {
+                    const category = contentData.categories.find(c => c.category_id === categoryId);
+                    if (!category) return;
+                    
+                    const categoryResults = document.createElement('div');
+                    categoryResults.className = 'subcategory';
+                    
+                    // Add category title
+                    const categoryTitle = document.createElement('h3');
+                    categoryTitle.className = 'subcategory-title';
+                    categoryTitle.innerHTML = `<i class="${category.icon}"></i> ${category.name} (${category.code})`;
+                    categoryResults.appendChild(categoryTitle);
+                    
+                    // Create items container
+                    const itemsContainer = document.createElement('div');
+                    itemsContainer.className = 'items-grid';
+                    
+                    // Add items
+                    groupedByCategory[categoryId].forEach(item => {
+                        const itemElement = createItemElement(item, categoryId, item.subcategory || '');
+                        itemsContainer.appendChild(itemElement);
+                    });
+                    
+                    categoryResults.appendChild(itemsContainer);
+                    searchResultsContainer.appendChild(categoryResults);
+                });
+                
+                searchResultsContainer.classList.add('active');
                 document.getElementById('noResults').style.display = 'none';
                 
                 // Update category title
                 document.getElementById('currentCategoryTitle').innerHTML = `
-                    <i class="fas fa-search"></i> Kết quả tìm kiếm: "${searchTerm}" (${resultCount} kết quả)
+                    <i class="fas fa-search"></i> Kết quả tìm kiếm: "${searchTerm}" (${searchResults.length} kết quả)
                 `;
             } else {
-                searchResults.classList.remove('active');
+                searchResultsContainer.classList.remove('active');
                 document.getElementById('noResults').style.display = 'block';
                 
                 // Update category title
@@ -2306,204 +2164,203 @@
                     <i class="fas fa-search"></i> Kết quả tìm kiếm
                 `;
             }
+        } catch (error) {
+            console.error('Error searching:', error);
+            showToast('Lỗi khi tìm kiếm', 'error');
         }
+    }
 
-        function updateCategoryTitle(category) {
-            document.getElementById('currentCategoryTitle').innerHTML = `
-                <i class="${category.icon}" style="color: ${category.color};"></i> ${category.name} (${category.code})
-            `;
-        }
-
-        function updateStats() {
-            // Calculate total items and reading count
-            let totalItems = 0;
-            let readingCount = 0;
+    async function refreshData() {
+        try {
+            const [comicsGrouped, stats] = await Promise.all([
+                apiService.fetchComicsGrouped(),
+                apiService.fetchStats()
+            ]);
             
-            Object.values(contentData.items).forEach(categoryItems => {
-                categoryItems.forEach(subcat => {
-                    totalItems += subcat.items.length;
-                    readingCount += subcat.items.filter(item => item.chapter && item.chapter !== '0').length;
-                });
-            });
+            contentData.items = comicsGrouped;
             
             // Update stats display
-            document.getElementById('totalItems').textContent = totalItems;
-            document.getElementById('totalCategories').textContent = contentData.categories.length;
-            document.getElementById('readingCount').textContent = readingCount;
-        }
-
-        function getRatingText(rating) {
-            switch(rating) {
-                case 'heart': return '💕 Đặc biệt';
-                case '4': return '**** 4 sao';
-                case '3': return '*** 3 sao';
-                case '2': return '** 2 sao';
-                case '1': return '* 1 sao';
-                default: return 'Chưa đánh giá';
-            }
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
+            document.getElementById('totalItems').textContent = stats.totalItems;
+            document.getElementById('totalCategories').textContent = stats.totalCategories;
+            document.getElementById('readingCount').textContent = stats.readingCount;
             
-            if (diffMins < 60) {
-                return `${diffMins} phút trước`;
-            } else if (diffHours < 24) {
-                return `${diffHours} giờ trước`;
-            } else if (diffDays < 7) {
-                return `${diffDays} ngày trước`;
-            } else {
-                return date.toLocaleDateString('vi-VN');
-            }
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            // Set message and color
-            toastMessage.textContent = message;
-            
-            if (type === 'error') {
-                toast.style.background = 'var(--danger)';
-                toast.querySelector('i').className = 'fas fa-exclamation-circle';
-            } else if (type === 'warning') {
-                toast.style.background = 'var(--accent)';
-                toast.querySelector('i').className = 'fas fa-exclamation-triangle';
-            } else {
-                toast.style.background = 'var(--success)';
-                toast.querySelector('i').className = 'fas fa-check-circle';
+            // Refresh current view if exists
+            if (appState.currentCategory) {
+                showCategory(appState.currentCategory);
             }
             
-            // Show toast
-            toast.style.display = 'flex';
+            // Refresh categories list
+            renderCategories();
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+        }
+    }
+
+    async function updateStats() {
+        try {
+            const stats = await apiService.fetchStats();
             
-            // Auto hide after 3 seconds
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+            // Update stats display
+            document.getElementById('totalItems').textContent = stats.totalItems;
+            document.getElementById('totalCategories').textContent = stats.totalCategories;
+            document.getElementById('readingCount').textContent = stats.readingCount;
+        } catch (error) {
+            console.error('Error fetching stats:', error);
         }
+    }
 
-        function generateId() {
-            return 'item-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    // Utility functions (giữ nguyên từ code cũ)
+    function showLoading(show) {
+        // Implement loading indicator if needed
+        if (show) {
+            // Show loading overlay
+        } else {
+            // Hide loading overlay
         }
+    }
 
-        function extractTagsFromTitle(title) {
-            const tags = [];
-            
-            // Common tags based on title patterns
-            if (title.toLowerCase().includes('học đường')) tags.push('học đường');
-            if (title.toLowerCase().includes('mạt thế')) tags.push('mạt thế');
-            if (title.toLowerCase().includes('tu tiên')) tags.push('tu tiên');
-            if (title.toLowerCase().includes('dị giới')) tags.push('dị giới');
-            if (title.toLowerCase().includes('trùng sinh')) tags.push('trùng sinh');
-            if (title.toLowerCase().includes('hài')) tags.push('hài hước');
-            if (title.toLowerCase().includes('chiến đấu') || title.toLowerCase().includes('combat')) tags.push('chiến đấu');
-            if (title.toLowerCase().includes('hệ thống')) tags.push('hệ thống');
-            
-            return tags;
+    function getRatingText(rating) {
+        switch(rating) {
+            case 'heart': return '💕 Đặc biệt';
+            case '4': return '**** 4 sao';
+            case '3': return '*** 3 sao';
+            case '2': return '** 2 sao';
+            case '1': return '* 1 sao';
+            default: return 'Chưa đánh giá';
         }
+    }
 
-        // LocalStorage functions
-        function saveToLocalStorage() {
-            try {
-                localStorage.setItem('comicLibraryData', JSON.stringify(contentData));
-                console.log('Đã lưu dữ liệu vào localStorage');
-            } catch (e) {
-                console.error('Lỗi khi lưu vào localStorage:', e);
-                showToast('Lỗi khi lưu dữ liệu', 'error');
-            }
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 60) {
+            return `${diffMins} phút trước`;
+        } else if (diffHours < 24) {
+            return `${diffHours} giờ trước`;
+        } else if (diffDays < 7) {
+            return `${diffDays} ngày trước`;
+        } else {
+            return date.toLocaleDateString('vi-VN');
         }
+    }
 
-        function loadFromLocalStorage() {
-            try {
-                const savedData = localStorage.getItem('comicLibraryData');
-                if (savedData) {
-                    const parsedData = JSON.parse(savedData);
-                    
-                    if (parsedData) {
-                        // Merge with current data structure
-                        contentData = parsedData;
-                        
-                        // Ensure all categories from default are present
-                        const defaultCategories = contentData.categories;
-                        const savedCategories = parsedData.categories || [];
-                        
-                        // Merge categories
-                        const mergedCategories = [...defaultCategories];
-                        savedCategories.forEach(savedCat => {
-                            if (!mergedCategories.find(cat => cat.id === savedCat.id)) {
-                                mergedCategories.push(savedCat);
-                            }
-                        });
-                        contentData.categories = mergedCategories;
-                        
-                        // Convert old format items to new format if needed
-                        convertOldFormatItems();
-                        
-                        console.log('Đã tải dữ liệu từ localStorage');
-                        showToast('Đã tải dữ liệu đã lưu', 'success');
-                    }
-                }
-            } catch (e) {
-                console.error('Lỗi khi tải từ localStorage:', e);
-                showToast('Lỗi khi tải dữ liệu đã lưu', 'error');
-            }
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        // Set message and color
+        toastMessage.textContent = message;
+        
+        if (type === 'error') {
+            toast.style.background = 'var(--danger)';
+            toast.querySelector('i').className = 'fas fa-exclamation-circle';
+        } else if (type === 'warning') {
+            toast.style.background = 'var(--accent)';
+            toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+        } else {
+            toast.style.background = 'var(--success)';
+            toast.querySelector('i').className = 'fas fa-check-circle';
         }
+        
+        // Show toast
+        toast.style.display = 'flex';
+        
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
 
-        function convertOldFormatItems() {
-            // Convert items from old format to new format if needed
-            Object.keys(contentData.items).forEach(categoryId => {
-                contentData.items[categoryId].forEach(subcat => {
-                    subcat.items = subcat.items.map(item => {
-                        // If item doesn't have id, it's in old format
-                        if (!item.id) {
-                            return {
-                                id: generateId(),
-                                title: item.title,
-                                chapter: item.chapter,
-                                rating: item.neon || item.rating || 'none',
-                                tags: item.tags || extractTagsFromTitle(item.title),
-                                description: item.description || '',
-                                lastUpdated: item.lastUpdated || new Date().toISOString()
-                            };
-                        }
-                        return item;
-                    });
-                });
-            });
-        }
-
-        function saveAllData() {
-            saveToLocalStorage();
-            showToast('Đã lưu tất cả dữ liệu thành công!');
-        }
-
-        // Utility function for debounce
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
                 clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
+                func(...args);
             };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Modal functions (giữ nguyên)
+    function showAddComicModal() {
+        const modal = document.getElementById('addComicModal');
+        const form = document.getElementById('addComicForm');
+        
+        // Reset form
+        form.reset();
+        
+        // Set default category to current category if exists
+        if (appState.currentCategory) {
+            document.getElementById('comicCategory').value = appState.currentCategory;
         }
+        
+        // Show modal
+        modal.style.display = 'flex';
+    }
 
-        // Auto-save when leaving page
-        window.addEventListener('beforeunload', function() {
-            saveToLocalStorage();
+    function hideAddComicModal() {
+        document.getElementById('addComicModal').style.display = 'none';
+    }
+
+    function showEditChapterModal(itemId, categoryId, subcategory, item) {
+        // Fill form
+        document.getElementById('editComicId').value = itemId;
+        document.getElementById('editCategoryId').value = categoryId;
+        document.getElementById('editSubcategoryName').value = subcategory;
+        document.getElementById('editComicTitle').value = item.title || '';
+        document.getElementById('editComicChapter').value = item.chapter || '';
+        document.getElementById('editComicRating').value = item.rating || 'none';
+        
+        // Show modal
+        document.getElementById('editChapterModal').style.display = 'flex';
+    }
+
+    function hideEditChapterModal() {
+        document.getElementById('editChapterModal').style.display = 'none';
+    }
+
+    function showImportModal() {
+        document.getElementById('importModal').style.display = 'flex';
+        document.getElementById('jsonInputContainer').style.display = 'none';
+        document.getElementById('jsonInput').value = '';
+    }
+
+    function hideImportModal() {
+        document.getElementById('importModal').style.display = 'none';
+    }
+
+    function showJSONInput() {
+        document.getElementById('jsonInputContainer').style.display = 'block';
+        
+        setTimeout(() => {
+            document.getElementById('jsonInput').focus();
+        }, 100);
+    }
+
+    function populateCategoryDropdown() {
+        const dropdown = document.getElementById('comicCategory');
+        dropdown.innerHTML = '<option value="">Chọn thể loại</option>';
+        
+        contentData.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.category_id;
+            option.textContent = `${category.name} (${category.code})`;
+            dropdown.appendChild(option);
         });
+    }
 
-        // Auto-save every 30 seconds
-        setInterval(saveToLocalStorage, 30000);
-    </script>
+    function updateCategoryTitle(category) {
+        document.getElementById('currentCategoryTitle').innerHTML = `
+            <i class="${category.icon}" style="color: ${category.color};"></i> ${category.name} (${category.code})
+        `;
+    }
+</script>
 </body>
 </html>
