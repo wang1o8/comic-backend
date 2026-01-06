@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thư Viện Truyện & Phim - Quản lý Chapter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <div id="connectionStatus" style="
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+    ">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Đang kiểm tra...</span>
+    </div>
     <style>
         :root {
             --primary: #6366f1;
@@ -80,7 +92,33 @@
             color: var(--gray-light);
             font-size: 1.2rem;
         }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray);
+        }
 
+        .status-dot.online {
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.slow {
+            background: var(--warning);
+            animation: pulse 1s infinite;
+        }
+
+        .status-dot.offline {
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
         /* Control Panel */
         .control-panel {
             display: flex;
@@ -778,6 +816,12 @@
                 </button>
                 <button class="btn btn-warning" id="importBtn">
                     <i class="fas fa-file-import"></i> Nhập dữ liệu
+                </button>
+                <button class="btn btn-info" id="checkConnectionBtn">
+                    <i class="fas fa-wifi"></i> Kiểm tra kết nối
+                </button>
+                <button class="btn btn-warning" id="retrySyncBtn">
+                    <i class="fas fa-sync-alt"></i> Thử đồng bộ lại
                 </button>
             </div>
         </div>
@@ -2430,6 +2474,332 @@
             document.getElementById('jsonInput').focus();
         }, 100);
     }
+// ========== CONFIG ==========
+const API_BASE_URL = 'https://comic-backend-cuef.onrender.com';
+const USE_BACKEND = true;
+const BACKEND_TIMEOUT = 10000; // 10 seconds timeout
+// ============================
+
+// ========== ENHANCED API SERVICE ==========
+const apiService = {
+    async fetchWithTimeout(resource, options = {}) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), BACKEND_TIMEOUT);
+        
+        try {
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
+        } catch (error) {
+            clearTimeout(id);
+            throw error;
+        }
+    },
+
+    async fetchCategories() {
+        try {
+            const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/categories`);
+            if (!response.ok) throw new Error('Categories fetch failed');
+            return await response.json();
+        } catch (error) {
+            console.log('Using cached/local categories');
+            return this.getCachedCategories();
+        }
+    },
+
+    async fetchComics() {
+        try {
+            const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics?limit=500`);
+            if (!response.ok) throw new Error('Comics fetch failed');
+            const comics = await response.json();
+            
+            // Cache the response
+            localStorage.setItem('comics_cache', JSON.stringify({
+                data: comics,
+                timestamp: Date.now()
+            }));
+            
+            return comics;
+        } catch (error) {
+            console.log('Using cached comics');
+            return this.getCachedComics();
+        }
+    },
+
+    async addComic(comicData) {
+        showLoading('Đang lưu truyện...');
+        
+        try {
+            const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(comicData)
+            });
+            
+            if (!response.ok) throw new Error('Add comic failed');
+            
+            const newComic = await response.json();
+            
+            // Update local cache immediately
+            this.addToLocalCache(newComic);
+            
+            return newComic;
+        } catch (error) {
+            console.error('Backend add failed, saving locally:', error);
+            
+            // Fallback: save to localStorage
+            const localComic = {
+                ...comicData,
+                id: `local_${Date.now()}`,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            this.addToLocalCache(localComic);
+            this.queueForSync(localComic); // Queue for later sync
+            
+            return localComic;
+        } finally {
+            hideLoading();
+        }
+    },
+
+    // ========== CACHE MANAGEMENT ==========
+    getCachedCategories() {
+        const cache = localStorage.getItem('categories_cache');
+        if (cache) {
+            const { data, timestamp } = JSON.parse(cache);
+            // Use cache if less than 1 hour old
+            if (Date.now() - timestamp < 3600000) {
+                return data;
+            }
+        }
+        
+        // Return default categories if no cache
+        return defaultCategories;
+    },
+
+    getCachedComics() {
+        const cache = localStorage.getItem('comics_cache');
+        if (cache) {
+            const { data, timestamp } = JSON.parse(cache);
+            // Use cache if less than 1 hour old
+            if (Date.now() - timestamp < 3600000) {
+                return data;
+            }
+        }
+        
+        // Return empty array if no cache
+        return [];
+    },
+
+    addToLocalCache(comic) {
+        const cache = localStorage.getItem('comics_cache');
+        let comics = [];
+        
+        if (cache) {
+            const parsed = JSON.parse(cache);
+            comics = parsed.data || [];
+        }
+        
+        comics.push(comic);
+        
+        localStorage.setItem('comics_cache', JSON.stringify({
+            data: comics,
+            timestamp: Date.now()
+        }));
+    },
+
+    queueForSync(comic) {
+        const queue = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+        queue.push({
+            ...comic,
+            syncStatus: 'pending',
+            queuedAt: new Date().toISOString()
+        });
+        
+        localStorage.setItem('sync_queue', JSON.stringify(queue));
+        
+        // Try to sync in background
+        this.trySyncQueue();
+    },
+
+    async trySyncQueue() {
+        const queue = JSON.parse(localStorage.getItem('sync_queue') || '[]');
+        const pending = queue.filter(item => item.syncStatus === 'pending');
+        
+        if (pending.length === 0) return;
+        
+        console.log(`Syncing ${pending.length} pending comics...`);
+        
+        for (const item of pending) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/comics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(item)
+                });
+                
+                if (response.ok) {
+                    // Mark as synced
+                    const index = queue.findIndex(q => q.id === item.id);
+                    queue[index].syncStatus = 'synced';
+                    queue[index].syncedAt = new Date().toISOString();
+                }
+            } catch (error) {
+                console.log('Sync failed for:', item.id);
+            }
+        }
+        
+        localStorage.setItem('sync_queue', JSON.stringify(queue));
+    }
+};
+
+// ========== LOADING UI ==========
+function showLoading(message = 'Đang xử lý...') {
+    // Remove existing loader if any
+    hideLoading();
+    
+    const loader = document.createElement('div');
+    loader.id = 'global-loader';
+    loader.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-size: 1.2rem;
+    `;
+    
+    loader.innerHTML = `
+        <div class="spinner" style="
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        "></div>
+        <div class="message">${message}</div>
+        <style>
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    
+    document.body.appendChild(loader);
+}
+
+function hideLoading() {
+    const loader = document.getElementById('global-loader');
+    if (loader) {
+        loader.remove();
+    }
+}
+
+// ========== ENHANCED HANDLE ADD COMIC ==========
+async function handleAddComic(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const comicData = {
+        title: document.getElementById('comicTitle').value.trim(),
+        category_id: document.getElementById('comicCategory').value,
+        subcategory: document.getElementById('comicSubcategory').value.trim(),
+        chapter: document.getElementById('comicChapter').value.trim(),
+        rating: document.getElementById('comicRating').value,
+        tags: document.getElementById('comicTags').value
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag),
+        description: document.getElementById('comicDescription').value.trim()
+    };
+    
+    // Validate
+    if (!comicData.title || !comicData.category_id || !comicData.chapter) {
+        showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+        return;
+    }
+    
+    // Add comic (with loading state)
+    const newComic = await apiService.addComic(comicData);
+    
+    // Update UI immediately
+    hideAddComicModal();
+    showToast('Đã thêm truyện thành công!');
+    
+    // Refresh data
+    await refreshData();
+    
+    // Switch to the added category
+    const category = contentData.categories.find(cat => cat.id === comicData.category_id);
+    if (category) {
+        showCategory(comicData.category_id);
+        updateCategoryTitle(category);
+    }
+}
+
+// ========== PERIODIC SYNC ==========
+function startPeriodicSync() {
+    // Sync every 5 minutes
+    setInterval(() => {
+        apiService.trySyncQueue();
+    }, 300000);
+    
+    // Also sync when page becomes visible
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            apiService.trySyncQueue();
+        }
+    });
+}
+
+// ========== INITIALIZE ==========
+async function initializeApp() {
+    showLoading('Đang tải dữ liệu...');
+    
+    try {
+        // Try to fetch from backend with timeout
+        const [categories, comics] = await Promise.allSettled([
+            apiService.fetchCategories(),
+            apiService.fetchComics()
+        ]);
+        
+        // Use whatever data we got
+        contentData.categories = categories.status === 'fulfilled' ? categories.value : defaultCategories;
+        contentData.items = comics.status === 'fulfilled' ? comics.value : [];
+        
+        // Start periodic sync
+        startPeriodicSync();
+        
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        // Use cached data
+        contentData.categories = apiService.getCachedCategories();
+        contentData.items = apiService.getCachedComics();
+    } finally {
+        hideLoading();
+        
+        // Render UI
+        renderCategories();
+        updateStats();
+        
+        if (contentData.categories.length > 0) {
+            showCategory(contentData.categories[0].id);
+        }
+    }
+}
 </script>
 </body>
 </html>

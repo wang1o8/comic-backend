@@ -206,6 +206,59 @@ app.get('/api/debug/db', async (req, res) => {
   }
 });
 
+// Check connection status
+async function checkConnection() {
+    showLoading('Đang kiểm tra kết nối...');
+    
+    try {
+        const startTime = Date.now();
+        const response = await fetch(`${API_BASE_URL}/health`);
+        const endTime = Date.now();
+        const latency = endTime - startTime;
+        
+        const data = await response.json();
+        
+        let message = `Kết nối ổn định (${latency}ms)`;
+        let type = 'success';
+        
+        if (latency > 5000) {
+            message = `Kết nối chậm (${latency}ms) - Server đang khởi động lại`;
+            type = 'warning';
+        } else if (latency > 10000) {
+            message = `Kết nối rất chậm (${latency}ms) - Đang dùng dữ liệu cục bộ`;
+            type = 'error';
+        }
+        
+        showToast(message, type);
+        
+    } catch (error) {
+        showToast('Không thể kết nối đến server - Đang dùng dữ liệu cục bộ', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Retry sync
+async function retrySync() {
+    const pendingCount = JSON.parse(localStorage.getItem('sync_queue') || '[]')
+        .filter(item => item.syncStatus === 'pending').length;
+    
+    if (pendingCount === 0) {
+        showToast('Không có dữ liệu cần đồng bộ', 'info');
+        return;
+    }
+    
+    showLoading(`Đang đồng bộ ${pendingCount} truyện...`);
+    
+    await apiService.trySyncQueue();
+    
+    hideLoading();
+    showToast(`Đã đồng bộ ${pendingCount} truyện thành công!`);
+}
+
+// Event listeners
+document.getElementById('checkConnectionBtn').addEventListener('click', checkConnection);
+document.getElementById('retrySyncBtn').addEventListener('click', retrySync);
 // ========== API ENDPOINTS ==========
 
 // Get all categories
@@ -639,6 +692,77 @@ app.get('/', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+// Connection status monitoring
+let connectionStatus = 'checking';
+
+async function updateConnectionStatus() {
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    
+    try {
+        const startTime = Date.now();
+        const response = await fetch(`${API_BASE_URL}/health`);
+        const endTime = Date.now();
+        const latency = endTime - startTime;
+        
+        if (latency < 2000) {
+            connectionStatus = 'online';
+            statusDot.className = 'status-dot online';
+            statusText.textContent = 'Đang trực tuyến';
+            statusText.style.color = 'var(--success)';
+        } else if (latency < 10000) {
+            connectionStatus = 'slow';
+            statusDot.className = 'status-dot slow';
+            statusText.textContent = `Kết nối chậm (${latency}ms)`;
+            statusText.style.color = 'var(--warning)';
+        } else {
+            connectionStatus = 'offline';
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Đang ngoại tuyến';
+            statusText.style.color = 'var(--danger)';
+        }
+    } catch (error) {
+        connectionStatus = 'offline';
+        statusDot.className = 'status-dot offline';
+        statusText.textContent = 'Không kết nối được';
+        statusText.style.color = 'var(--danger)';
+    }
+}
+
+// Check connection every 30 seconds
+setInterval(updateConnectionStatus, 30000);
+updateConnectionStatus(); // Initial check
+
+// Offline/online detection
+window.addEventListener('online', () => {
+    console.log('App is online');
+    showToast('Đã kết nối lại với server', 'success');
+    updateConnectionStatus();
+    apiService.trySyncQueue(); // Try to sync any pending data
+});
+
+window.addEventListener('offline', () => {
+    console.log('App is offline');
+    showToast('Đã mất kết nối với server - Đang dùng chế độ ngoại tuyến', 'warning');
+    updateConnectionStatus();
+});
+
+// Check initial online status
+if (!navigator.onLine) {
+    showToast('Bạn đang ở chế độ ngoại tuyến. Thay đổi sẽ được lưu cục bộ.', 'warning');
+    connectionStatus = 'offline';
+    updateConnectionStatus();
+}
+
+// Keep server warm with self-pinging
+if (process.env.NODE_ENV === 'production') {
+  setInterval(() => {
+    fetch('https://comic-backend-cuef.onrender.com/health')
+      .then(res => console.log('Keep-alive ping:', res.status))
+      .catch(err => console.log('Keep-alive error:', err.message));
+  }, 300000); // Ping every 5 minutes
+}
 
 // 404 handler
 app.use((req, res) => {
