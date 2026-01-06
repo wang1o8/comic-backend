@@ -1009,35 +1009,29 @@
             <p style="margin-top: 20px;">© 2023 Thư Viện Truyện & Phim. Tất cả các quyền được bảo lưu.</p>
         </footer>
     </div>
-
- <script>
-    // Data structure for all content
+<script>
+    // ========== CONFIGURATION ==========
+    const API_BASE_URL = 'https://comic-backend-cuef.onrender.com';
+    const USE_BACKEND = true;
+    const BACKEND_TIMEOUT = 10000;
+    
+    // ========== APP STATE ==========
+    const appState = {
+        currentCategory: null,
+        currentSort: 'default',
+        searchTerm: '',
+        connectionStatus: 'checking'
+    };
+    
     let contentData = {
-        categories: [
-            { id: 'hoc-duong', name: 'HỌC ĐƯỜNG', code: '1111', icon: 'fas fa-school', color: '#6366f1' },
-            { id: 'mat-the', name: 'MẠT THẾ', code: '2222', icon: 'fas fa-skull-crossbones', color: '#ef4444' },
-            { id: 'he-thong', name: 'HỆ THỐNG', code: '3333', icon: 'fas fa-cogs', color: '#10b981' },
-            { id: 'xay-dung', name: 'XÂY DỰNG', code: '4444', icon: 'fas fa-building', color: '#f59e0b' },
-            { id: 'di-gioi', name: 'DỊ GIỚI', code: '5555', icon: 'fas fa-globe-asia', color: '#8b5cf6' },
-            { id: 'kinh-doanh', name: 'KINH DOANH', code: '6666', icon: 'fas fa-chart-line', color: '#06b6d4' },
-            { id: 'trung-sinh', name: 'TRÙNG SINH', code: '7777', icon: 'fas fa-redo', color: '#ec4899' },
-            { id: 'ngon', name: 'NGÔN', code: '8888', icon: 'fas fa-heart', color: '#f43f5e' },
-            { id: 'tu-tien', name: 'TU TIÊN', code: 'AAA', icon: 'fas fa-mountain', color: '#22c55e' },
-            { id: 'do-thi', name: 'ĐÔ THỊ', code: 'BBB', icon: 'fas fa-city', color: '#3b82f6' },
-            { id: 'phan-dien', name: 'PHẢN DIỆN', code: 'CCC', icon: 'fas fa-user-ninja', color: '#0ea5e9' },
-            { id: 'vo-han-luu', name: 'VÔ HẠN LƯU', code: 'EEE', icon: 'fas fa-infinity', color: '#a855f7' },
-            { id: 'manh', name: 'MẠNH', code: 'DDD', icon: 'fas fa-fist-raised', color: '#f97316' },
-            { id: 'quy-than', name: 'QUỶ THẦN', code: 'FFF', icon: 'fas fa-ghost', color: '#6b7280' },
-            { id: 'ecchi', name: 'ECCHI', code: '9999', icon: 'fas fa-fire', color: '#dc2626' },
-            { id: 'phim', name: 'PHIM', code: '0000', icon: 'fas fa-film', color: '#8b5cf6' }
-        ],
-        
+        categories: [],
         items: {}
     };
-
-    // Default data from your file
-    const defaultData = {
-        'hoc-duong': [
+    
+    // ========== DEFAULT DATA FOR IMPORT ==========
+    // Dữ liệu mẫu - người dùng có thể import lên backend
+    const defaultDataForImport = {
+'hoc-duong': [
             { subcategory: 'combat', items: [
                 { id: generateId(), title: 'thể thao cực hạn 6', chapter: '6', neon: 'none' },
                 { id: generateId(), title: 'Cách chiến thắng mọi trận đấu /128', chapter: '128', neon: 'heart' },
@@ -1595,76 +1589,50 @@
                 { id: generateId(), title: 'baki dai raitaisai hen 9', chapter: '9', neon: 'none' }
             ]}
         ]
-    };
 
-    // App state
-    const appState = {
-        currentCategory: null,
-        currentSort: 'default',
-        searchTerm: ''
     };
-
-    // Helper functions
+    
+    // ========== HELPER FUNCTIONS ==========
     function generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
-
-    function saveToLocalStorage() {
-        try {
-            localStorage.setItem('comicLibraryData', JSON.stringify(contentData));
-            console.log('Data saved to localStorage');
-        } catch (error) {
-            console.error('Error saving to localStorage:', error);
-        }
-    }
-
-    function loadFromLocalStorage() {
-        try {
-            const savedData = localStorage.getItem('comicLibraryData');
-            if (savedData) {
-                const parsedData = JSON.parse(savedData);
-                contentData = parsedData;
-                console.log('Data loaded from localStorage');
-                return true;
-            }
-        } catch (error) {
-            console.error('Error loading from localStorage:', error);
-        }
-        return false;
-    }
-
-    function resetToDefaultData() {
-        if (confirm('Bạn có chắc muốn đặt lại toàn bộ dữ liệu về mặc định? Dữ liệu hiện tại sẽ bị mất!')) {
-            contentData.items = JSON.parse(JSON.stringify(defaultData));
-            saveToLocalStorage();
-            showToast('Đã đặt lại dữ liệu mặc định', 'success');
-            initializeApp();
-        }
-    }
-
-    function calculateStats() {
-        let totalItems = 0;
-        let readingCount = 0;
-        const totalCategories = contentData.categories.length;
+    
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
         
-        Object.values(contentData.items).forEach(categoryItems => {
-            categoryItems.forEach(subcat => {
-                totalItems += subcat.items.length;
-                subcat.items.forEach(item => {
-                    if (item.chapter && item.chapter.trim() !== '') {
-                        readingCount++;
-                    }
-                });
-            });
-        });
+        toastMessage.textContent = message;
         
-        return {
-            totalItems,
-            totalCategories,
-            readingCount
+        if (type === 'error') {
+            toast.style.background = 'var(--danger)';
+            toast.querySelector('i').className = 'fas fa-exclamation-circle';
+        } else if (type === 'warning') {
+            toast.style.background = 'var(--accent)';
+            toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+        } else {
+            toast.style.background = 'var(--success)';
+            toast.querySelector('i').className = 'fas fa-check-circle';
+        }
+        
+        toast.style.display = 'flex';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
         };
     }
-
+    
     function getRatingText(rating) {
         switch(rating) {
             case 'heart': return '💕 Đặc biệt';
@@ -1675,7 +1643,7 @@
             default: return 'Chưa đánh giá';
         }
     }
-
+    
     function formatDate(dateString) {
         if (!dateString) return 'Chưa cập nhật';
         const date = new Date(dateString);
@@ -1695,152 +1663,309 @@
             return date.toLocaleDateString('vi-VN');
         }
     }
-
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toastMessage');
-        
-        // Set message and color
-        toastMessage.textContent = message;
-        
-        if (type === 'error') {
-            toast.style.background = 'var(--danger)';
-            toast.querySelector('i').className = 'fas fa-exclamation-circle';
-        } else if (type === 'warning') {
-            toast.style.background = 'var(--accent)';
-            toast.querySelector('i').className = 'fas fa-exclamation-triangle';
-        } else {
-            toast.style.background = 'var(--success)';
-            toast.querySelector('i').className = 'fas fa-check-circle';
-        }
-        
-        // Show toast
-        toast.style.display = 'flex';
-        
-        // Auto hide after 3 seconds
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3000);
-    }
-
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Initialize the application
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeApp();
-        setupEventListeners();
-    });
-
-    function initializeApp() {
-        console.log('Initializing app...');
-        
-        // Try to load from localStorage first
-        const loaded = loadFromLocalStorage();
-        
-        if (!loaded) {
-            // If no localStorage data, use default data
-            console.log('Using default data');
-            contentData.items = JSON.parse(JSON.stringify(defaultData));
-            saveToLocalStorage();
-        }
-        
-        // Render categories list
-        renderCategories();
-        
-        // Set first category as active
-        if (contentData.categories.length > 0) {
-            const firstCategory = contentData.categories[0];
-            showCategory(firstCategory.id);
-            updateCategoryTitle(firstCategory);
+    
+    // ========== API SERVICE ==========
+    const apiService = {
+        async fetchWithTimeout(resource, options = {}) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), BACKEND_TIMEOUT);
             
-            // Set first category as active in sidebar
-            setTimeout(() => {
-                const firstCategoryElement = document.querySelector(`.category-item[data-id="${firstCategory.id}"]`);
-                if (firstCategoryElement) {
-                    firstCategoryElement.classList.add('active');
+            try {
+                const response = await fetch(resource, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                throw error;
+            }
+        },
+        
+        async fetchCategories() {
+            try {
+                const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/categories`);
+                if (!response.ok) throw new Error('Categories fetch failed');
+                return await response.json();
+            } catch (error) {
+                console.log('Using cached categories');
+                return this.getCachedCategories();
+            }
+        },
+        
+        async fetchComics() {
+            try {
+                const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics/grouped`);
+                if (!response.ok) throw new Error('Comics fetch failed');
+                const data = await response.json();
+                
+                // Cache data
+                localStorage.setItem('comics_cache', JSON.stringify({
+                    data: data,
+                    timestamp: Date.now()
+                }));
+                
+                return data;
+            } catch (error) {
+                console.log('Using cached comics');
+                return this.getCachedComics();
+            }
+        },
+        
+        async addComic(comicData) {
+            try {
+                const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(comicData)
+                });
+                
+                if (!response.ok) throw new Error('Add comic failed');
+                return await response.json();
+            } catch (error) {
+                console.error('Backend add failed:', error);
+                return null;
+            }
+        },
+        
+        async updateComicChapter(comicId, chapter) {
+            try {
+                const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics/${comicId}/chapter`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chapter })
+                });
+                
+                if (!response.ok) throw new Error('Update chapter failed');
+                return await response.json();
+            } catch (error) {
+                console.error('Backend update failed:', error);
+                return null;
+            }
+        },
+        
+        async deleteComic(comicId) {
+            try {
+                const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics/${comicId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Delete comic failed');
+                return true;
+            } catch (error) {
+                console.error('Backend delete failed:', error);
+                return false;
+            }
+        },
+        
+        async importSampleData(comicsData) {
+            try {
+                const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics/import`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ comics: comicsData })
+                });
+                
+                if (!response.ok) throw new Error('Import failed');
+                return await response.json();
+            } catch (error) {
+                console.error('Import failed:', error);
+                return null;
+            }
+        },
+        
+        // Cache management
+        getCachedCategories() {
+            const cache = localStorage.getItem('categories_cache');
+            if (cache) {
+                const { data, timestamp } = JSON.parse(cache);
+                if (Date.now() - timestamp < 3600000) {
+                    return data;
                 }
-            }, 100);
+            }
+            
+            // Default categories from backend
+            return [
+                { category_id: 'hoc-duong', name: 'HỌC ĐƯỜNG', code: '1111', icon: 'fas fa-school', color: '#6366f1' },
+                { category_id: 'mat-the', name: 'MẠT THẾ', code: '2222', icon: 'fas fa-skull-crossbones', color: '#ef4444' },
+                { category_id: 'he-thong', name: 'HỆ THỐNG', code: '3333', icon: 'fas fa-cogs', color: '#10b981' },
+                { category_id: 'xay-dung', name: 'XÂY DỰNG', code: '4444', icon: 'fas fa-building', color: '#f59e0b' },
+                { category_id: 'di-gioi', name: 'DỊ GIỚI', code: '5555', icon: 'fas fa-globe-asia', color: '#8b5cf6' },
+                { category_id: 'kinh-doanh', name: 'KINH DOANH', code: '6666', icon: 'fas fa-chart-line', color: '#06b6d4' },
+                { category_id: 'trung-sinh', name: 'TRÙNG SINH', code: '7777', icon: 'fas fa-redo', color: '#ec4899' },
+                { category_id: 'ngon', name: 'NGÔN', code: '8888', icon: 'fas fa-heart', color: '#f43f5e' },
+                { category_id: 'tu-tien', name: 'TU TIÊN', code: 'AAA', icon: 'fas fa-mountain', color: '#22c55e' },
+                { category_id: 'do-thi', name: 'ĐÔ THỊ', code: 'BBB', icon: 'fas fa-city', color: '#3b82f6' },
+                { category_id: 'phan-dien', name: 'PHẢN DIỆN', code: 'CCC', icon: 'fas fa-user-ninja', color: '#0ea5e9' },
+                { category_id: 'vo-han-luu', name: 'VÔ HẠN LƯU', code: 'EEE', icon: 'fas fa-infinity', color: '#a855f7' },
+                { category_id: 'manh', name: 'MẠNH', code: 'DDD', icon: 'fas fa-fist-raised', color: '#f97316' },
+                { category_id: 'quy-than', name: 'QUỶ THẦN', code: 'FFF', icon: 'fas fa-ghost', color: '#6b7280' },
+                { category_id: 'ecchi', name: 'ECCHI', code: '9999', icon: 'fas fa-fire', color: '#dc2626' },
+                { category_id: 'phim', name: 'PHIM', code: '0000', icon: 'fas fa-film', color: '#8b5cf6' }
+            ];
+        },
+        
+        getCachedComics() {
+            const cache = localStorage.getItem('comics_cache');
+            if (cache) {
+                const { data, timestamp } = JSON.parse(cache);
+                if (Date.now() - timestamp < 3600000) {
+                    return data;
+                }
+            }
+            return {};
+        },
+        
+        // Transform backend data to frontend format
+        transformBackendData(backendData) {
+            const transformed = {};
+            
+            if (!backendData || typeof backendData !== 'object') {
+                return {};
+            }
+            
+            Object.keys(backendData).forEach(categoryId => {
+                if (backendData[categoryId] && Array.isArray(backendData[categoryId])) {
+                    transformed[categoryId] = backendData[categoryId].map(subcat => ({
+                        subcategory: subcat.subcategory || '',
+                        items: (subcat.items || []).map(item => ({
+                            id: item.id || generateId(),
+                            title: item.title || '',
+                            chapter: item.chapter || '',
+                            rating: item.rating || 'none',
+                            tags: item.tags || [],
+                            description: item.description || '',
+                            lastUpdated: item.lastUpdated || new Date().toISOString()
+                        }))
+                    }));
+                }
+            });
+            
+            return transformed;
+        },
+        
+        // Convert default data to import format
+        convertDefaultDataForImport() {
+            const comics = [];
+            
+            for (const categoryId in defaultDataForImport) {
+                const subcategories = defaultDataForImport[categoryId];
+                
+                for (const subcat of subcategories) {
+                    for (const item of subcat.items) {
+                        comics.push({
+                            title: item.title,
+                            category_id: categoryId,
+                            subcategory: subcat.subcategory || '',
+                            chapter: item.chapter || '',
+                            rating: item.rating || 'none',
+                            tags: item.tags || [],
+                            description: item.description || ''
+                        });
+                    }
+                }
+            }
+            
+            return comics;
         }
+    };
+    
+    // ========== UI FUNCTIONS ==========
+    function showLoading(message = 'Đang xử lý...') {
+        hideLoading();
         
-        // Populate category dropdown in add form
-        populateCategoryDropdown();
+        const loader = document.createElement('div');
+        loader.id = 'global-loader';
+        loader.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            font-size: 1.2rem;
+        `;
         
-        // Update stats
-        updateStats();
+        loader.innerHTML = `
+            <div class="spinner" style="
+                width: 50px;
+                height: 50px;
+                border: 5px solid var(--primary);
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 20px;
+            "></div>
+            <div class="message">${message}</div>
+            <style>
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        `;
         
-        console.log('App initialized successfully');
+        document.body.appendChild(loader);
     }
-
-    function setupEventListeners() {
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('input', debounce(handleSearch, 300));
-        
-        // Add comic button
-        document.getElementById('addComicBtn').addEventListener('click', showAddComicModal);
-        document.getElementById('saveAllBtn').addEventListener('click', () => {
-            saveToLocalStorage();
-            showToast('Đã lưu dữ liệu thành công!', 'success');
-        });
-        document.getElementById('importBtn').addEventListener('click', showImportModal);
-        
-        // Modal close buttons
-        document.getElementById('closeAddModal').addEventListener('click', hideAddComicModal);
-        document.getElementById('cancelAdd').addEventListener('click', hideAddComicModal);
-        document.getElementById('closeEditModal').addEventListener('click', hideEditChapterModal);
-        document.getElementById('cancelEdit').addEventListener('click', hideEditChapterModal);
-        document.getElementById('closeImportModal').addEventListener('click', hideImportModal);
-        document.getElementById('cancelImport').addEventListener('click', hideImportModal);
-        
-        // Import buttons
-        document.getElementById('importDefault').addEventListener('click', () => {
-            resetToDefaultData();
-            hideImportModal();
-        });
-        document.getElementById('importJSON').addEventListener('click', showJSONInput);
-        
-        // Form submissions
-        document.getElementById('addComicForm').addEventListener('submit', handleAddComic);
-        document.getElementById('editChapterForm').addEventListener('submit', handleUpdateChapter);
-        
-        // Close modal when clicking outside
-        document.getElementById('addComicModal').addEventListener('click', function(e) {
-            if (e.target === this) hideAddComicModal();
-        });
-        document.getElementById('editChapterModal').addEventListener('click', function(e) {
-            if (e.target === this) hideEditChapterModal();
-        });
-        document.getElementById('importModal').addEventListener('click', function(e) {
-            if (e.target === this) hideImportModal();
-        });
+    
+    function hideLoading() {
+        const loader = document.getElementById('global-loader');
+        if (loader) loader.remove();
     }
-
+    
+    function updateStats() {
+        let totalItems = 0;
+        let readingCount = 0;
+        
+        Object.values(contentData.items).forEach(categoryItems => {
+            categoryItems.forEach(subcat => {
+                totalItems += subcat.items.length;
+                subcat.items.forEach(item => {
+                    if (item.chapter && item.chapter.trim() !== '') {
+                        readingCount++;
+                    }
+                });
+            });
+        });
+        
+        document.getElementById('totalItems').textContent = totalItems;
+        document.getElementById('totalCategories').textContent = contentData.categories.length;
+        document.getElementById('readingCount').textContent = readingCount;
+    }
+    
+    function updateCategoryTitle(category) {
+        if (!category) return;
+        document.getElementById('currentCategoryTitle').innerHTML = `
+            <i class="${category.icon || 'fas fa-book'}" style="color: ${category.color || '#6366f1'};"></i> 
+            ${category.name} (${category.code})
+        `;
+    }
+    
+    // ========== CATEGORY MANAGEMENT ==========
     function renderCategories() {
         const categoriesList = document.getElementById('categoriesList');
+        if (!categoriesList) return;
+        
         categoriesList.innerHTML = '';
         
         contentData.categories.forEach(category => {
-            // Count items in category
             let itemCount = 0;
-            if (contentData.items[category.id]) {
-                contentData.items[category.id].forEach(subcat => {
+            const categoryItems = contentData.items[category.category_id || category.id];
+            if (categoryItems) {
+                categoryItems.forEach(subcat => {
                     itemCount += subcat.items.length;
                 });
             }
             
             const categoryElement = document.createElement('div');
             categoryElement.className = 'category-item';
-            categoryElement.dataset.id = category.id;
+            categoryElement.dataset.id = category.category_id || category.id;
             categoryElement.innerHTML = `
                 <div>
                     <div class="category-name">${category.name}</div>
@@ -1853,18 +1978,13 @@
             `;
             
             categoryElement.addEventListener('click', () => {
-                // Remove active class from all categories
                 document.querySelectorAll('.category-item').forEach(item => {
                     item.classList.remove('active');
                 });
                 
-                // Add active class to clicked category
                 categoryElement.classList.add('active');
-                
-                // Show category content
-                showCategory(category.id);
-                
-                // Update category title
+                const categoryId = category.category_id || category.id;
+                showCategory(categoryId);
                 updateCategoryTitle(category);
                 
                 // Reset search
@@ -1875,10 +1995,9 @@
             categoriesList.appendChild(categoryElement);
         });
     }
-
+    
     function showCategory(categoryId) {
         appState.currentCategory = categoryId;
-        appState.searchTerm = '';
         
         // Hide all category contents
         document.querySelectorAll('.category-content').forEach(content => {
@@ -1889,10 +2008,12 @@
         document.getElementById('noResults').style.display = 'none';
         
         // Find category
-        const category = contentData.categories.find(cat => cat.id === categoryId);
+        const category = contentData.categories.find(cat => 
+            (cat.category_id || cat.id) === categoryId
+        );
         const items = contentData.items[categoryId];
         
-        // Create category content container if it doesn't exist
+        // Create or get category content container
         let categoryContent = document.getElementById(`category-${categoryId}`);
         
         if (!categoryContent) {
@@ -1917,7 +2038,6 @@
                 </div>
             `;
             
-            // Add event listener to the button
             setTimeout(() => {
                 document.getElementById('addFirstComic')?.addEventListener('click', showAddComicModal);
             }, 100);
@@ -1956,14 +2076,14 @@
         // Show the category content
         categoryContent.classList.add('active');
     }
-
+    
     function createItemElement(item, categoryId, subcategory) {
         const itemElement = document.createElement('div');
         
         const itemId = item.id;
         const itemTitle = item.title || '';
         const itemChapter = item.chapter || '';
-        const itemRating = item.neon || 'none';
+        const itemRating = item.rating || 'none';
         const itemTags = item.tags || [];
         const itemDescription = item.description || '';
         const lastUpdated = item.lastUpdated || new Date().toISOString();
@@ -2077,9 +2197,33 @@
         
         return itemElement;
     }
-
-    function updateChapter(itemId, categoryId, subcategory, newChapter) {
-        // Find and update the item
+    
+    // ========== COMIC OPERATIONS ==========
+    async function updateChapter(itemId, categoryId, subcategory, newChapter) {
+        showLoading('Đang cập nhật...');
+        
+        try {
+            // Update in backend
+            const result = await apiService.updateComicChapter(itemId, newChapter);
+            
+            if (result) {
+                // Update locally
+                updateLocalChapter(itemId, categoryId, subcategory, newChapter);
+                showToast('Đã cập nhật chapter thành công!');
+            } else {
+                // Fallback: update locally only
+                updateLocalChapter(itemId, categoryId, subcategory, newChapter);
+                showToast('Đã cập nhật chapter (lưu cục bộ)', 'warning');
+            }
+        } catch (error) {
+            updateLocalChapter(itemId, categoryId, subcategory, newChapter);
+            showToast('Đã cập nhật chapter (lưu cục bộ)', 'warning');
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    function updateLocalChapter(itemId, categoryId, subcategory, newChapter) {
         const categoryItems = contentData.items[categoryId];
         if (!categoryItems) return;
         
@@ -2089,182 +2233,47 @@
                 subcat.items[itemIndex].chapter = newChapter;
                 subcat.items[itemIndex].lastUpdated = new Date().toISOString();
                 
-                // Save to localStorage
-                saveToLocalStorage();
+                // Update cache
+                localStorage.setItem('comics_cache', JSON.stringify({
+                    data: contentData.items,
+                    timestamp: Date.now()
+                }));
                 
-                // Update stats
                 updateStats();
                 
-                // Show success message
-                showToast('Đã cập nhật chapter!');
-                
-                // Refresh the category view if not in search mode
                 if (!appState.searchTerm && appState.currentCategory === categoryId) {
                     showCategory(categoryId);
                 }
-                
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-    function handleAddComic(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const title = document.getElementById('comicTitle').value.trim();
-        const categoryId = document.getElementById('comicCategory').value;
-        const subcategory = document.getElementById('comicSubcategory').value.trim();
-        const chapter = document.getElementById('comicChapter').value.trim();
-        const rating = document.getElementById('comicRating').value;
-        const tags = document.getElementById('comicTags').value
-            .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0);
-        const description = document.getElementById('comicDescription').value.trim();
-        
-        // Validate
-        if (!title || !categoryId || !chapter) {
-            showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
-            return;
-        }
-        
-        // Create new item
-        const newItem = {
-            id: generateId(),
-            title,
-            chapter,
-            neon: rating,
-            tags,
-            description,
-            lastUpdated: new Date().toISOString()
-        };
-        
-        // Add to data structure
-        if (!contentData.items[categoryId]) {
-            contentData.items[categoryId] = [];
-        }
-        
-        // Find or create subcategory
-        let subcatObj = contentData.items[categoryId].find(sc => sc.subcategory === subcategory);
-        if (!subcatObj) {
-            subcatObj = { subcategory, items: [] };
-            contentData.items[categoryId].push(subcatObj);
-        }
-        
-        subcatObj.items.push(newItem);
-        
-        // Save to localStorage
-        saveToLocalStorage();
-        
-        // Hide modal
-        hideAddComicModal();
-        
-        // Show success message
-        showToast('Đã thêm truyện thành công!');
-        
-        // Update stats
-        updateStats();
-        
-        // Switch to the category
-        const category = contentData.categories.find(cat => cat.id === categoryId);
-        if (category) {
-            // Update active category
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.id === categoryId) {
-                    item.classList.add('active');
-                }
-            });
-            
-            showCategory(categoryId);
-            updateCategoryTitle(category);
-        }
-    }
-
-    function showEditChapterModal(itemId, categoryId, subcategory) {
-        // Find the item
-        const categoryItems = contentData.items[categoryId];
-        if (!categoryItems) return;
-        
-        let targetItem = null;
-        for (const subcat of categoryItems) {
-            const item = subcat.items.find(item => item.id === itemId);
-            if (item) {
-                targetItem = item;
                 break;
             }
         }
-        
-        if (!targetItem) return;
-        
-        // Fill form
-        document.getElementById('editComicId').value = itemId;
-        document.getElementById('editCategoryId').value = categoryId;
-        document.getElementById('editSubcategoryName').value = subcategory;
-        document.getElementById('editComicTitle').value = targetItem.title || '';
-        document.getElementById('editComicChapter').value = targetItem.chapter || '';
-        document.getElementById('editComicRating').value = targetItem.neon || 'none';
-        
-        // Show modal
-        document.getElementById('editChapterModal').style.display = 'flex';
     }
-
-    function handleUpdateChapter(e) {
-        e.preventDefault();
+    
+    async function deleteComic(itemId, categoryId, subcategory) {
+        showLoading('Đang xóa...');
         
-        const itemId = document.getElementById('editComicId').value;
-        const categoryId = document.getElementById('editCategoryId').value;
-        const subcategory = document.getElementById('editSubcategoryName').value;
-        const newChapter = document.getElementById('editComicChapter').value.trim();
-        const newRating = document.getElementById('editComicRating').value;
-        
-        if (!newChapter) {
-            showToast('Vui lòng nhập chapter', 'error');
-            return;
-        }
-        
-        // Find and update the item
-        const categoryItems = contentData.items[categoryId];
-        if (!categoryItems) return;
-        
-        for (const subcat of categoryItems) {
-            const itemIndex = subcat.items.findIndex(item => item.id === itemId);
-            if (itemIndex !== -1) {
-                subcat.items[itemIndex].chapter = newChapter;
-                subcat.items[itemIndex].neon = newRating;
-                subcat.items[itemIndex].lastUpdated = new Date().toISOString();
-                
-                // Save to localStorage
-                saveToLocalStorage();
-                
-                // Hide modal
-                hideEditChapterModal();
-                
-                // Show success message
-                showToast('Đã cập nhật thành công!');
-                
-                // Update stats
-                updateStats();
-                
-                // Refresh the view
-                if (appState.searchTerm) {
-                    handleSearch();
-                } else if (appState.currentCategory === categoryId) {
-                    showCategory(categoryId);
-                }
-                
-                return;
+        try {
+            // Delete from backend
+            const success = await apiService.deleteComic(itemId);
+            
+            if (success) {
+                // Delete locally
+                deleteLocalComic(itemId, categoryId, subcategory);
+                showToast('Đã xóa truyện thành công!');
+            } else {
+                // Fallback: delete locally only
+                deleteLocalComic(itemId, categoryId, subcategory);
+                showToast('Đã xóa truyện (lưu cục bộ)', 'warning');
             }
+        } catch (error) {
+            deleteLocalComic(itemId, categoryId, subcategory);
+            showToast('Đã xóa truyện (lưu cục bộ)', 'warning');
+        } finally {
+            hideLoading();
         }
-        
-        showToast('Không tìm thấy truyện để cập nhật', 'error');
     }
-
-    function deleteComic(itemId, categoryId, subcategory) {
-        // Find and remove the item
+    
+    function deleteLocalComic(itemId, categoryId, subcategory) {
         const categoryItems = contentData.items[categoryId];
         if (!categoryItems) return;
         
@@ -2279,44 +2288,407 @@
                     categoryItems.splice(i, 1);
                 }
                 
-                // Save to localStorage
-                saveToLocalStorage();
+                // Update cache
+                localStorage.setItem('comics_cache', JSON.stringify({
+                    data: contentData.items,
+                    timestamp: Date.now()
+                }));
                 
-                // Show success message
-                showToast('Đã xóa truyện thành công!');
-                
-                // Update stats
                 updateStats();
                 
-                // Refresh the view
                 if (appState.searchTerm) {
                     handleSearch();
                 } else if (appState.currentCategory === categoryId) {
                     showCategory(categoryId);
                 }
-                
-                return;
+                break;
             }
         }
     }
-
+    
+    // ========== IMPORT DEFAULT DATA ==========
+    async function importDefaultData() {
+        // Tính số lượng truyện sẽ import
+        let totalComics = 0;
+        for (const categoryId in defaultDataForImport) {
+            for (const subcat of defaultDataForImport[categoryId]) {
+                totalComics += subcat.items.length;
+            }
+        }
+        
+        if (!confirm(`Bạn có chắc muốn import ${totalComics} truyện mẫu vào hệ thống?\n\nLưu ý: Đây là dữ liệu mẫu, chỉ nên import khi hệ thống còn trống.`)) {
+            return;
+        }
+        
+        showLoading(`Đang import ${totalComics} truyện mẫu...`);
+        
+        try {
+            // Convert default data to import format
+            const comicsToImport = apiService.convertDefaultDataForImport();
+            
+            // Send to backend
+            const result = await apiService.importSampleData(comicsToImport);
+            
+            if (result) {
+                showToast(`Đã import thành công ${comicsToImport.length} truyện mẫu!`, 'success');
+                
+                // Refresh data from backend
+                await refreshData();
+                
+                // Hide import modal
+                hideImportModal();
+            } else {
+                showToast('Import thất bại. Vui lòng thử lại.', 'error');
+            }
+        } catch (error) {
+            console.error('Error importing default data:', error);
+            showToast('Lỗi khi import dữ liệu mẫu', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    // ========== REFRESH DATA ==========
+    async function refreshData() {
+        showLoading('Đang tải dữ liệu mới...');
+        
+        try {
+            // Fetch fresh data from backend
+            const [categories, comics] = await Promise.all([
+                apiService.fetchCategories(),
+                apiService.fetchComics()
+            ]);
+            
+            // Process categories
+            contentData.categories = categories || [];
+            
+            // Process comics - transform backend data to frontend format
+            contentData.items = apiService.transformBackendData(comics);
+            
+            // Cache data
+            localStorage.setItem('categories_cache', JSON.stringify({
+                data: contentData.categories,
+                timestamp: Date.now()
+            }));
+            
+            localStorage.setItem('comics_cache', JSON.stringify({
+                data: contentData.items,
+                timestamp: Date.now()
+            }));
+            
+            // Update UI
+            renderCategories();
+            updateStats();
+            
+            // Show current category if exists
+            if (appState.currentCategory) {
+                const category = contentData.categories.find(cat => 
+                    (cat.category_id || cat.id) === appState.currentCategory
+                );
+                if (category) {
+                    showCategory(appState.currentCategory);
+                    updateCategoryTitle(category);
+                }
+            }
+            
+            showToast('Dữ liệu đã được làm mới!');
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+            showToast('Lỗi khi tải dữ liệu mới', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    // ========== MODAL FUNCTIONS ==========
+    function showAddComicModal() {
+        const modal = document.getElementById('addComicModal');
+        const form = document.getElementById('addComicForm');
+        
+        form.reset();
+        
+        // Populate category dropdown
+        const categorySelect = document.getElementById('comicCategory');
+        categorySelect.innerHTML = '<option value="">Chọn thể loại</option>';
+        
+        contentData.categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.category_id || category.id;
+            option.textContent = `${category.name} (${category.code})`;
+            categorySelect.appendChild(option);
+        });
+        
+        // Set default category to current
+        if (appState.currentCategory) {
+            categorySelect.value = appState.currentCategory;
+        }
+        
+        modal.style.display = 'flex';
+    }
+    
+    function hideAddComicModal() {
+        document.getElementById('addComicModal').style.display = 'none';
+    }
+    
+    function showEditChapterModal(itemId, categoryId, subcategory) {
+        const categoryItems = contentData.items[categoryId];
+        if (!categoryItems) return;
+        
+        let targetItem = null;
+        for (const subcat of categoryItems) {
+            const item = subcat.items.find(item => item.id === itemId);
+            if (item) {
+                targetItem = item;
+                break;
+            }
+        }
+        
+        if (!targetItem) return;
+        
+        document.getElementById('editComicId').value = itemId;
+        document.getElementById('editCategoryId').value = categoryId;
+        document.getElementById('editSubcategoryName').value = subcategory;
+        document.getElementById('editComicTitle').value = targetItem.title || '';
+        document.getElementById('editComicChapter').value = targetItem.chapter || '';
+        document.getElementById('editComicRating').value = targetItem.rating || 'none';
+        
+        document.getElementById('editChapterModal').style.display = 'flex';
+    }
+    
+    function hideEditChapterModal() {
+        document.getElementById('editChapterModal').style.display = 'none';
+    }
+    
+    function showImportModal() {
+        document.getElementById('importModal').style.display = 'flex';
+        document.getElementById('jsonInputContainer').style.display = 'none';
+        document.getElementById('jsonInput').value = '';
+    }
+    
+    function hideImportModal() {
+        document.getElementById('importModal').style.display = 'none';
+    }
+    
+    function showJSONInput() {
+        document.getElementById('jsonInputContainer').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('jsonInput').focus();
+        }, 100);
+    }
+    
+    // ========== FORM HANDLERS ==========
+    async function handleAddComic(e) {
+        e.preventDefault();
+        
+        const title = document.getElementById('comicTitle').value.trim();
+        const categoryId = document.getElementById('comicCategory').value;
+        const subcategory = document.getElementById('comicSubcategory').value.trim();
+        const chapter = document.getElementById('comicChapter').value.trim();
+        const rating = document.getElementById('comicRating').value;
+        const tags = document.getElementById('comicTags').value
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag);
+        const description = document.getElementById('comicDescription').value.trim();
+        
+        if (!title || !categoryId || !chapter) {
+            showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+            return;
+        }
+        
+        showLoading('Đang thêm truyện...');
+        
+        try {
+            const comicData = {
+                title,
+                category_id: categoryId,
+                subcategory,
+                chapter,
+                rating,
+                tags,
+                description
+            };
+            
+            // Add to backend
+            const newComic = await apiService.addComic(comicData);
+            
+            if (newComic) {
+                // Successfully added to backend
+                const formattedComic = {
+                    id: newComic.comic_id || generateId(),
+                    title: newComic.title,
+                    chapter: newComic.chapter,
+                    rating: newComic.rating || 'none',
+                    tags: newComic.tags || [],
+                    description: newComic.description || '',
+                    lastUpdated: newComic.last_updated || new Date().toISOString()
+                };
+                
+                // Add to local data
+                if (!contentData.items[categoryId]) {
+                    contentData.items[categoryId] = [];
+                }
+                
+                let subcatObj = contentData.items[categoryId].find(sc => sc.subcategory === subcategory);
+                if (!subcatObj) {
+                    subcatObj = { subcategory, items: [] };
+                    contentData.items[categoryId].push(subcatObj);
+                }
+                
+                subcatObj.items.push(formattedComic);
+                
+                // Update cache
+                localStorage.setItem('comics_cache', JSON.stringify({
+                    data: contentData.items,
+                    timestamp: Date.now()
+                }));
+                
+                showToast('Đã thêm truyện thành công!');
+            } else {
+                // Failed to add to backend, add locally
+                const localComic = {
+                    id: generateId(),
+                    title,
+                    chapter,
+                    rating,
+                    tags,
+                    description,
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                if (!contentData.items[categoryId]) {
+                    contentData.items[categoryId] = [];
+                }
+                
+                let subcatObj = contentData.items[categoryId].find(sc => sc.subcategory === subcategory);
+                if (!subcatObj) {
+                    subcatObj = { subcategory, items: [] };
+                    contentData.items[categoryId].push(subcatObj);
+                }
+                
+                subcatObj.items.push(localComic);
+                
+                // Update cache
+                localStorage.setItem('comics_cache', JSON.stringify({
+                    data: contentData.items,
+                    timestamp: Date.now()
+                }));
+                
+                showToast('Đã thêm truyện (lưu cục bộ)', 'warning');
+            }
+            
+            hideAddComicModal();
+            updateStats();
+            
+            // Switch to the added category
+            const category = contentData.categories.find(cat => 
+                (cat.category_id || cat.id) === categoryId
+            );
+            if (category) {
+                showCategory(categoryId);
+                updateCategoryTitle(category);
+            }
+            
+        } catch (error) {
+            console.error('Error adding comic:', error);
+            showToast('Lỗi khi thêm truyện', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    async function handleUpdateChapter(e) {
+        e.preventDefault();
+        
+        const itemId = document.getElementById('editComicId').value;
+        const categoryId = document.getElementById('editCategoryId').value;
+        const subcategory = document.getElementById('editSubcategoryName').value;
+        const newChapter = document.getElementById('editComicChapter').value.trim();
+        const newRating = document.getElementById('editComicRating').value;
+        
+        if (!newChapter) {
+            showToast('Vui lòng nhập chapter', 'error');
+            return;
+        }
+        
+        showLoading('Đang cập nhật...');
+        
+        try {
+            // Update chapter in backend
+            const chapterResult = await apiService.updateComicChapter(itemId, newChapter);
+            
+            if (chapterResult) {
+                // Update locally
+                const categoryItems = contentData.items[categoryId];
+                if (categoryItems) {
+                    for (const subcat of categoryItems) {
+                        const itemIndex = subcat.items.findIndex(item => item.id === itemId);
+                        if (itemIndex !== -1) {
+                            subcat.items[itemIndex].chapter = newChapter;
+                            subcat.items[itemIndex].rating = newRating;
+                            subcat.items[itemIndex].lastUpdated = new Date().toISOString();
+                            break;
+                        }
+                    }
+                }
+                
+                showToast('Đã cập nhật thành công!');
+            } else {
+                // Fallback: update locally only
+                const categoryItems = contentData.items[categoryId];
+                if (categoryItems) {
+                    for (const subcat of categoryItems) {
+                        const itemIndex = subcat.items.findIndex(item => item.id === itemId);
+                        if (itemIndex !== -1) {
+                            subcat.items[itemIndex].chapter = newChapter;
+                            subcat.items[itemIndex].rating = newRating;
+                            subcat.items[itemIndex].lastUpdated = new Date().toISOString();
+                            break;
+                        }
+                    }
+                }
+                
+                showToast('Đã cập nhật (lưu cục bộ)', 'warning');
+            }
+            
+            // Update cache
+            localStorage.setItem('comics_cache', JSON.stringify({
+                data: contentData.items,
+                timestamp: Date.now()
+            }));
+            
+            hideEditChapterModal();
+            updateStats();
+            
+            if (appState.searchTerm) {
+                handleSearch();
+            } else if (appState.currentCategory === categoryId) {
+                showCategory(categoryId);
+            }
+            
+        } catch (error) {
+            console.error('Error updating chapter:', error);
+            showToast('Lỗi khi cập nhật', 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    // ========== SEARCH FUNCTIONALITY ==========
     function handleSearch() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
         appState.searchTerm = searchTerm;
         
-        // If search is empty, show current category
         if (searchTerm === '' && appState.currentCategory) {
             showCategory(appState.currentCategory);
             document.getElementById('noResults').style.display = 'none';
             return;
         }
         
-        // Hide all category contents
         document.querySelectorAll('.category-content').forEach(content => {
             content.classList.remove('active');
         });
         
-        // Create search results container
         let searchResultsContainer = document.getElementById('search-results');
         if (!searchResultsContainer) {
             searchResultsContainer = document.createElement('div');
@@ -2325,10 +2697,8 @@
             document.getElementById('categoryContents').appendChild(searchResultsContainer);
         }
         
-        // Clear previous results
         searchResultsContainer.innerHTML = '';
         
-        // Search through all items
         const searchResults = [];
         Object.keys(contentData.items).forEach(categoryId => {
             const categoryItems = contentData.items[categoryId];
@@ -2350,7 +2720,6 @@
         });
         
         if (searchResults.length > 0) {
-            // Group results by category for display
             const groupedByCategory = {};
             searchResults.forEach(item => {
                 if (!groupedByCategory[item.categoryId]) {
@@ -2359,25 +2728,23 @@
                 groupedByCategory[item.categoryId].push(item);
             });
             
-            // Display results
             Object.keys(groupedByCategory).forEach(categoryId => {
-                const category = contentData.categories.find(c => c.id === categoryId);
+                const category = contentData.categories.find(c => 
+                    (c.category_id || c.id) === categoryId
+                );
                 if (!category) return;
                 
                 const categoryResults = document.createElement('div');
                 categoryResults.className = 'subcategory';
                 
-                // Add category title
                 const categoryTitle = document.createElement('h3');
                 categoryTitle.className = 'subcategory-title';
-                categoryTitle.innerHTML = `<i class="${category.icon}"></i> ${category.name} (${category.code})`;
+                categoryTitle.innerHTML = `<i class="${category.icon || 'fas fa-book'}"></i> ${category.name} (${category.code})`;
                 categoryResults.appendChild(categoryTitle);
                 
-                // Create items container
                 const itemsContainer = document.createElement('div');
                 itemsContainer.className = 'items-grid';
                 
-                // Add items
                 groupedByCategory[categoryId].forEach(item => {
                     const itemElement = createItemElement(item, categoryId, item.subcategory || '');
                     itemsContainer.appendChild(itemElement);
@@ -2390,7 +2757,6 @@
             searchResultsContainer.classList.add('active');
             document.getElementById('noResults').style.display = 'none';
             
-            // Update category title
             document.getElementById('currentCategoryTitle').innerHTML = `
                 <i class="fas fa-search"></i> Kết quả tìm kiếm: "${searchTerm}" (${searchResults.length} kết quả)
             `;
@@ -2398,408 +2764,213 @@
             searchResultsContainer.classList.remove('active');
             document.getElementById('noResults').style.display = 'block';
             
-            // Update category title
             document.getElementById('currentCategoryTitle').innerHTML = `
                 <i class="fas fa-search"></i> Kết quả tìm kiếm
             `;
         }
     }
-
-    function updateStats() {
-        const stats = calculateStats();
+    
+    // ========== CONNECTION MANAGEMENT ==========
+    async function checkConnection() {
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
         
-        // Update stats display
-        document.getElementById('totalItems').textContent = stats.totalItems;
-        document.getElementById('totalCategories').textContent = stats.totalCategories;
-        document.getElementById('readingCount').textContent = stats.readingCount;
-    }
-
-    function populateCategoryDropdown() {
-        const dropdown = document.getElementById('comicCategory');
-        dropdown.innerHTML = '<option value="">Chọn thể loại</option>';
-        
-        contentData.categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = `${category.name} (${category.code})`;
-            dropdown.appendChild(option);
-        });
-    }
-
-    function updateCategoryTitle(category) {
-        document.getElementById('currentCategoryTitle').innerHTML = `
-            <i class="${category.icon}" style="color: ${category.color};"></i> ${category.name} (${category.code})
-        `;
-    }
-
-    // Modal functions
-    function showAddComicModal() {
-        const modal = document.getElementById('addComicModal');
-        const form = document.getElementById('addComicForm');
-        
-        // Reset form
-        form.reset();
-        
-        // Set default category to current category if exists
-        if (appState.currentCategory) {
-            document.getElementById('comicCategory').value = appState.currentCategory;
-        }
-        
-        // Show modal
-        modal.style.display = 'flex';
-    }
-
-    function hideAddComicModal() {
-        document.getElementById('addComicModal').style.display = 'none';
-    }
-
-    function hideEditChapterModal() {
-        document.getElementById('editChapterModal').style.display = 'none';
-    }
-
-    function showImportModal() {
-        document.getElementById('importModal').style.display = 'flex';
-        document.getElementById('jsonInputContainer').style.display = 'none';
-        document.getElementById('jsonInput').value = '';
-    }
-
-    function hideImportModal() {
-        document.getElementById('importModal').style.display = 'none';
-    }
-
-    function showJSONInput() {
-        document.getElementById('jsonInputContainer').style.display = 'block';
-        
-        setTimeout(() => {
-            document.getElementById('jsonInput').focus();
-        }, 100);
-    }
-// ========== CONFIG ==========
-const API_BASE_URL = 'https://comic-backend-cuef.onrender.com';
-const USE_BACKEND = true;
-const BACKEND_TIMEOUT = 10000; // 10 seconds timeout
-// ============================
-
-// ========== ENHANCED API SERVICE ==========
-const apiService = {
-    async fetchWithTimeout(resource, options = {}) {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), BACKEND_TIMEOUT);
+        statusDot.className = 'status-dot';
+        statusText.textContent = 'Đang kiểm tra...';
+        statusText.style.color = 'var(--gray)';
         
         try {
-            const response = await fetch(resource, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(id);
-            return response;
-        } catch (error) {
-            clearTimeout(id);
-            throw error;
-        }
-    },
-
-    async fetchCategories() {
-        try {
-            const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/categories`);
-            if (!response.ok) throw new Error('Categories fetch failed');
-            return await response.json();
-        } catch (error) {
-            console.log('Using cached/local categories');
-            return this.getCachedCategories();
-        }
-    },
-
-    async fetchComics() {
-        try {
-            const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics?limit=500`);
-            if (!response.ok) throw new Error('Comics fetch failed');
-            const comics = await response.json();
+            const startTime = Date.now();
+            const response = await apiService.fetchWithTimeout(`${API_BASE_URL}/health`);
+            const endTime = Date.now();
+            const latency = endTime - startTime;
             
-            // Cache the response
-            localStorage.setItem('comics_cache', JSON.stringify({
-                data: comics,
+            if (response.ok) {
+                if (latency < 2000) {
+                    appState.connectionStatus = 'online';
+                    statusDot.className = 'status-dot online';
+                    statusText.textContent = 'Đang trực tuyến';
+                    statusText.style.color = 'var(--success)';
+                    showToast('Kết nối ổn định!', 'success');
+                } else if (latency < 10000) {
+                    appState.connectionStatus = 'slow';
+                    statusDot.className = 'status-dot slow';
+                    statusText.textContent = `Kết nối chậm (${latency}ms)`;
+                    statusText.style.color = 'var(--warning)';
+                    showToast(`Kết nối chậm (${latency}ms)`, 'warning');
+                } else {
+                    appState.connectionStatus = 'offline';
+                    statusDot.className = 'status-dot offline';
+                    statusText.textContent = 'Kết nối rất chậm';
+                    statusText.style.color = 'var(--danger)';
+                    showToast('Kết nối rất chậm - Đang dùng dữ liệu cục bộ', 'warning');
+                }
+            } else {
+                throw new Error('Server error');
+            }
+        } catch (error) {
+            appState.connectionStatus = 'offline';
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Không kết nối được';
+            statusText.style.color = 'var(--danger)';
+            showToast('Không thể kết nối đến server - Đang dùng dữ liệu cục bộ', 'error');
+        }
+    }
+    
+    function updateConnectionStatus() {
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        
+        if (appState.connectionStatus === 'online') {
+            statusDot.className = 'status-dot online';
+            statusText.textContent = 'Đang trực tuyến';
+            statusText.style.color = 'var(--success)';
+        } else if (appState.connectionStatus === 'slow') {
+            statusDot.className = 'status-dot slow';
+            statusText.textContent = 'Kết nối chậm';
+            statusText.style.color = 'var(--warning)';
+        } else {
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Đang ngoại tuyến';
+            statusText.style.color = 'var(--danger)';
+        }
+    }
+    
+    // ========== INITIALIZATION ==========
+    async function initializeApp() {
+        showLoading('Đang tải dữ liệu...');
+        
+        try {
+            // Fetch data from backend
+            const [categories, comics] = await Promise.all([
+                apiService.fetchCategories(),
+                apiService.fetchComics()
+            ]);
+            
+            // Process categories
+            contentData.categories = categories || [];
+            
+            // Process comics - transform backend data to frontend format
+            contentData.items = apiService.transformBackendData(comics);
+            
+            // Cache categories
+            localStorage.setItem('categories_cache', JSON.stringify({
+                data: contentData.categories,
                 timestamp: Date.now()
             }));
             
-            return comics;
+            // Update connection status
+            appState.connectionStatus = 'online';
+            
+            showToast('Đã tải dữ liệu thành công!');
+            
         } catch (error) {
-            console.log('Using cached comics');
-            return this.getCachedComics();
-        }
-    },
-
-    async addComic(comicData) {
-        showLoading('Đang lưu truyện...');
-        
-        try {
-            const response = await this.fetchWithTimeout(`${API_BASE_URL}/api/comics`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(comicData)
-            });
+            console.error('Error loading data:', error);
             
-            if (!response.ok) throw new Error('Add comic failed');
+            // Fallback to cached data
+            contentData.categories = apiService.getCachedCategories();
+            contentData.items = apiService.getCachedComics();
             
-            const newComic = await response.json();
-            
-            // Update local cache immediately
-            this.addToLocalCache(newComic);
-            
-            return newComic;
-        } catch (error) {
-            console.error('Backend add failed, saving locally:', error);
-            
-            // Fallback: save to localStorage
-            const localComic = {
-                ...comicData,
-                id: `local_${Date.now()}`,
-                lastUpdated: new Date().toISOString()
-            };
-            
-            this.addToLocalCache(localComic);
-            this.queueForSync(localComic); // Queue for later sync
-            
-            return localComic;
+            appState.connectionStatus = 'offline';
+            showToast('Đang dùng dữ liệu cục bộ', 'warning');
         } finally {
+            // Render UI
+            renderCategories();
+            updateStats();
+            updateConnectionStatus();
+            
+            if (contentData.categories.length > 0) {
+                const firstCategory = contentData.categories[0];
+                const categoryId = firstCategory.category_id || firstCategory.id;
+                showCategory(categoryId);
+                updateCategoryTitle(firstCategory);
+                
+                setTimeout(() => {
+                    const firstCategoryElement = document.querySelector(`.category-item[data-id="${categoryId}"]`);
+                    if (firstCategoryElement) {
+                        firstCategoryElement.classList.add('active');
+                    }
+                }, 100);
+            }
+            
             hideLoading();
         }
-    },
-
-    // ========== CACHE MANAGEMENT ==========
-    getCachedCategories() {
-        const cache = localStorage.getItem('categories_cache');
-        if (cache) {
-            const { data, timestamp } = JSON.parse(cache);
-            // Use cache if less than 1 hour old
-            if (Date.now() - timestamp < 3600000) {
-                return data;
-            }
-        }
+    }
+    
+    // ========== EVENT LISTENERS SETUP ==========
+    function setupEventListeners() {
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', debounce(handleSearch, 300));
         
-        // Return default categories if no cache
-        return defaultCategories;
-    },
-
-    getCachedComics() {
-        const cache = localStorage.getItem('comics_cache');
-        if (cache) {
-            const { data, timestamp } = JSON.parse(cache);
-            // Use cache if less than 1 hour old
-            if (Date.now() - timestamp < 3600000) {
-                return data;
-            }
-        }
+        // Buttons
+        document.getElementById('addComicBtn').addEventListener('click', showAddComicModal);
+        document.getElementById('saveAllBtn').addEventListener('click', () => {
+            localStorage.setItem('comics_cache', JSON.stringify({
+                data: contentData.items,
+                timestamp: Date.now()
+            }));
+            showToast('Đã lưu dữ liệu cục bộ!');
+        });
+        document.getElementById('importBtn').addEventListener('click', showImportModal);
+        document.getElementById('checkConnectionBtn').addEventListener('click', checkConnection);
+        document.getElementById('retrySyncBtn').addEventListener('click', refreshData);
         
-        // Return empty array if no cache
-        return [];
-    },
-
-    addToLocalCache(comic) {
-        const cache = localStorage.getItem('comics_cache');
-        let comics = [];
+        // Modal close buttons
+        document.getElementById('closeAddModal').addEventListener('click', hideAddComicModal);
+        document.getElementById('cancelAdd').addEventListener('click', hideAddComicModal);
+        document.getElementById('closeEditModal').addEventListener('click', hideEditChapterModal);
+        document.getElementById('cancelEdit').addEventListener('click', hideEditChapterModal);
+        document.getElementById('closeImportModal').addEventListener('click', hideImportModal);
+        document.getElementById('cancelImport').addEventListener('click', hideImportModal);
         
-        if (cache) {
-            const parsed = JSON.parse(cache);
-            comics = parsed.data || [];
-        }
+        // Import buttons
+        document.getElementById('importDefault').addEventListener('click', importDefaultData);
+        document.getElementById('importJSON').addEventListener('click', showJSONInput);
         
-        comics.push(comic);
+        // Form submissions
+        document.getElementById('addComicForm').addEventListener('submit', handleAddComic);
+        document.getElementById('editChapterForm').addEventListener('submit', handleUpdateChapter);
         
-        localStorage.setItem('comics_cache', JSON.stringify({
-            data: comics,
-            timestamp: Date.now()
-        }));
-    },
-
-    queueForSync(comic) {
-        const queue = JSON.parse(localStorage.getItem('sync_queue') || '[]');
-        queue.push({
-            ...comic,
-            syncStatus: 'pending',
-            queuedAt: new Date().toISOString()
+        // Modal outside click
+        document.getElementById('addComicModal').addEventListener('click', function(e) {
+            if (e.target === this) hideAddComicModal();
+        });
+        document.getElementById('editChapterModal').addEventListener('click', function(e) {
+            if (e.target === this) hideEditChapterModal();
+        });
+        document.getElementById('importModal').addEventListener('click', function(e) {
+            if (e.target === this) hideImportModal();
         });
         
-        localStorage.setItem('sync_queue', JSON.stringify(queue));
+        // Online/offline detection
+        window.addEventListener('online', () => {
+            console.log('App is online');
+            appState.connectionStatus = 'online';
+            updateConnectionStatus();
+            showToast('Đã kết nối lại với server!', 'success');
+            
+            // Try to refresh data when back online
+            setTimeout(refreshData, 1000);
+        });
         
-        // Try to sync in background
-        this.trySyncQueue();
-    },
-
-    async trySyncQueue() {
-        const queue = JSON.parse(localStorage.getItem('sync_queue') || '[]');
-        const pending = queue.filter(item => item.syncStatus === 'pending');
-        
-        if (pending.length === 0) return;
-        
-        console.log(`Syncing ${pending.length} pending comics...`);
-        
-        for (const item of pending) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/comics`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(item)
-                });
-                
-                if (response.ok) {
-                    // Mark as synced
-                    const index = queue.findIndex(q => q.id === item.id);
-                    queue[index].syncStatus = 'synced';
-                    queue[index].syncedAt = new Date().toISOString();
-                }
-            } catch (error) {
-                console.log('Sync failed for:', item.id);
-            }
-        }
-        
-        localStorage.setItem('sync_queue', JSON.stringify(queue));
-    }
-};
-
-// ========== LOADING UI ==========
-function showLoading(message = 'Đang xử lý...') {
-    // Remove existing loader if any
-    hideLoading();
-    
-    const loader = document.createElement('div');
-    loader.id = 'global-loader';
-    loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        color: white;
-        font-size: 1.2rem;
-    `;
-    
-    loader.innerHTML = `
-        <div class="spinner" style="
-            width: 50px;
-            height: 50px;
-            border: 5px solid var(--primary);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        "></div>
-        <div class="message">${message}</div>
-        <style>
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
-        </style>
-    `;
-    
-    document.body.appendChild(loader);
-}
-
-function hideLoading() {
-    const loader = document.getElementById('global-loader');
-    if (loader) {
-        loader.remove();
-    }
-}
-
-// ========== ENHANCED HANDLE ADD COMIC ==========
-async function handleAddComic(e) {
-    e.preventDefault();
-    
-    // Get form data
-    const comicData = {
-        title: document.getElementById('comicTitle').value.trim(),
-        category_id: document.getElementById('comicCategory').value,
-        subcategory: document.getElementById('comicSubcategory').value.trim(),
-        chapter: document.getElementById('comicChapter').value.trim(),
-        rating: document.getElementById('comicRating').value,
-        tags: document.getElementById('comicTags').value
-            .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag),
-        description: document.getElementById('comicDescription').value.trim()
-    };
-    
-    // Validate
-    if (!comicData.title || !comicData.category_id || !comicData.chapter) {
-        showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
-        return;
+        window.addEventListener('offline', () => {
+            console.log('App is offline');
+            appState.connectionStatus = 'offline';
+            updateConnectionStatus();
+            showToast('Mất kết nối internet - Đang dùng chế độ ngoại tuyến', 'warning');
+        });
     }
     
-    // Add comic (with loading state)
-    const newComic = await apiService.addComic(comicData);
-    
-    // Update UI immediately
-    hideAddComicModal();
-    showToast('Đã thêm truyện thành công!');
-    
-    // Refresh data
-    await refreshData();
-    
-    // Switch to the added category
-    const category = contentData.categories.find(cat => cat.id === comicData.category_id);
-    if (category) {
-        showCategory(comicData.category_id);
-        updateCategoryTitle(category);
-    }
-}
-
-// ========== PERIODIC SYNC ==========
-function startPeriodicSync() {
-    // Sync every 5 minutes
-    setInterval(() => {
-        apiService.trySyncQueue();
-    }, 300000);
-    
-    // Also sync when page becomes visible
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            apiService.trySyncQueue();
-        }
+    // ========== START APP ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        initializeApp();
+        
+        // Initial connection check
+        setTimeout(checkConnection, 1000);
     });
-}
-
-// ========== INITIALIZE ==========
-async function initializeApp() {
-    showLoading('Đang tải dữ liệu...');
-    
-    try {
-        // Try to fetch from backend with timeout
-        const [categories, comics] = await Promise.allSettled([
-            apiService.fetchCategories(),
-            apiService.fetchComics()
-        ]);
-        
-        // Use whatever data we got
-        contentData.categories = categories.status === 'fulfilled' ? categories.value : defaultCategories;
-        contentData.items = comics.status === 'fulfilled' ? comics.value : [];
-        
-        // Start periodic sync
-        startPeriodicSync();
-        
-    } catch (error) {
-        console.error('Initialization failed:', error);
-        // Use cached data
-        contentData.categories = apiService.getCachedCategories();
-        contentData.items = apiService.getCachedComics();
-    } finally {
-        hideLoading();
-        
-        // Render UI
-        renderCategories();
-        updateStats();
-        
-        if (contentData.categories.length > 0) {
-            showCategory(contentData.categories[0].id);
-        }
-    }
-}
 </script>
+
 </body>
 </html>
